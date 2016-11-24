@@ -11,4 +11,8 @@ echo "<?php return array(" \
 	" ), " \
 	" 'cloudobjects.auth_ns' => '$CO_AUTH_NS', " \
 	" 'cloudobjects.auth_secret' => '$CO_AUTH_SECRET' " \
-    " ); " > config.php
+    " ); " > /var/www/app/config.php
+
+# Run start script from parent container
+
+sh /tmp/start.sh

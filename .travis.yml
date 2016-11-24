@@ -11,4 +11,5 @@ script: vendor/bin/phpunit
 
 deploy:
   provider: script
+  skip_cleanup: true
   script: sh ./deploy.sh

@@ -1,0 +1,19 @@
+{
+	"require": {
+		"silex/silex" : "~1.3",
+		"corveda/php-sandbox": "~v2.0.1",
+		"paquettg/php-html-parser" : "1.6.4",
+		"doctrine/cache" : "v1.3.0",
+		"cilex/cilex" : "1.1.0",
+		"twig/twig": "~1.26.1",
+		"f21/jwt": "1.0",
+		"semsol/arc2" : "~2.2.6",
+		"cloudobjects/sdk" : "~0.4"
+	},
+	"autoload": {
+		"classmap" : ["vendor/f21/jwt/JWT"],
+		"psr-4": {
+			"CloudObjects\\PhpMAE\\" : "classes"
+		}
+	}
+}

@@ -11,4 +11,4 @@ script: vendor/bin/phpunit
 
 deploy:
   provider: script
-  script: deploy.sh
+  script: sh ./deploy.sh

@@ -9,6 +9,7 @@ namespace CloudObjects\PhpMAE;
 use Silex\Application;
 use Symfony\Component\HttpFoundation\Request, Symfony\Component\HttpFoundation\Response;
 use ML\IRI\IRI, ML\JsonLD\Node;
+use GuzzleHttp\Client;
 use CloudObjects\SDK\AccountGateway\AccountContext, CloudObjects\SDK\ObjectRetriever, CloudObjects\SDK\COIDParser;
 use Doctrine\Common\Cache\RedisCache;
 
@@ -66,9 +67,10 @@ class Runner {
 	private static function prepareProvidersAndTemplates(Application $app, Node $object,
 			ObjectRetriever $objectRetriever, ClassRepository $classRepository) {
 
+		$objectIri = new IRI($object->getId());
+		
 		// Namespace object
-		$app['namespace.object'] = function() use ($objectRetriever, $object) {
-			$objectIri = new IRI($object->getId());
+		$app['namespace.object'] = function() use ($objectRetriever, $objectIri) {
 			return $objectRetriever->get('coid://'.$objectIri->getHost());
 		};
 
@@ -86,7 +88,17 @@ class Runner {
 		};
 
 		// CloudObjects Object Repository
-		$app['cloudobjects'] = $objectRetriever;
+		$app['cloudobjects'] = ($app['phpmae.identity'] == $objectIri->getHost())
+			? $objectRetriever
+			: function() use ($objectRetriever, $objectIri) {
+				// Take the identity of the current controller when accessing CloudObjects API
+				$config = $objectRetriever->getClient()->getConfig();
+				$config['headers']['C-Act-As'] = $objectIri->getHost();
+
+				$retriever = new ObjectRetriever();
+				$retriever->setClient(new Client($config));
+				return $retriever;
+			};
 
 		$app['config'] = function() use ($app) {
 			return new ConfigHelper($app, array(
@@ -126,6 +138,7 @@ class Runner {
 			'auth_ns' => $config['cloudobjects.auth_ns'],
 			'auth_secret' => $config['cloudobjects.auth_secret']
 		));
+		$app['phpmae.identity'] = $config['cloudobjects.auth_ns'];
 
 		// Initialize Class Repository
 		$classRepository = new ClassRepository($config['classes']);

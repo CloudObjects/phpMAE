@@ -1,6 +1,6 @@
 <?php
 
-use Silex\Application, Silex\ControllerProviderInterface;
+use Silex\Application, Silex\Api\ControllerProviderInterface;
 
 class TestController1 implements ControllerProviderInterface {
 

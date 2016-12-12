@@ -22,12 +22,12 @@ class Runner {
 				&& $request->headers->has('C-Access-Token')) {
 
 			$context = AccountContext::fromRequest($request);
-			$app['context'] = $app->share(function() use ($context) {
+			$app['context'] = function() use ($context) {
 				return $context;
-			});
-			$app['account'] = $app->share(function() use ($context) {
+			};
+			$app['account'] = function() use ($context) {
 				return $context->getAccount();
-			});
+			};
 
 			if (isset($config['account_data_cache']) && $config['account_data_cache']=='redis') {
 				// Data Loader with Redis cache
@@ -47,14 +47,14 @@ class Runner {
 			$accessorCoid = new IRI($request->headers->get('C-Accessor'));
 
 			// Accessor object
-			$app['accessor.object'] = $app->share(function() use ($app, $accessorCoid) {
+			$app['accessor.object'] = function() use ($app, $accessorCoid) {
 				return $app['cloudobjects']->getObject($accessorCoid);
-			});
+			};
 
 			// Accessor namespace object
-			$app['accessor.namespace.object'] = $app->share(function() use ($app, $accessorCoid) {
+			$app['accessor.namespace.object'] = function() use ($app, $accessorCoid) {
 				return $app['cloudobjects']->getObject(COIDParser::getNamespaceCOID($accessorCoid));
-			});
+			};
 		}
 	}
 
@@ -67,33 +67,33 @@ class Runner {
 			ObjectRetriever $objectRetriever, ClassRepository $classRepository) {
 
 		// Namespace object
-		$app['namespace.object'] = $app->share(function() use ($objectRetriever, $object) {
+		$app['namespace.object'] = function() use ($objectRetriever, $object) {
 			$objectIri = new IRI($object->getId());
 			return $objectRetriever->get('coid://'.$objectIri->getHost());
-		});
+		};
 
 		// File Reader
-		$app['files'] = $app->share(function() use ($objectRetriever, $object, $classRepository) {
+		$app['files'] = function() use ($objectRetriever, $object, $classRepository) {
 			return new FileReader($objectRetriever, $classRepository, $object);
-		});
+		};
 
 		// Template Engine
-		$app['twig'] = $app->share(function() use ($objectRetriever, $object, $classRepository) {
+		$app['twig'] = function() use ($objectRetriever, $object, $classRepository) {
 			return new \Twig_Environment(new TemplateLoader($objectRetriever,
 				new IRI($object->getId())), array(
 					'cache' => $classRepository->getCustomFilesCachePath($object)
 			));
-		});
+		};
 
 		// CloudObjects Object Repository
 		$app['cloudobjects'] = $objectRetriever;
 
-		$app['config'] = $app->share(function() use ($app) {
+		$app['config'] = function() use ($app) {
 			return new ConfigHelper($app, array(
 				'self.object', 'namespace.object',
 				'accessor.object', 'accessor.namespace.object'
 			));
-		});
+		};
 
 		// Custom Providers
 		$providers = $object->getProperty('coid://phpmae.cloudobjects.io/usesProvider');
@@ -119,6 +119,7 @@ class Runner {
 		// Initialize CloudObjects SDK
 		$objectRetriever = new ObjectRetriever(array(
 			'cache_provider' => $config['object_cache'],
+			'cache_provider.file.directory' => '/tmp/cache',
 			'cache_provider.redis.host' => $config['redis']['host'],
 			'cache_provider.redis.port' => $config['redis']['port'],
 			'static_config_path' => __DIR__.'/../../../static-objects',
@@ -137,15 +138,15 @@ class Runner {
 			// Vhost mode
 			$namespaceObject = $objectRetriever->get('coid://'.$request->getHost());
 			if ($namespaceObject
-					&& $namespaceObject->getProperty('coid://phpmae.cloudobjects.io/useController')) {
+					&& $namespaceObject->getProperty('coid://phpmae.cloudobjects.io/hasDefaultController')) {
 				// Get controller
 				try {
 					$object = $objectRetriever
-						->get($namespaceObject->getProperty('coid://phpmae.cloudobjects.io/useController')->getId());
+						->get($namespaceObject->getProperty('coid://phpmae.cloudobjects.io/hasDefaultController')->getId());
 					if (!$object) throw new \Exception();
 					$controller = $classRepository->createInstance($object, $objectRetriever);
 					// Mount API if valid
-					if (in_array('Silex\ControllerProviderInterface', class_implements($controller))) {
+					if (in_array('Silex\Api\ControllerProviderInterface', class_implements($controller))) {
 						$app['self.object'] = $object;
 
 						self::prepareProvidersAndTemplates($app, $object, $objectRetriever, $classRepository);
@@ -171,7 +172,7 @@ class Runner {
 
 					$controller = $classRepository->createInstance($object, $objectRetriever);
 					// Mount API if valid
-					if (in_array('Silex\ControllerProviderInterface', class_implements($controller))) {
+					if (in_array('Silex\Api\ControllerProviderInterface', class_implements($controller))) {
 						$app['self.object'] = $object;
 
 						self::prepareProvidersAndTemplates($app, $object, $objectRetriever, $classRepository);
@@ -198,8 +199,8 @@ class Runner {
 			}
 		});
 
-		$app->error(function (\Exception $e, $code) {
-			return new Response($e->getMessage(), $code); // TODO: make dependent on debug mode
+		$app->error(function (\Exception $e) {
+			return new Response($e->getMessage()); // TODO: make dependent on debug mode
 		});
 	}
 

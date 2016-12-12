@@ -46,7 +46,7 @@ class ClassValidator {
     ));
 
     $this->whitelisted_interfaces = array(
-      'Silex\ControllerProviderInterface',
+      'Silex\Api\ControllerProviderInterface',
       'Silex\ServiceProviderInterface',
       'Symfony\Component\EventDispatcher\EventSubscriberInterface'
     );
@@ -60,7 +60,8 @@ class ClassValidator {
       'CloudObjects\SDK\AccountGateway\AccountContext',
       'CloudObjects\SDK\AccountGateway\AAUIDParser',
       'CloudObjects\SDK\COIDParser',
-      'JWT'
+      'JWT',
+      'Defuse\Crypto\Crypto'
     );
   }
 
@@ -134,7 +135,7 @@ class ClassValidator {
   }
 
   public function validateAsController($sourceCode) {
-    $this->validate($sourceCode, 'Silex\ControllerProviderInterface');
+    $this->validate($sourceCode, 'Silex\Api\ControllerProviderInterface');
   }
 
   public function validateAsProvider($sourceCode) {

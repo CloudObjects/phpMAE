@@ -10,7 +10,7 @@ use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
-use Cilex\Command\Command;
+use Cilex\Provider\Console\Command;
 use CloudObjects\SDK\COIDParser;
 
 class ControllerCreateCommand extends Command {
@@ -53,7 +53,7 @@ class ControllerCreateCommand extends Command {
         // Create PHP source file
         $content = "<?php\n"
           . "\n"
-          . "use Silex\Application, Silex\ControllerProviderInterface;\n"
+          . "use Silex\Application, Silex\Api\ControllerProviderInterface;\n"
           . "\n"
           . "/**\n"
           . " * Implementation for ".(string)$coid."\n"

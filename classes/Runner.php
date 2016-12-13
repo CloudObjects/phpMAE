@@ -22,7 +22,7 @@ class Runner {
 		if ($request->headers->has('C-AAUID')
 				&& $request->headers->has('C-Access-Token')) {
 
-			$context = AccountContext::fromRequest($request);
+			$context = AccountContext::fromSymfonyRequest($request);
 			$app['context'] = function() use ($context) {
 				return $context;
 			};

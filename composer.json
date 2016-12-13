@@ -8,7 +8,7 @@
 		"twig/twig": "~1.26.1",
 		"f21/jwt": "1.0",
 		"semsol/arc2" : "~2.2.6",
-		"cloudobjects/sdk" : "~0.4",
+		"cloudobjects/sdk" : "~0.5",
 		"defuse/php-encryption" : "~2.0.3"
 	},
 	"autoload": {

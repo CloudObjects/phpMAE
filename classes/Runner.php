@@ -145,7 +145,7 @@ class Runner {
 
 		// Check for virtual host-style namespace configuration
 		if (isset($config['enable_vhost_controllers']) && $config['enable_vhost_controllers']==true
-				&& $request->getHost() && $request->getHost()!='localhost'
+				&& $request->getHost() && !in_array($request->getHost(), $config['exclude_vhosts'])
 				&& filter_var($request->getHost(), FILTER_VALIDATE_IP)===false) {
 
 			// Vhost mode

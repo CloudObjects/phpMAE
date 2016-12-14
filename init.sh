@@ -1,7 +1,8 @@
 # Write configuration file
 
 echo "<?php return array(" \
-	" 'enable_vhost_controllers' => false, " \
+	" 'enable_vhost_controllers' => true, " \
+	" 'exclude_vhosts' => ['localhost', 'phpmae.cloudobjects.io'], " \
 	" 'account_data_cache' => 'none', " \
 	" 'object_cache' => 'file', " \
 	" 'redis' => array(), " \

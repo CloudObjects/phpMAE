@@ -12,6 +12,7 @@ use ML\IRI\IRI, ML\JsonLD\Node;
 use GuzzleHttp\Client;
 use CloudObjects\SDK\AccountGateway\AccountContext, CloudObjects\SDK\ObjectRetriever, CloudObjects\SDK\COIDParser;
 use Doctrine\Common\Cache\RedisCache;
+use CloudObjects\PhpMAE\Exceptions\PhpMAEException;
 
 class Runner {
 
@@ -126,6 +127,13 @@ class Runner {
 	 * Configure the Silex application according to the request and mount the controller.
 	 */
 	public static function configure(Application $app, Request $request, array $config) {
+		if (isset($config['debug']) && $config['debug'] == true) {
+			ini_set("display_errors", 1);
+			error_reporting(E_ALL & ~E_NOTICE);
+			$app['debug'] = true;
+		} else
+			$app['debug'] = false;
+
 		$path = explode('/', $request->getPathInfo());
 
 		// Initialize CloudObjects SDK
@@ -156,7 +164,7 @@ class Runner {
 				try {
 					$object = $objectRetriever
 						->get($namespaceObject->getProperty('coid://phpmae.cloudobjects.io/hasDefaultController')->getId());
-					if (!$object) throw new \Exception();
+					if (!$object) throw new PhpMAEException("Object <".$coid."> not found.");
 					$controller = $classRepository->createInstance($object, $objectRetriever);
 					// Mount API if valid
 					if (in_array('Silex\Api\ControllerProviderInterface', class_implements($controller))) {
@@ -167,9 +175,8 @@ class Runner {
 						$app->mount('/', $controller);
 					}
 				} catch (\Exception $e) {
-					// no mounting on exception => causes 404
-					// handle exception in debug mode:
-					if ($app['debug']==true) throw $e;
+					// remember exception for later handling
+					$app['_exception_caught'] = $e;
 				}
 			}
 
@@ -181,7 +188,7 @@ class Runner {
 					$coid = 'coid://'.$path[2].'/'.$path[3]
 						.(($path[4]=='Unversioned') ? '' : '/'.$path[4]);
 					$object = $objectRetriever->get($coid);
-					if (!$object) throw new \Exception("Object <".$coid."> not found.");
+					if (!$object) throw new PhpMAEException("Object <".$coid."> not found.");
 
 					$controller = $classRepository->createInstance($object, $objectRetriever);
 					// Mount API if valid
@@ -193,9 +200,8 @@ class Runner {
 						$app->mount('/run/'.$path[2].'/'.$path[3].'/'.$path[4], $controller);
 					}
 				} catch (\Exception $e) {
-					// no mounting on exception => causes 404
-					// handle exception in debug mode:
-					if ($app['debug']==true) throw $e;
+					// remember exception for later handling
+					$app['_exception_caught'] = $e;
 				}
 			} else
 			if (count($path)==6 && $path[1]=='uploads') {
@@ -212,8 +218,22 @@ class Runner {
 			}
 		});
 
-		$app->error(function (\Exception $e) {
-			return new Response($e->getMessage()); // TODO: make dependent on debug mode
+		$app->error(function (\Exception $e) use ($app) {
+			if (isset($app['_exception_caught'])) $e = $app['_exception_caught'];
+			
+			if ($app['debug'] == true) {
+				// Return all exceptions in debug mode
+				$response = new Response($e->getMessage());				
+			} elseif (is_a($e, 'Symfony\Component\HttpKernel\Exception\HttpException')
+					|| is_a($e, 'CloudObjects\PhpMAE\Exceptions\PhpMAEException')) {
+				// Return HTTP or PhpMAEExceptions
+				$response = new Response($e->getMessage());
+			} else {
+				// Return generic error message
+				$response = new Response("An exception was caught while processing the request.");
+			}
+			$response->headers->set('Content-Type', 'text/plain');
+			return $response;
 		});
 	}
 

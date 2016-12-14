@@ -9,6 +9,7 @@ namespace CloudObjects\PhpMAE;
 use PHPSandbox\PHPSandbox;
 use PHPSandbox\SandboxWhitelistVisitor, PHPSandbox\ValidatorVisitor;
 use PhpParser\ParserFactory, PhpParser\NodeTraverser;
+use CloudObjects\PhpMAE\Exceptions\PhpMAEException;
 
 /**
  * Validates that classes fit the sandbox criteria.
@@ -111,7 +112,7 @@ class ClassValidator {
       }
       if (!in_array($interface, $interfaces)) {
         // Interface not implemented
-        throw new \Exception('Source code file must declare a class that implements "'.$interface.'".');
+        throw new PhpMAEException("Source code file must declare a class that implements <".$interface.">.");
       }
 
       // Allow self-references
@@ -130,7 +131,7 @@ class ClassValidator {
 
     } else {
       // Throw exeption if conditions are not met
-      throw new \Exception('Source code file must include exactly one class declaration and must not contain further side effects.');
+      throw new PhpMAEException("Source code file must include exactly one class declaration and must not contain further side effects.");
     }
   }
 

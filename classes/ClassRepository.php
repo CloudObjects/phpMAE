@@ -9,6 +9,7 @@ namespace CloudObjects\PhpMAE;
 use ML\IRI\IRI, ML\JsonLD\Node;
 use CloudObjects\SDK\ObjectRetriever, CloudObjects\SDK\COIDParser;
 use Doctrine\Common\Cache\RedisCache;
+use CloudObjects\PhpMAE\Exceptions\PhpMAEException;
 
 class ClassRepository {
 
@@ -81,7 +82,7 @@ class ClassRepository {
 	public function createInstance(Node $object, ObjectRetriever $objectRetriever) {
 		// Check type
 		if ((!TypeChecker::isController($object)) && (!TypeChecker::isProvider($object))) {
-			throw new \Exception('Class must have a valid type.');
+			throw new PhpMAEException("<".$object->getId()."> must have a valid type.");
 		}
 
 		$uri = new IRI($object->getId());
@@ -100,7 +101,7 @@ class ClassRepository {
 				} else {
 					// Not found in local uploads -> download source from CloudObjects
 					$sourceUrl = $object->getProperty('coid://phpmae.cloudobjects.io/hasSourceFile');
-					if (!$sourceUrl) throw new \Exception("Class ".(string)$uri." does not have an implementation.");
+					if (!$sourceUrl) throw new PhpMAEException("<".$object->getId()."> does not have an implementation source file.");
 					if (get_class($sourceUrl)=='ML\JsonLD\Node')
 						$sourceCode = $objectRetriever->getAttachment($uri, $sourceUrl->getId());
 					else

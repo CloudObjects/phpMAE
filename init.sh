@@ -3,6 +3,7 @@
 echo "<?php return array(" \
 	" 'enable_vhost_controllers' => true, " \
 	" 'exclude_vhosts' => ['localhost', 'phpmae.cloudobjects.io'], " \
+	" 'debug' => false, " \
 	" 'account_data_cache' => 'none', " \
 	" 'object_cache' => 'file', " \
 	" 'redis' => array(), " \

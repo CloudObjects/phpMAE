@@ -6,7 +6,6 @@
  
 namespace CloudObjects\PhpMAE;
 
-use ML\IRI\IRI;
 use Symfony\Component\HttpFoundation\Request, Symfony\Component\HttpFoundation\Response;
 use Silex\Application, Silex\Api\ControllerProviderInterface;
 

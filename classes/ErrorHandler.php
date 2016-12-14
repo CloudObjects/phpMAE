@@ -28,7 +28,6 @@ class ErrorHandler {
                 . "- [line ".$error['line']."] ".$error['message'], 500,
                 ["Content-Type" => "text/plain"]);
             $response->send();
-            die;
         }
     }
 

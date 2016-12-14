@@ -18,7 +18,7 @@ class ClassValidator {
 
   private $sandbox;
   private $whitelisted_interfaces;
-  private $whitelisted_typesp;
+  private $whitelisted_types;
   private $aliases;
 
   public function __construct() {

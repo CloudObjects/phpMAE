@@ -1,9 +1,14 @@
 {
+	"name" : "cloudobjects/phpmae",
+	"description" : "The PHP Micro API Engine.",
+	"keywords": ["cloudobjects", "serverless", "microapi", "sandbox"],
+	"homepage": "https://github.com/CloudObjects/phpMAE",
+	"license": "MPL-2.0",
 	"require": {
 		"silex/silex" : "~2.0",
 		"corveda/php-sandbox": "~v2.0.1",
 		"paquettg/php-html-parser" : "1.6.4",
-		"doctrine/cache" : "v1.3.0",
+		"doctrine/cache" : "v1.3.2",
 		"cilex/cilex" : "~2.0",
 		"twig/twig": "~1.26.1",
 		"f21/jwt": "1.0",

@@ -65,7 +65,7 @@ class TestEnvironmentUploadCommand extends Command {
       if (!file_exists($filename)) throw new \Exception("File not found.");
       $this->upload($coid, $filename, $output);
 
-      if ($input->getOption('watch')==true) {
+      if ($input->getOption('watch') === true) {
         $fileTime = filemtime($filename);
         $output->writeln('Watching for changes ...');
         while (true) {

@@ -33,7 +33,7 @@ class ControllerCreateCommand extends Command {
       $version = COIDParser::getVersion($coid);
       $fullName = isset($version) ? $name.".".$version : $name;
 
-      if (!file_exists($fullName.'.xml') || $input->getOption('force') == true) {
+      if (!file_exists($fullName.'.xml') || $input->getOption('force') === true) {
         // Create RDF configuration file
         $content = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n"
           . "<rdf:RDF xmlns:rdf=\"http://www.w3.org/1999/02/22-rdf-syntax-ns#\"\n"
@@ -49,7 +49,7 @@ class ControllerCreateCommand extends Command {
         $output->writeln($fullName.".xml already exists.");
       }
 
-      if (!file_exists($fullName.'.php') || $input->getOption('force') == true) {
+      if (!file_exists($fullName.'.php') || $input->getOption('force') === true) {
         // Create PHP source file
         $content = "<?php\n"
           . "\n"
@@ -74,7 +74,7 @@ class ControllerCreateCommand extends Command {
         $output->writeln($fullName.".php already exists.");
       }
 
-      if ($input->getOption('confjob') == true) {
+      if ($input->getOption('confjob') === true) {
         $output->writeln("Calling cloudobjects ...");
         passthru("cloudobjects configuration-job:create ".$fullName.".xml");
       }

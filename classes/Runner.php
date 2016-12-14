@@ -127,7 +127,7 @@ class Runner {
 	 * Configure the Silex application according to the request and mount the controller.
 	 */
 	public static function configure(Application $app, Request $request, array $config) {
-		if (isset($config['debug']) && $config['debug'] == true) {
+		if (isset($config['debug']) && $config['debug'] === true) {
 			ini_set("display_errors", 1);
 			error_reporting(E_ALL & ~E_NOTICE);
 			$app['debug'] = true;
@@ -137,7 +137,7 @@ class Runner {
 		}
 
 		$errorHandler = new ErrorHandler;
-		register_shutdown_function(function($handler) {
+		register_shutdown_function(function(ErrorHandler $handler) {
 			$handler->getErrorResponse();
 		}, $errorHandler); // see: http://stackoverflow.com/questions/4410632/handle-fatal-errors-in-php-using-register-shutdown-function        
 
@@ -159,7 +159,7 @@ class Runner {
 		$classRepository = new ClassRepository($config['classes']);
 
 		// Check for virtual host-style namespace configuration
-		if (isset($config['enable_vhost_controllers']) && $config['enable_vhost_controllers']==true
+		if (isset($config['enable_vhost_controllers']) && $config['enable_vhost_controllers'] === true
 				&& $request->getHost() && !in_array($request->getHost(), $config['exclude_vhosts'])
 				&& filter_var($request->getHost(), FILTER_VALIDATE_IP)===false) {
 
@@ -228,7 +228,7 @@ class Runner {
 		$app->error(function (\Exception $e) use ($app) {
 			if (isset($app['_exception_caught'])) $e = $app['_exception_caught'];
 			
-			if ($app['debug'] == true) {
+			if ($app['debug'] === true) {
 				// Return all exceptions in debug mode
 				$response = new Response($e->getMessage());				
 			} elseif (is_a($e, 'Symfony\Component\HttpKernel\Exception\HttpException')

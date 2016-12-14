@@ -8,7 +8,6 @@ namespace CloudObjects\PhpMAE;
 
 use ML\IRI\IRI, ML\JsonLD\Node;
 use CloudObjects\SDK\ObjectRetriever, CloudObjects\SDK\COIDParser;
-use Doctrine\Common\Cache\RedisCache;
 use CloudObjects\PhpMAE\Exceptions\PhpMAEException;
 
 class ClassRepository {

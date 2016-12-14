@@ -78,8 +78,9 @@ class ClassRepository {
 	 * Create an instance of a class.
 	 * @param Node $object The object describing the class.
 	 * @param ObjectRetriever $objectRetriever The repository, which is used to fetch the implementation.
+	 * @param ErrorHandler $errorHandler An error handler; used to add information about the class for debugging.
 	 */
-	public function createInstance(Node $object, ObjectRetriever $objectRetriever) {
+	public function createInstance(Node $object, ObjectRetriever $objectRetriever, ErrorHandler $errorHandler) {
 		// Check type
 		if ((!TypeChecker::isController($object)) && (!TypeChecker::isProvider($object))) {
 			throw new PhpMAEException("<".$object->getId()."> must have a valid type.");
@@ -93,6 +94,7 @@ class ClassRepository {
 
 			// Build filename where cached version should exist
 			$filename = $vars['cache_path'].DIRECTORY_SEPARATOR.$revision.".php";
+			$errorHandler->addMapping($filename, $object);
 
 			if (!file_exists($filename)) {
 				// File does not exist -> check in uploads first

@@ -131,8 +131,15 @@ class Runner {
 			ini_set("display_errors", 1);
 			error_reporting(E_ALL & ~E_NOTICE);
 			$app['debug'] = true;
-		} else
+		} else {
+			ini_set('display_errors', false);
 			$app['debug'] = false;
+		}
+
+		$errorHandler = new ErrorHandler;
+		register_shutdown_function(function($handler) {
+			$handler->getErrorResponse();
+		}, $errorHandler); // see: http://stackoverflow.com/questions/4410632/handle-fatal-errors-in-php-using-register-shutdown-function        
 
 		$path = explode('/', $request->getPathInfo());
 
@@ -165,7 +172,7 @@ class Runner {
 					$object = $objectRetriever
 						->get($namespaceObject->getProperty('coid://phpmae.cloudobjects.io/hasDefaultController')->getId());
 					if (!$object) throw new PhpMAEException("Object <".$coid."> not found.");
-					$controller = $classRepository->createInstance($object, $objectRetriever);
+					$controller = $classRepository->createInstance($object, $objectRetriever, $errorHandler);
 					// Mount API if valid
 					if (in_array('Silex\Api\ControllerProviderInterface', class_implements($controller))) {
 						$app['self.object'] = $object;
@@ -190,7 +197,7 @@ class Runner {
 					$object = $objectRetriever->get($coid);
 					if (!$object) throw new PhpMAEException("Object <".$coid."> not found.");
 
-					$controller = $classRepository->createInstance($object, $objectRetriever);
+					$controller = $classRepository->createInstance($object, $objectRetriever, $errorHandler);
 					// Mount API if valid
 					if (in_array('Silex\Api\ControllerProviderInterface', class_implements($controller))) {
 						$app['self.object'] = $object;

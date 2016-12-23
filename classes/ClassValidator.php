@@ -58,6 +58,7 @@ class ClassValidator {
       'Symfony\Component\HttpFoundation\Cookie',
       'Symfony\Component\HttpFoundation\RedirectResponse',
       'Symfony\Component\HttpFoundation\Response',
+      'Symfony\Component\DomCrawler\Crawler',
       'CloudObjects\SDK\AccountGateway\AccountContext',
       'CloudObjects\SDK\AccountGateway\AAUIDParser',
       'CloudObjects\SDK\COIDParser',

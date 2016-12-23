@@ -14,7 +14,9 @@
 		"f21/jwt": "1.0",
 		"semsol/arc2" : "~2.2.6",
 		"cloudobjects/sdk" : "~0.5",
-		"defuse/php-encryption" : "~2.0.3"
+		"defuse/php-encryption" : "~2.0.3",
+		"symfony/css-selector" : "~v3.2.1",
+		"symfony/dom-crawler" : "~v3.2.1"
 	},
 	"autoload": {
 		"classmap" : ["vendor/f21/jwt/JWT"],

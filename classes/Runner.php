@@ -108,6 +108,9 @@ class Runner {
 			));
 		};
 
+		// Custom Dependencies
+		DependencyInjector::processDependencies($object, $app, $objectRetriever);
+
 		// Custom Providers
 		$providers = $object->getProperty('coid://phpmae.cloudobjects.io/usesProvider');
 		if (!$providers) return;

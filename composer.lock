@@ -4,8 +4,8 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file",
         "This file is @generated automatically"
     ],
-    "hash": "d4bf5b767f8e25e90a655b9a8490d29c",
-    "content-hash": "34773d8d897a81efd395ea30db0ba5dc",
+    "hash": "39484ebff558ee4fa17a42ee99c09356",
+    "content-hash": "9effb4a734342ab58facf97a6d13222c",
     "packages": [
         {
             "name": "cilex/cilex",
@@ -67,16 +67,16 @@
         },
         {
             "name": "cloudobjects/sdk",
-            "version": "0.5",
+            "version": "0.6",
             "source": {
                 "type": "git",
                 "url": "https://github.com/CloudObjects/CloudObjects-PHP-SDK.git",
-                "reference": "9f3f47e2a1f4653f7f8f696a122dc2f19c40e0f8"
+                "reference": "78b88f0cf208f050807a6b249499f573e3c3428a"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/CloudObjects/CloudObjects-PHP-SDK/zipball/9f3f47e2a1f4653f7f8f696a122dc2f19c40e0f8",
-                "reference": "9f3f47e2a1f4653f7f8f696a122dc2f19c40e0f8",
+                "url": "https://api.github.com/repos/CloudObjects/CloudObjects-PHP-SDK/zipball/78b88f0cf208f050807a6b249499f573e3c3428a",
+                "reference": "78b88f0cf208f050807a6b249499f573e3c3428a",
                 "shasum": ""
             },
             "require": {
@@ -109,7 +109,7 @@
                 "cloudobjects",
                 "sdk"
             ],
-            "time": "2016-12-13 19:35:59"
+            "time": "2016-12-29 14:13:17"
         },
         {
             "name": "corveda/php-sandbox",

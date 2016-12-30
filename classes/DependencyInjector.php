@@ -28,6 +28,7 @@ class DependencyInjector {
      */
     public static function processDependencies(Node $object, Container $container, ObjectRetriever $retriever) {
         $dependencies = $object->getProperty('coid://phpmae.cloudobjects.io/hasDependency');
+        if (!isset($dependencies)) return; // no dependencies to process
         if (!is_array($dependencies)) $dependencies = array($dependencies);
 
         $reader = new NodeReader([

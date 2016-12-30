@@ -10,10 +10,10 @@ $app = new \Cilex\Application('phpMAE', '0.1.0');
 $app->command(new ControllerCreateCommand);
 $app->command(new ControllerDeployCommand);
 $app->command(new ControllerValidateCommand);
+$app->command(new ControllerTestEnvCommand);
 $app->command(new ControllerAddProviderCommand);
 $app->command(new DependenciesAddWebAPICommand);
 
 $app->command(new ProviderValidateCommand);
 $app->command(new TestEnvironmentStartCommand);
-$app->command(new TestEnvironmentUploadCommand);
 $app->run();

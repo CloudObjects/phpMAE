@@ -37,9 +37,11 @@ class ControllerCreateCommand extends Command {
         // Create RDF configuration file
         $content = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n"
           . "<rdf:RDF xmlns:rdf=\"http://www.w3.org/1999/02/22-rdf-syntax-ns#\"\n"
+          . "   xmlns:co=\"coid://cloudobjects.io/\"\n"
           . "   xmlns:phpmae=\"coid://phpmae.cloudobjects.io/\">\n"
           . "\n"
           . " <phpmae:ControllerClass rdf:about=\"".(string)$coid."\">\n"
+          . "  <co:isVisibleTo rdf:resource=\"coid://cloudobjects.io/Vendor\" />\n"
           . " </phpmae:ControllerClass>\n"
           . "</rdf:RDF>";
         file_put_contents($fullName.'.xml', $content);

@@ -26,6 +26,7 @@ abstract class AbstractObjectCommand extends Command {
     $name = COIDParser::getName($this->coid);
     $version = COIDParser::getVersion($this->coid);
     $this->fullName = isset($version) ? $name.".".$version : $name;
+    $this->phpFileName = $this->fullName.'.php';
   }
 
   protected function assertRDF() {
@@ -58,8 +59,8 @@ abstract class AbstractObjectCommand extends Command {
   }
 
   protected function assertPHPExists() {
-    if (!file_exists($this->fullName.'.php'))
-      throw new \Exception("File not found: ".$this->fullName.".php");
+    if (!file_exists($this->phpFileName))
+      throw new \Exception("File not found: ".$this->phpFileName);
   }
 
   protected function getSerializer() {
@@ -70,6 +71,22 @@ abstract class AbstractObjectCommand extends Command {
         'phpmae' => 'coid://phpmae.cloudobjects.io/'
       )
     ));
+  }
+
+  protected function watchPHPFile(OutputInterface $output, callable $callable) {
+    $fileTime = filemtime($this->phpFileName);
+    $output->writeln('Watching for changes ...');
+    while (true) {
+      clearstatcache();
+      if (filemtime($this->phpFileName)!=$fileTime) {
+        // File has changed ...
+        sleep(1);
+        $fileTime = filemtime($this->phpFileName);
+        $callable();    
+        $output->writeln('Watching for changes ...');
+      }
+      sleep(0.5);
+    }
   }
 
 }

@@ -7,6 +7,7 @@
 namespace CloudObjects\PhpMAE\Commands;
 
 use Symfony\Component\Console\Input\InputArgument;
+use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 use CloudObjects\PhpMAE\ClassValidator;
@@ -16,7 +17,8 @@ class ControllerValidateCommand extends AbstractObjectCommand {
   protected function configure() {
     $this->setName('controller:validate')
       ->setDescription('Validates a controller class for the phpMAE.')
-      ->addArgument('coid', InputArgument::REQUIRED, 'The COID of the object.');
+      ->addArgument('coid', InputArgument::REQUIRED, 'The COID of the object.')
+      ->addOption('watch', null, InputOption::VALUE_OPTIONAL, 'Keep watching for changes of the file and revalidate automatically.', null);
   }
 
   protected function execute(InputInterface $input, OutputInterface $output) {
@@ -27,9 +29,25 @@ class ControllerValidateCommand extends AbstractObjectCommand {
     $this->assertPHPExists();
 
     // Running validator
-    $validator = new ClassValidator();
-    $validator->validateAsController(file_get_contents($this->fullName.'.php'));
-    $output->writeln("Validated successfully.");
+    $validator = new ClassValidator;
+    try {
+        $validator->validateAsController(file_get_contents($this->phpFileName));
+        $output->writeln("Validated successfully.");
+    } catch (\Exception $e) {
+        $output->writeln('<error>'.get_class($e).'</error> '.$e->getMessage());
+    }
+
+    if ($input->getOption('watch') !== null) {
+        $cmd = $this;
+        $this->watchPHPFile($output, function() use ($validator, $cmd, $output) {
+            try {
+              $validator->validateAsController(file_get_contents($cmd->phpFileName));
+              $output->writeln("Validated successfully.");
+            } catch (\Exception $e) {
+              $output->writeln('<error>'.get_class($e).'</error> '.$e->getMessage());
+            }
+        });
+    }
   }
 
 }

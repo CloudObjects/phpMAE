@@ -55,6 +55,8 @@ class ClassValidator {
       'ArrayObject', 'DateTime', 'Exception',
       'ML\IRI\IRI',
       'GuzzleHttp\Client',
+      'GuzzleHttp\HandlerStack',
+      'GuzzleHttp\Subscriber\Oauth\Oauth1',
       'Symfony\Component\HttpFoundation\Cookie',
       'Symfony\Component\HttpFoundation\RedirectResponse',
       'Symfony\Component\HttpFoundation\Response',

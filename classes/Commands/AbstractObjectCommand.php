@@ -55,7 +55,7 @@ abstract class AbstractObjectCommand extends Command {
 
   protected function createConfigurationJob(OutputInterface $output) {
     $output->writeln("Calling cloudobjects configuration-job:create ...");
-    passthru("cloudobjects configuration-job:create ".$fullName.".xml");
+    passthru("cloudobjects configuration-job:create ".$this->fullName.".xml");
   }
 
   protected function assertPHPExists() {

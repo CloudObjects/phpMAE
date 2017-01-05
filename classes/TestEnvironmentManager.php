@@ -19,9 +19,10 @@ class TestEnvironmentManager {
       if (file_exists(self::getFilename())) {
         $data = json_decode(file_get_contents(self::getFilename()), true);
         if (isset($data['testenv_url'])) {
-          $app['testenv.client'] = new Client([
-            'base_uri' => $data['testenv_url']
-          ]);
+          $app['testenv.url'] = $data['testenv_url'];
+          $app['testenv.client'] = function() use ($app) {
+            return new Client([ 'base_uri' => $app['testenv.url'] ]);
+          };
         }
       }
     }

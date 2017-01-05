@@ -58,6 +58,12 @@ class ControllerTestEnvCommand extends AbstractObjectCommand {
         throw new \Exception("Object is not a controller.");
       $this->assertPHPExists();
 
+      // Print URL so developer can easily access it
+      $output->writeln("<info>Test Environment Base URL for Controller:</info>");
+      $suffix = (COIDParser::getType($this->coid) == COIDParser::COID_VERSIONED) ? "/" : "/Unversioned/";
+      $output->writeln("➡️  ".$app['testenv.url']."run/".$this->coid->getHost().$this->coid->getPath().$suffix);
+      $output->writeln("");
+
       $this->validator = new ClassValidator;
       $this->upload($output);
 

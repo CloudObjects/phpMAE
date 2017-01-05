@@ -12,7 +12,7 @@ use GuzzleHttp\Client;
 class TestEnvironmentManager {
 
     private static function getFilename() {
-      return $_ENV['HOME'].DIRECTORY_SEPARATOR.'.phpmae';
+      return getenv('HOME').DIRECTORY_SEPARATOR.'.phpmae';
     }
 
     public static function configure(Application $app) {

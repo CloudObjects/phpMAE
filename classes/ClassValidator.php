@@ -42,7 +42,8 @@ class ClassValidator {
         'parse_str', 'pathinfo', 'preg_match', 'preg_match_all', 'preg_replace', 'preg_split',
         'rand', 'rawurlencode', 'round', 'sha1', 'strlen',
         'str_replace', 'substr', 'str_split', 'strpos', 'strtolower', 'strtoupper',
-        'strtr', 'time', 'trim', 'uksort', 'uniqid', 'usort', 'urlencode', 'var_dump'
+        'strtr', 'time', 'trim', 'uksort', 'uniqid', 'usort', 'urlencode', 'var_dump',
+        'promise\unwrap'
       )
     ));
 
@@ -57,6 +58,7 @@ class ClassValidator {
       'GuzzleHttp\Client',
       'GuzzleHttp\HandlerStack',
       'GuzzleHttp\Subscriber\Oauth\Oauth1',
+      'GuzzleHttp\Promise',
       'Symfony\Component\HttpFoundation\Cookie',
       'Symfony\Component\HttpFoundation\RedirectResponse',
       'Symfony\Component\HttpFoundation\Response',

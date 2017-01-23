@@ -76,7 +76,7 @@ class ControllerCreateCommand extends Command {
         $output->writeln($fullName.".php already exists.");
       }
 
-      if ($input->getOption('confjob') === true) {
+      if ($input->getOption('confjob') !== null) {
         $output->writeln("Calling cloudobjects ...");
         passthru("cloudobjects configuration-job:create ".$fullName.".xml");
       }

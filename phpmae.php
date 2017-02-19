@@ -12,7 +12,9 @@ $app->command(new ControllerDeployCommand);
 $app->command(new ControllerValidateCommand);
 $app->command(new ControllerTestEnvCommand);
 $app->command(new ControllerAddProviderCommand);
+
 $app->command(new DependenciesAddWebAPICommand);
+$app->command(new DependenciesAddAttachmentCommand);
 
 $app->command(new ProviderValidateCommand);
 $app->command(new TestEnvironmentStartCommand);

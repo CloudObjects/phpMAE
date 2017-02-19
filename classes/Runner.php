@@ -192,6 +192,11 @@ class Runner {
 
 		} else {
 			// Regular mode (no vhosts)
+
+			$app->get('/', function() {
+				return file_get_contents(__DIR__."/../web/static-home.html");
+			});
+
 			if (count($path)>=5 && $path[1]=='run') {
 				// Run request for an API
 				try {

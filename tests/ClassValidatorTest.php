@@ -16,18 +16,21 @@ class ClassValidatorTest extends \PHPUnit_Framework_TestCase {
 
     public function testValidateAsController() {
         $this->validator->validateAsController($this->loadFromFile('controller1.php'));
-        try {
-            $this->validator->validateAsController($this->loadFromFile('provider1.php'));
-            $this->assertTrue(false);
-        } catch (\Exception $e) { }
+    }
+
+    public function testValidateControllerAsProvider() {
+        $this->expectException(Exceptions\PhpMAEException::class);
+        $this->validator->validateAsProvider($this->loadFromFile('controller1.php'));
     }
 
     public function testValidateAsProvider() {
         $this->validator->validateAsProvider($this->loadFromFile('provider1.php'));
-        try {
-            $this->validator->validateAsProvider($this->loadFromFile('controller1.php'));
-            $this->assertTrue(false);
-        } catch (\Exception $e) { }
     }
+
+    public function testValidateProviderAsController() {
+       $this->expectException(Exceptions\PhpMAEException::class); 
+       $this->validator->validateAsController($this->loadFromFile('provider1.php'));
+    }
+
 
 }

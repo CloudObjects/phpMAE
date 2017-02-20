@@ -53,6 +53,7 @@ class ClassValidator {
       'Symfony\Component\EventDispatcher\EventSubscriberInterface'
     );
     $this->whitelisted_types = array(
+      'Silex\Application',
       'ArrayObject', 'DateTime', 'Exception',
       'ML\IRI\IRI',
       'GuzzleHttp\Client',
@@ -61,6 +62,7 @@ class ClassValidator {
       'GuzzleHttp\Promise',
       'Symfony\Component\HttpFoundation\Cookie',
       'Symfony\Component\HttpFoundation\RedirectResponse',
+      'Symfony\Component\HttpFoundation\Request',
       'Symfony\Component\HttpFoundation\Response',
       'Symfony\Component\DomCrawler\Crawler',
       'CloudObjects\SDK\NodeReader',

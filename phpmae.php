@@ -16,6 +16,9 @@ $app->command(new ControllerAddProviderCommand);
 $app->command(new DependenciesAddWebAPICommand);
 $app->command(new DependenciesAddAttachmentCommand);
 
+$app->command(new ProviderCreateCommand);
 $app->command(new ProviderValidateCommand);
+$app->command(new ProviderTestEnvCommand);
+
 $app->command(new TestEnvironmentStartCommand);
 $app->run();

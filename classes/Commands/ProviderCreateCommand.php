@@ -13,11 +13,11 @@ use Symfony\Component\Console\Output\OutputInterface;
 use Cilex\Provider\Console\Command;
 use CloudObjects\SDK\COIDParser;
 
-class ControllerCreateCommand extends Command {
+class ProviderCreateCommand extends Command {
 
     protected function configure() {
-      $this->setName('controller:create')
-        ->setDescription('Create a new controller class for the phpMAE.')
+      $this->setName('provider:create')
+        ->setDescription('Create a new provider class for the phpMAE.')
         ->addArgument('coid', InputArgument::REQUIRED, 'The COID of the object.')
         ->addOption('force', 'f', InputOption::VALUE_OPTIONAL, 'Forces new object creation and replaces existing files.', false)
         ->addOption('confjob', null, InputOption::VALUE_OPTIONAL, 'Calls "cloudobjects" to create a configuration job for the new controller.', false);
@@ -40,9 +40,9 @@ class ControllerCreateCommand extends Command {
           . "   xmlns:co=\"coid://cloudobjects.io/\"\n"
           . "   xmlns:phpmae=\"coid://phpmae.cloudobjects.io/\">\n"
           . "\n"
-          . " <phpmae:ControllerClass rdf:about=\"".(string)$coid."\">\n"
+          . " <phpmae:ServiceProviderClass rdf:about=\"".(string)$coid."\">\n"
           . "  <co:isVisibleTo rdf:resource=\"coid://cloudobjects.io/Vendor\" />\n"
-          . " </phpmae:ControllerClass>\n"
+          . " </phpmae:ServiceProviderClass>\n"
           . "</rdf:RDF>";
         file_put_contents($fullName.'.xml', $content);
         $output->writeln("Written ".$fullName.".xml.");
@@ -55,19 +55,17 @@ class ControllerCreateCommand extends Command {
         // Create PHP source file
         $content = "<?php\n"
           . "\n"
-          . "use Silex\Application, Silex\Api\ControllerProviderInterface;\n"
+          . "use Pimple\Container, Pimple\ServiceProviderInterface;\n"
           . "\n"
           . "/**\n"
           . " * Implementation for ".(string)$coid."\n"
           . " */\n"
-          . "class ".$name." implements ControllerProviderInterface {\n"
+          . "class ".$name." implements ServiceProviderInterface {\n"
           . "\n"
-          . "  public function connect(Application \$app) {\n"
-          . "    \$controllers = \$app['controllers_factory'];\n"
+          . "  public function register(Container \$pimple) {\n"
           . "\n"
-          . "    // Add methods here ...\n"
+          . "    // Your code goes here ...\n"
           . "\n"
-          . "    return \$controllers;\n"
           . "  }\n"
           . "}";
         file_put_contents($fullName.'.php', $content);

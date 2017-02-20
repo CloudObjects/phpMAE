@@ -7,24 +7,47 @@
 namespace CloudObjects\PhpMAE\Commands;
 
 use Symfony\Component\Console\Input\InputArgument;
+use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
-use Cilex\Provider\Console\Command;
 use CloudObjects\PhpMAE\ClassValidator;
 
-class ProviderValidateCommand extends Command {
+class ProviderValidateCommand extends AbstractObjectCommand {
 
-    protected function configure() {
-      $this->setName('provider:validate')
-        ->setDescription('Validates a source code file as service provider class.')
-        ->addArgument('filename', InputArgument::REQUIRED, 'Name of PHP file');
+  protected function configure() {
+    $this->setName('provider:validate')
+      ->setDescription('Validates a provider class for the phpMAE.')
+      ->addArgument('coid', InputArgument::REQUIRED, 'The COID of the object.')
+      ->addOption('watch', null, InputOption::VALUE_OPTIONAL, 'Keep watching for changes of the file and revalidate automatically.', null);
+  }
+
+  protected function execute(InputInterface $input, OutputInterface $output) {
+    $this->parse($input->getArgument('coid'));
+    $this->assertRDF();
+    if (!in_array('coid://phpmae.cloudobjects.io/ServiceProviderClass', $this->rdfTypes))
+      throw new \Exception("Object is not a provider.");
+    $this->assertPHPExists();
+
+    // Running validator
+    $validator = new ClassValidator;
+    try {
+        $validator->validateAsProvider(file_get_contents($this->phpFileName));
+        $output->writeln("Validated successfully.");
+    } catch (\Exception $e) {
+        $output->writeln('<error>'.get_class($e).'</error> '.$e->getMessage());
     }
 
-    protected function execute(InputInterface $input, OutputInterface $output) {
-      $filename = $input->getArgument('filename');
-      $validator = new ClassValidator();
-      $validator->validateAsProvider(file_get_contents($filename));
-      $output->writeln('Validated successfully.');
+    if ($input->getOption('watch') !== null) {
+        $cmd = $this;
+        $this->watchPHPFile($output, function() use ($validator, $cmd, $output) {
+            try {
+              $validator->validateAsProvider(file_get_contents($cmd->phpFileName));
+              $output->writeln("Validated successfully.");
+            } catch (\Exception $e) {
+              $output->writeln('<error>'.get_class($e).'</error> '.$e->getMessage());
+            }
+        });
     }
+  }
 
 }

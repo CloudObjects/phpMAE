@@ -1,14 +1,11 @@
 <?php
 
-use Silex\Application, Silex\ServiceProviderInterface;
+use Pimple\Container, Pimple\ServiceProviderInterface;
 
 class TestProvider1 implements ServiceProviderInterface {
 
-  public function register(Application $app) {
+  public function register(Container $pimple) {
     // implement this
   }
 
-  public function boot(Application $app) {
-    // implement this
-  }
 }

@@ -66,7 +66,8 @@ class Runner {
 	 * generic providers.
 	 */
 	private static function prepareProvidersAndTemplates(Application $app, Node $object,
-			ObjectRetriever $objectRetriever, ClassRepository $classRepository) {
+			ObjectRetriever $objectRetriever, ClassRepository $classRepository,
+			ErrorHandler $errorHandler) {
 
 		$objectIri = new IRI($object->getId());
 		
@@ -118,8 +119,8 @@ class Runner {
 		foreach ($providers as $provider) {
 			$providerObject = $objectRetriever->get($provider->getId());
 			if (!$providerObject) continue;
-			$providerClass = $classRepository->createInstance($providerObject, $objectRetriever);
-			if ($providerClass && in_array('Silex\ServiceProviderInterface', class_implements($providerClass))) {
+			$providerClass = $classRepository->createInstance($providerObject, $objectRetriever, $errorHandler);
+			if ($providerClass && in_array('Pimple\ServiceProviderInterface', class_implements($providerClass))) {
 				// Valid service providers are registered
 				$app->register($providerClass);
 			}
@@ -180,7 +181,7 @@ class Runner {
 					if (in_array('Silex\Api\ControllerProviderInterface', class_implements($controller))) {
 						$app['self.object'] = $object;
 
-						self::prepareProvidersAndTemplates($app, $object, $objectRetriever, $classRepository);
+						self::prepareProvidersAndTemplates($app, $object, $objectRetriever, $classRepository, $errorHandler);
 						self::prepareContext($app, $request, $config);
 						$app->mount('/', $controller);
 					}
@@ -210,7 +211,7 @@ class Runner {
 					if (in_array('Silex\Api\ControllerProviderInterface', class_implements($controller))) {
 						$app['self.object'] = $object;
 
-						self::prepareProvidersAndTemplates($app, $object, $objectRetriever, $classRepository);
+						self::prepareProvidersAndTemplates($app, $object, $objectRetriever, $classRepository, $errorHandler);
 						self::prepareContext($app, $request, $config);
 						$app->mount('/run/'.$path[2].'/'.$path[3].'/'.$path[4], $controller);
 					}

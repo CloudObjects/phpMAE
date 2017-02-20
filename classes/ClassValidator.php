@@ -48,11 +48,12 @@ class ClassValidator {
     ));
 
     $this->whitelisted_interfaces = array(
+      'Pimple\ServiceProviderInterface',
       'Silex\Api\ControllerProviderInterface',
-      'Silex\ServiceProviderInterface',
       'Symfony\Component\EventDispatcher\EventSubscriberInterface'
     );
     $this->whitelisted_types = array(
+      'Pimple\Container',
       'Silex\Application',
       'ArrayObject', 'DateTime', 'Exception',
       'ML\IRI\IRI',
@@ -148,7 +149,7 @@ class ClassValidator {
   }
 
   public function validateAsProvider($sourceCode) {
-    $this->validate($sourceCode, 'Silex\ServiceProviderInterface');
+    $this->validate($sourceCode, 'Pimple\ServiceProviderInterface');
   }
 
 }

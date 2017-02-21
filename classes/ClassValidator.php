@@ -50,7 +50,8 @@ class ClassValidator {
     $this->whitelisted_interfaces = array(
       'Pimple\ServiceProviderInterface',
       'Silex\Api\ControllerProviderInterface',
-      'Symfony\Component\EventDispatcher\EventSubscriberInterface'
+      'Symfony\Component\EventDispatcher\EventSubscriberInterface',
+      'Psr\Http\Message\RequestInterface'
     );
     $this->whitelisted_types = array(
       'Pimple\Container',
@@ -58,7 +59,8 @@ class ClassValidator {
       'ArrayObject', 'DateTime', 'Exception',
       'ML\IRI\IRI',
       'GuzzleHttp\Client',
-      'GuzzleHttp\HandlerStack',
+      'GuzzleHttp\HandlerStack', 'GuzzleHttp\Middleware',
+      'GuzzleHttp\Handler\CurlHandler',
       'GuzzleHttp\Subscriber\Oauth\Oauth1',
       'GuzzleHttp\Promise',
       'Symfony\Component\HttpFoundation\Cookie',

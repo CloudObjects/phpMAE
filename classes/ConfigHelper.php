@@ -6,7 +6,8 @@
  
 namespace CloudObjects\PhpMAE;
 
-use Silex\Application;
+use Pimple\Container;
+use CloudObjects\SDK\NodeReader;
 
 /**
  * The Config Helper helps phpMAE classes to load configuration
@@ -16,10 +17,12 @@ class ConfigHelper {
 
   private $app;
   private $validSources;
+  private $reader;
 
-  public function __construct(Application $app, $validSources) {
+  public function __construct(Container $app, $validSources) {
     $this->app = $app;
     $this->validSources = $validSources;
+    $this->reader = new NodeReader([]);
   }
 
   /**
@@ -28,9 +31,11 @@ class ConfigHelper {
   public function get($key, $priorities, $default = null) {
     foreach ($priorities as $p) {
       if (in_array($p, $this->validSources)
-          && isset($this->app[$p])
-          && $this->app[$p]->getProperty($key))
-        return $this->app[$p]->getProperty($key)->getValue();
+            && $this->app[$p]) {
+        $value = $this->reader->getFirstValueString($this->app[$p], $key);
+        if (isset($value))
+          return $value;
+      }
     }
 
     return $default; // not found

@@ -6,6 +6,7 @@
 
 namespace CloudObjects\PhpMAE;
 
+use Pimple\Container;
 use Silex\Application;
 use Symfony\Component\HttpFoundation\Request, Symfony\Component\HttpFoundation\Response;
 use ML\IRI\IRI, ML\JsonLD\Node;
@@ -65,8 +66,8 @@ class Runner {
 	 * loads them and mounts them into the Silex application. Also prepares
 	 * generic providers.
 	 */
-	private static function prepareProvidersAndTemplates(Application $app, Node $object,
-			ObjectRetriever $objectRetriever, ClassRepository $classRepository,
+	private static function prepareProvidersAndTemplates(Application $app, Request $request,
+			Node $object, ObjectRetriever $objectRetriever, ClassRepository $classRepository,
 			ErrorHandler $errorHandler) {
 
 		$objectIri = new IRI($object->getId());
@@ -90,17 +91,8 @@ class Runner {
 		};
 
 		// CloudObjects Object Repository
-		$app['cloudobjects'] = ($app['phpmae.identity'] == $objectIri->getHost())
-			? $objectRetriever
-			: function() use ($objectRetriever, $objectIri) {
-				// Take the identity of the current controller when accessing CloudObjects API
-				$config = $objectRetriever->getClient()->getConfig();
-				$config['headers']['C-Act-As'] = $objectIri->getHost();
-
-				$retriever = new ObjectRetriever();
-				$retriever->setClient(new Client($config));
-				return $retriever;
-			};
+		$objectRetrieverPool = new ObjectRetrieverPool($objectRetriever, $app['phpmae.identity']);
+		$app['cloudobjects'] = $objectRetrieverPool->getObjectRetriever($objectIri->getHost());
 
 		$app['config'] = function() use ($app) {
 			return new ConfigHelper($app, array(
@@ -117,12 +109,76 @@ class Runner {
 		if (!$providers) return;
 		if (!is_array($providers)) $providers = array($providers);
 		foreach ($providers as $provider) {
-			$providerObject = $objectRetriever->get($provider->getId());
+			$providerCoid = new IRI($provider->getId());
+			$providerObject = $objectRetriever->getObject($providerCoid);
 			if (!$providerObject) continue;
 			$providerClass = $classRepository->createInstance($providerObject, $objectRetriever, $errorHandler);
 			if ($providerClass && in_array('Pimple\ServiceProviderInterface', class_implements($providerClass))) {
-				// Valid service providers are registered
-				$app->register($providerClass);
+				// Valid service providers are registered in a scoped container,
+				// then made available to the controller
+				$scopedContainer = new Container;
+				$scopedContainer->register($providerClass);
+				foreach ($scopedContainer->keys() as $k) {
+					$app[$k] = function() use ($scopedContainer, $k) {
+						return $scopedContainer[$k];
+					};
+				}
+				
+				// Create scoped Object Retriever
+				$hostname = $providerCoid->getHost();
+				$scopedContainer['cloudobjects'] = function() use ($hostname, $objectRetrieverPool) {
+					return $objectRetrieverPool->getObjectRetriever($hostname);
+				};
+
+				// Self (= provider) object
+				$scopedContainer['self.object'] = function() use ($scopedContainer, $providerCoid) {
+					return $scopedContainer['cloudobjects']->getObject($providerCoid);
+				};
+				$scopedContainer['self.object.namespace'] = function() use ($scopedContainer, $providerCoid) {
+					return $scopedContainer['cloudobjects']->getObject(COIDParser::getNamespaceCOID($providerCoid));
+				};
+
+				// Controller object
+				$scopedContainer['controller.object'] = function() use ($scopedContainer, $objectIri) {
+					return $scopedContainer['cloudobjects']->getObject($objectIri);
+				};
+				$scopedContainer['controller.object.namespace'] = function() use ($scopedContainer, $objectIri) {
+					return $scopedContainer['cloudobjects']->getObject(COIDParser::getNamespaceCOID($objectIri));
+				};
+
+				if ($request->headers->has('C-AAUID')
+						&& $request->headers->has('C-Access-Token')) {
+					
+					// Context and Account
+					$scopedContainer['context'] = function() use ($app) {
+						return $app['context'];
+					};
+					$scopedContainer['account'] = function() use ($app) {
+						return $app['account'];
+					};
+				}
+
+				if ($request->headers->has('C-Accessor')) {
+					$accessorCoid = new IRI($request->headers->get('C-Accessor'));
+
+					// Accessor object
+					$scopedContainer['accessor.object'] = function() use ($scopedContainer, $accessorCoid) {
+						return $scopedContainer['cloudobjects']->getObject($accessorCoid);
+					};
+
+					// Accessor namespace object
+					$scopedContainer['accessor.namespace.object'] = function() use ($scopedContainer, $accessorCoid) {
+						return $scopedContainer['cloudobjects']->getObject(COIDParser::getNamespaceCOID($accessorCoid));
+					};
+				}
+
+				// Config Helper
+				$scopedContainer['config'] = function() use ($scopedContainer) {
+					return new ConfigHelper($scopedContainer, [
+						'self.object', 'namespace.object', 'controller.object', 'controller.namespace.object',
+						'accessor.object', 'accessor.namespace.object'
+					]);
+				};
 			}
 		}
 	}
@@ -181,7 +237,7 @@ class Runner {
 					if (in_array('Silex\Api\ControllerProviderInterface', class_implements($controller))) {
 						$app['self.object'] = $object;
 
-						self::prepareProvidersAndTemplates($app, $object, $objectRetriever, $classRepository, $errorHandler);
+						self::prepareProvidersAndTemplates($app, $request, $object, $objectRetriever, $classRepository, $errorHandler);
 						self::prepareContext($app, $request, $config);
 						$app->mount('/', $controller);
 					}
@@ -211,7 +267,7 @@ class Runner {
 					if (in_array('Silex\Api\ControllerProviderInterface', class_implements($controller))) {
 						$app['self.object'] = $object;
 
-						self::prepareProvidersAndTemplates($app, $object, $objectRetriever, $classRepository, $errorHandler);
+						self::prepareProvidersAndTemplates($app, $request, $object, $objectRetriever, $classRepository, $errorHandler);
 						self::prepareContext($app, $request, $config);
 						$app->mount('/run/'.$path[2].'/'.$path[3].'/'.$path[4], $controller);
 					}

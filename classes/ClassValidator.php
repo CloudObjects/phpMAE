@@ -134,6 +134,7 @@ class ClassValidator {
 
       // Apply whitelist visitor
       $traverser = new NodeTraverser;
+      $traverser->addVisitor(new CustomValidationVisitor($this->sandbox));
       $traverser->addVisitor(new SandboxWhitelistVisitor($this->sandbox));
       $traverser->addVisitor(new ValidatorVisitor($this->sandbox));
       $traverser->traverse($ast);

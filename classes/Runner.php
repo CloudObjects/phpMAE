@@ -284,6 +284,15 @@ class Runner {
 			}
 		}
 
+		$app->before(function() use ($app) {
+			foreach ($app['routes']->all() as $route) {
+				$controller = $route->getDefaults()['_controller'];
+				if (is_string($controller) && substr($controller, 0, 27) != "\CloudObjects\PhpMAE\Class_") {
+					$app->abort(500, "Controller is trying to break out of sandbox!");
+				}
+			}
+		});
+
 		$app->after(function (Request $request, Response $response) use ($app) {
 			if (isset($app['context'])) {
 				$app['context']->processResponse($response);

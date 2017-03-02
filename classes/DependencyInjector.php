@@ -44,7 +44,7 @@ class DependencyInjector {
                 $value = $reader->getFirstValueString($d, 'phpmae:hasValue');
                 if (!isset($value))
                     throw new PhpMAEException("<".$object->getId()."> has an invalid dependency: StaticTextDependency without value!");
-                $dependency = function() {
+                $dependency = function() use ($value) {
                     return $value;
                 };
             } else

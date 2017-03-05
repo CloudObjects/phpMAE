@@ -134,7 +134,7 @@ class Runner {
 				$scopedContainer['self.object'] = function() use ($scopedContainer, $providerCoid) {
 					return $scopedContainer['cloudobjects']->getObject($providerCoid);
 				};
-				$scopedContainer['self.object.namespace'] = function() use ($scopedContainer, $providerCoid) {
+				$scopedContainer['self.namespace.object'] = function() use ($scopedContainer, $providerCoid) {
 					return $scopedContainer['cloudobjects']->getObject(COIDParser::getNamespaceCOID($providerCoid));
 				};
 
@@ -142,7 +142,7 @@ class Runner {
 				$scopedContainer['controller.object'] = function() use ($scopedContainer, $objectIri) {
 					return $scopedContainer['cloudobjects']->getObject($objectIri);
 				};
-				$scopedContainer['controller.object.namespace'] = function() use ($scopedContainer, $objectIri) {
+				$scopedContainer['controller.namespace.object'] = function() use ($scopedContainer, $objectIri) {
 					return $scopedContainer['cloudobjects']->getObject(COIDParser::getNamespaceCOID($objectIri));
 				};
 

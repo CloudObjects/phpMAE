@@ -58,7 +58,7 @@ class ClassValidator {
       'Silex\Application',
       'ArrayObject', 'DateTime', 'Exception',
       'ML\IRI\IRI',
-      'ML\JsonLD\JsonLD',
+      'ML\JsonLD\JsonLD', 'ML\JsonLD\Node',
       'GuzzleHttp\Client',
       'GuzzleHttp\HandlerStack', 'GuzzleHttp\Middleware',
       'GuzzleHttp\Handler\CurlHandler',

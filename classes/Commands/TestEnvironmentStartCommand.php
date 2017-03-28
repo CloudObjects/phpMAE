@@ -26,8 +26,24 @@ class TestEnvironmentStartCommand extends Command {
       $host = $input->getOption('host');
 
       TestEnvironmentManager::setTestEnvironment('http://localhost:'.$port.'/');
-      $dir = realpath(__DIR__."/../../web/");
-      passthru('cd '.$dir.'; php -S '.$host.':'.$port.' index.php');
+      $output->writeln('Local webserver started on port '.$port.'.');
+      $phar = \Phar::running();
+      if (!$phar || $phar == "") {
+        // Run extracted version
+        $dir = realpath(__DIR__."/../../web/");
+        passthru('cd '.$dir.'; php -S '.$host.':'.$port.' index.php');
+      } else {
+        // Run from phar
+        if (strpos($phar, '.phar') !== false) {
+          // Run directly
+          passthru('php -S '.$host.':'.$port.' '.$phar.'/web/index.php');
+        } else {
+          // Create copy with .phar extension because PHP might not recognize the file otherwise
+          $pharCp = sys_get_temp_dir().DIRECTORY_SEPARATOR.'phpmae.phar';
+          copy(substr($phar, 7), $pharCp);
+          passthru('php -S '.$host.':'.$port.' phar://'.$pharCp.'/web/index.php');
+        }
+      }
     }
 
 }

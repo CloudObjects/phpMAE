@@ -23,7 +23,11 @@
 		"classmap" : ["vendor/f21/jwt/JWT"],
 		"psr-4": {
 			"CloudObjects\\PhpMAE\\" : "classes"
-		}
+		},
+		"files" : [
+			"vendor/semsol/arc2/ARC2_getFormat.php",
+			"vendor/semsol/arc2/ARC2_getPreferredFormat.php"			
+		]
 	},
 	"require-dev" : {
 		"phpunit/phpunit": "~5.7"

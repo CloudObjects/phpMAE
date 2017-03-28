@@ -10,6 +10,13 @@ before_script: make all
 script: vendor/bin/phpunit
 
 deploy:
-  provider: script
-  skip_cleanup: true
-  script: sh ./deploy.sh
+  - provider: script
+    skip_cleanup: true
+    script: sh ./deploy.sh
+  - provider: releases
+    api_key:
+      secure: cAdVNxyP3j6DHWwQ+RmMdvwcLXe7VAd+yuewHCfC1S/nLzlBwZF4d/Q2e+nIQG3BF6O1oTmewbAN+qYJjgaiwcBFJQsx++ibQnuW/LE5ww5eROGxb5ghEeq8w79qqJNCZmX/nhz0mCTA0MBoahh25EhH/efQxI5l7GiFQ8u9hcdUcl7Dx4l6oQZQOK3w6byBBzapjj5eOZZb42IhSMEExaj/sxse7OlDVlnOF29Iorsb/WzcjvBQettWlQ4a2rMtjLIm43CmGP8/nJqMJDB8Ga63AE33eK67wjOxCsvqJ6QZf6cBKL5GQDziJU3qYtB1wtZ/svjLZWhpUML+zlhU4QHg+lZW0wZMzmCwe0Kw8hjh1Zf9Oa1P2moBYZIi5kSKBt9+CZsFcVtC4npyJZ5M/O9mKG/R3+A4j9iFbI78cr8TFzzuZinv1Iv+7W8URKmyCJxRkpWBspgCrS6APKUlSOChy1YBKJVFWLMTUqnqwDc8WgFstTSkNuf0qpWDY14qpL9vYBhZcOZVC0lvI2C3kL1QBLXziKjnV1b6g/2+hJUaU1GlU541OZfpkESnnaNpMpVH+R25MCkLeF36Ox/rj0uWnN4mZcwmtv+rKknsgaIXZRdNnRMHdaOPw7lfnGq/QRzmOooE9hnzErUmTpsaEQ1tT6f2j8dNmdILhuNDrSM=
+    file: phpmae.phar
+    on:
+      repo: CloudObjects/phpMAE
+      tags: true

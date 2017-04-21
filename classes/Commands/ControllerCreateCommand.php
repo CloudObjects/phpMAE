@@ -12,6 +12,7 @@ use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 use Cilex\Provider\Console\Command;
 use CloudObjects\SDK\COIDParser;
+use CloudObjects\PhpMAE\CredentialManager;
 
 class ControllerCreateCommand extends Command {
 
@@ -24,6 +25,9 @@ class ControllerCreateCommand extends Command {
     }
 
     protected function execute(InputInterface $input, OutputInterface $output) {
+      if (!CredentialManager::isConfigured())
+        throw new \Exception("The 'cloudobjects' CLI tool must be installed and authorized.");
+
       $coid = COIDParser::fromString($input->getArgument('coid'));
 
       if (COIDParser::getType($coid)!=COIDParser::COID_VERSIONED

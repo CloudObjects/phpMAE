@@ -9,6 +9,7 @@ namespace CloudObjects\PhpMAE\Commands;
 use Cilex\Provider\Console\Command;
 use Symfony\Component\Console\Output\OutputInterface;
 use CloudObjects\SDK\COIDParser;
+use CloudObjects\PhpMAE\CredentialManager;
 
 abstract class AbstractObjectCommand extends Command {
 
@@ -18,6 +19,9 @@ abstract class AbstractObjectCommand extends Command {
   protected $index;
 
   protected function parse($coid) {
+    if (!CredentialManager::isConfigured())
+        throw new \Exception("The 'cloudobjects' CLI tool must be installed and authorized.");
+
     $this->coid = COIDParser::fromString($coid);
 
     if (COIDParser::getType($this->coid)!=COIDParser::COID_VERSIONED

@@ -11,6 +11,7 @@ use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 use Cilex\Provider\Console\Command;
 use CloudObjects\PhpMAE\TestEnvironmentManager;
+use CloudObjects\PhpMAE\CredentialManager;
 
 class TestEnvironmentStartCommand extends Command {
 
@@ -22,6 +23,9 @@ class TestEnvironmentStartCommand extends Command {
     }
 
     protected function execute(InputInterface $input, OutputInterface $output) {
+      if (!CredentialManager::isConfigured())
+        throw new \Exception("The 'cloudobjects' CLI tool must be installed and authorized.");
+
       $port = $input->getOption('port');
       $host = $input->getOption('host');
 

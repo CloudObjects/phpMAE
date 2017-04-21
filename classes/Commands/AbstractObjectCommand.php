@@ -20,8 +20,9 @@ abstract class AbstractObjectCommand extends Command {
   protected function parse($coid) {
     $this->coid = COIDParser::fromString($coid);
 
-    if (COIDParser::getType($this->coid)==COIDParser::COID_INVALID)
-      throw new \Exception("Invalid COID: ".$coid);
+    if (COIDParser::getType($this->coid)!=COIDParser::COID_VERSIONED
+        && COIDParser::getType($this->coid)!=COIDParser::COID_UNVERSIONED)
+      throw new \Exception("Invalid COID: ".(string)$this->coid);
 
     $name = COIDParser::getName($this->coid);
     $version = COIDParser::getVersion($this->coid);

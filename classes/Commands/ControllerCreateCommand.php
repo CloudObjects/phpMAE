@@ -26,7 +26,8 @@ class ControllerCreateCommand extends Command {
     protected function execute(InputInterface $input, OutputInterface $output) {
       $coid = COIDParser::fromString($input->getArgument('coid'));
 
-      if (COIDParser::getType($coid)==COIDParser::COID_INVALID)
+      if (COIDParser::getType($coid)!=COIDParser::COID_VERSIONED
+          && COIDParser::getType($coid)!=COIDParser::COID_UNVERSIONED)
         throw new \Exception("Invalid COID: ".(string)$coid);
 
       $name = COIDParser::getName($coid);

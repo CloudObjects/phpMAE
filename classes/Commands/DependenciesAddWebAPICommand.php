@@ -28,7 +28,8 @@ class DependenciesAddWebAPICommand extends AbstractObjectCommand {
 
     // Check Web API
     $coidWebAPI = COIDParser::fromString($input->getArgument('coid-webapi'));
-    if (COIDParser::getType($coidWebAPI) == COIDParser::COID_INVALID)
+    if (COIDParser::getType($coidWebAPI)!=COIDParser::COID_VERSIONED
+        && COIDParser::getType($coidWebAPI)!=COIDParser::COID_UNVERSIONED)
       throw new \Exception("Invalid COID: ".$coid);
 
     // Create BNode with configuration

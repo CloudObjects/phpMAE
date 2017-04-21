@@ -29,7 +29,8 @@ class ControllerAddProviderCommand extends AbstractObjectCommand {
 
     // Check provider
     $coidProvider = COIDParser::fromString($input->getArgument('coid-provider'));
-    if (COIDParser::getType($coidProvider)==COIDParser::COID_INVALID)
+    if (COIDParser::getType($coidProvider)!=COIDParser::COID_VERSIONED
+        && COIDParser::getType($coidProvider)!=COIDParser::COID_UNVERSIONED)
       throw new \Exception("Invalid COID: ".$coid);
 
     // Edit RDF

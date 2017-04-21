@@ -207,13 +207,19 @@ class Runner {
 		$objectRetriever = new ObjectRetriever(array(
 			'cache_provider' => $config['object_cache'],
 			'cache_provider.file.directory' => '/tmp/cache',
-			'cache_provider.redis.host' => $config['redis']['host'],
-			'cache_provider.redis.port' => $config['redis']['port'],
+			'cache_provider.redis.host' => @$config['redis']['host'],
+			'cache_provider.redis.port' => @$config['redis']['port'],
 			'static_config_path' => __DIR__.'/../../../static-objects',
-			'auth_ns' => $config['cloudobjects.auth_ns'],
-			'auth_secret' => $config['cloudobjects.auth_secret']
+			'auth_ns' => @$config['cloudobjects.auth_ns'],
+			'auth_secret' => @$config['cloudobjects.auth_secret']
 		));
-		$app['phpmae.identity'] = $config['cloudobjects.auth_ns'];
+		$app['phpmae.identity'] = @$config['cloudobjects.auth_ns'];
+
+		if (!isset($config['cloudobjects.auth_ns']) && CredentialManager::isConfigured()) {
+			// Access Object API via Account Gateway using local developer account
+			$objectRetriever->setClient(CredentialManager::getAccountContext()->getClient(), '/ws/');
+			$app['debug'] = true;
+		}
 
 		// Initialize Class Repository
 		$classRepository = new ClassRepository($config['classes']);

@@ -20,6 +20,10 @@ class ObjectRetrieverPool {
     }
 
     public function getObjectRetriever($hostname) {
+        if (!isset($this->baseHostname))
+            // Never create a new retriever when using developer credentials
+            return $this->baseObjectRetriever;
+
         if (!isset($this->objectRetrievers[$hostname])) {
 			$config = $this->baseObjectRetriever->getClient()->getConfig();
 			$config['headers']['C-Act-As'] = $hostname;

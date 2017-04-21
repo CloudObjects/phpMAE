@@ -1,0 +1,14 @@
+<?php
+
+return array(
+	'enable_vhost_controllers' => false,
+	'exclude_vhosts' => [],
+	'debug' => false,
+	'account_data_cache' => 'none',
+	'object_cache' => 'file',
+	'redis' => [],
+	'classes' => [
+		'cache_dir' => '/tmp/cache',
+		'uploads_dir' => '/tmp/uploads'
+	]
+);

@@ -17,6 +17,10 @@ robo.phar:
 	# Get a copy of robo
 	wget http://robo.li/robo.phar
 
-phpmae.phar: phpmae.php vendor RoboFile.php robo.phar
+config.php: config.php.default
+	# Use .default if no other config provided
+	cp config.php.default config.php
+
+phpmae.phar: phpmae.php config.php vendor RoboFile.php robo.phar
 	# Building archive with robo
 	php robo.phar phar

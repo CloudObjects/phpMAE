@@ -14,6 +14,7 @@ deploy:
     skip_cleanup: true
     script: sh ./deploy.sh
   - provider: releases
+    skip_cleanup: true
     api_key:
       secure: mzPpcSF/eBrsw/RUQBAkvTQz685//rkSN7Pj7De4VYOdwe+sA0gTW2wdcY4EMq73g9jv32be3G/lZfu/otYAJo2Z+pIzwGnMHjw8jzY0O+YR1S9oejS6ooqbFO9qTsDZfvrK7VNaJ397+cpPB23HyKVRH0YOdxKRkW0OK58t2iq0k97HOF8OxeFYmmSR9pQBs1zO2mszcL9GlXIoQMtKzJEVqprE7PHyfX7Zx2O9Zrax/cF8qL3um0joii/hxIqIePdcBikCQqrgYmH6UiyeYLg/Akrw0GWCAG9sJoFuJ6H7rcq5j5RZM11R7v66g0uLO1EeXKea4zmgGQjYiDFy0O0G0UQwql86wfwXRRFQXpT+aLLT0ZohHKfn7AcwKj7tf1YX0CbTgrcNpRzZk3caqta1R884QukLrd8wdlPozWzZsUPo8N8/XTVAPkITinZnrqIpkrbZS/DWbdctLpfQyqY4ez+AAPMB3RO9Fuu/mANlMgLl1KoeVVCh8Zr7+BRC2r1mgGEw7OZz2KWBeWx1zlSEKw7LVNPOPFcdH3QB1Gceq0GqoItludsDfX1VSU2aktFnbjvB0FqvyNtWswRs9xi+pvqLgcjgzbLImqLdG7APgTI8xOtWpw8JcXRezD2DFKyl4qCI87VqcMWy8LAeNCFt1TUqpq/W0mYaFRmKAGg=
     file: phpmae.phar

@@ -33,17 +33,18 @@ class ClassValidator {
     ));
     $this->sandbox->whitelist(array(
       'functions' => array(
-        'abs', 'array_key_exists', 'array_diff', 'array_keys', 'array_merge', 'array_search',
+        'abs', 'array_key_exists', 'array_diff', 'array_filter', 'array_keys', 'array_merge', 'array_search',
         'array_slice', 'array_unshift', 'base64_decode', 'base64_encode', 'count',
         'date', 'explode', 'filter_var', 'get_class', 'gmdate',
         'hash', 'hash_hmac', 'http_build_query', 'idate', 'implode', 'is_a',
         'in_array', 'is_array', 'is_numeric', 'json_decode', 'json_encode',
         'ksort', 'md5',
-        'parse_str', 'pathinfo', 'preg_match', 'preg_match_all', 'preg_replace', 'preg_split',
+        'parse_str', 'parse_url', 'pathinfo', 'preg_match', 'preg_match_all', 'preg_replace', 'preg_split',
         'rand', 'rawurlencode', 'round', 'sha1', 'strlen',
         'str_replace', 'substr', 'str_split', 'strpos', 'strtolower', 'strtoupper',
         'strtr', 'time', 'trim', 'uksort', 'uniqid', 'usort', 'urlencode', 'var_dump',
-        'promise\unwrap'
+        'promise\unwrap',
+        'guzzlehttp\psr7\parse_header'
       )
     ));
 

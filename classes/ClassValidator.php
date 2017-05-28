@@ -157,4 +157,12 @@ class ClassValidator {
     $this->validate($sourceCode, 'Pimple\ServiceProviderInterface');
   }
 
+  public static function isController($class) {
+    return (in_array('Silex\Api\ControllerProviderInterface', class_implements($class)));
+  }
+
+  public static function isProvider($class) {
+    return (in_array('Pimple\ServiceProviderInterface', class_implements($class)));
+  }
+
 }

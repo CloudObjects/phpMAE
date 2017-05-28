@@ -11,7 +11,7 @@ use Silex\Application;
 use Symfony\Component\HttpFoundation\Request, Symfony\Component\HttpFoundation\Response;
 use ML\IRI\IRI, ML\JsonLD\Node;
 use GuzzleHttp\Client;
-use CloudObjects\SDK\AccountGateway\AccountContext, CloudObjects\SDK\ObjectRetriever, CloudObjects\SDK\COIDParser;
+use CloudObjects\SDK\AccountGateway\AccountContext, CloudObjects\SDK\ObjectRetriever, CloudObjects\SDK\COIDParser, CloudObjects\SDK\NodeReader;
 use Doctrine\Common\Cache\RedisCache;
 use CloudObjects\PhpMAE\Exceptions\PhpMAEException;
 
@@ -203,8 +203,15 @@ class Runner {
 
 		$path = explode('/', $request->getPathInfo());
 
+		// Initialize Reader
+		$reader = new NodeReader([
+			'prefixes' => [
+				'phpmae' => 'coid://phpmae.cloudobjects.io/'
+			]
+		]);
+
 		// Initialize CloudObjects SDK
-		$objectRetriever = new ObjectRetriever(array(
+		$objectRetriever = new ObjectRetriever([
 			'cache_provider' => $config['object_cache'],
 			'cache_provider.file.directory' => '/tmp/cache',
 			'cache_provider.redis.host' => @$config['redis']['host'],
@@ -212,7 +219,7 @@ class Runner {
 			'static_config_path' => __DIR__.'/../../../static-objects',
 			'auth_ns' => @$config['cloudobjects.auth_ns'],
 			'auth_secret' => @$config['cloudobjects.auth_secret']
-		));
+		]);
 		$app['phpmae.identity'] = @$config['cloudobjects.auth_ns'];
 
 		if (!isset($config['cloudobjects.auth_ns']) && CredentialManager::isConfigured()) {
@@ -232,20 +239,50 @@ class Runner {
 			// Vhost mode
 			$namespaceObject = $objectRetriever->get('coid://'.$request->getHost());
 			if ($namespaceObject
-					&& $namespaceObject->getProperty('coid://phpmae.cloudobjects.io/hasDefaultController')) {
-				// Get controller
+					&& $reader->hasProperty($namespaceObject, 'phpmae:hasDefaultController')) {
+
+				// Get default controller
 				try {
-					$object = $objectRetriever
-						->get($namespaceObject->getProperty('coid://phpmae.cloudobjects.io/hasDefaultController')->getId());
+					$object = $objectRetriever->getObject(
+						$reader->getFirstValueIRI($namespaceObject, 'phpmae:hasDefaultController'));
 					if (!$object) throw new PhpMAEException("Object <".$coid."> not found.");
 					$controller = $classRepository->createInstance($object, $objectRetriever, $errorHandler);
 					// Mount API if valid
-					if (in_array('Silex\Api\ControllerProviderInterface', class_implements($controller))) {
+					if (ClassValidator::isController($controller)) {
 						$app['self.object'] = $object;
 
-						self::prepareProvidersAndTemplates($app, $request, $object, $objectRetriever, $classRepository, $errorHandler);
+						self::prepareProvidersAndTemplates($app, $request, $object,
+							$objectRetriever, $classRepository, $errorHandler);
 						self::prepareContext($app, $request, $config);
 						$app->mount('/', $controller);
+					}
+				} catch (\Exception $e) {
+					// remember exception for later handling
+					$app['_exception_caught'] = $e;
+				}
+			} elseif ($namespaceObject
+					&& $reader->hasProperty($namespaceObject, 'phpmae:hasMountPoint')) {
+				// Find mounted controllers
+				try {
+					$mps = $reader->getAllValuesNode($namespaceObject, 'phpmae:hasMountPoint');
+					foreach ($mps as $mp) {
+						if ($reader->getFirstValueString($mp, 'phpmae:mountsOnPath')
+								== $path[1]) {
+							$object = $objectRetriever->getObject(
+								$reader->getFirstValueIRI($mp, 'phpmae:mountsController'));
+							if (!$object) throw new PhpMAEException("Object <".$coid."> not found.");
+							$controller = $classRepository->createInstance($object,
+								$objectRetriever, $errorHandler);
+							// Mount API if valid
+							if (ClassValidator::isController($controller)) {
+								$app['self.object'] = $object;
+
+								self::prepareProvidersAndTemplates($app, $request,
+									$object, $objectRetriever, $classRepository, $errorHandler);
+								self::prepareContext($app, $request, $config);
+								$app->mount('/'.$path[1], $controller);
+							}
+						}
 					}
 				} catch (\Exception $e) {
 					// remember exception for later handling
@@ -270,10 +307,11 @@ class Runner {
 
 					$controller = $classRepository->createInstance($object, $objectRetriever, $errorHandler);
 					// Mount API if valid
-					if (in_array('Silex\Api\ControllerProviderInterface', class_implements($controller))) {
+					if (ClassValidator::isController($controller)) {
 						$app['self.object'] = $object;
 
-						self::prepareProvidersAndTemplates($app, $request, $object, $objectRetriever, $classRepository, $errorHandler);
+						self::prepareProvidersAndTemplates($app, $request, $object,
+							$objectRetriever, $classRepository, $errorHandler);
 						self::prepareContext($app, $request, $config);
 						$app->mount('/run/'.$path[2].'/'.$path[3].'/'.$path[4], $controller);
 					}

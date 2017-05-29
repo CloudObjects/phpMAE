@@ -4,8 +4,8 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file",
         "This file is @generated automatically"
     ],
-    "hash": "82c93809bff7fb01082ce79347a54c3f",
-    "content-hash": "eda6c6cbf49ac4324d07e43fd43898d4",
+    "hash": "b202fb2c0de5ae42f05f559a0bd62fab",
+    "content-hash": "aa1cbfbe44bfb0cdb166ddfb4c635eca",
     "packages": [
         {
             "name": "cilex/cilex",
@@ -670,6 +670,56 @@
             ],
             "abandoned": "lcobucci/jwt",
             "time": "2013-01-11 00:51:49"
+        },
+        {
+            "name": "gamringer/php-json-pointer",
+            "version": "3.1",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/gamringer/JSONPointer.git",
+                "reference": "866d808a0a26016888bd9624bb591592412067de"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/gamringer/JSONPointer/zipball/866d808a0a26016888bd9624bb591592412067de",
+                "reference": "866d808a0a26016888bd9624bb591592412067de",
+                "shasum": ""
+            },
+            "require": {
+                "php": ">=5.6"
+            },
+            "require-dev": {
+                "pdepend/pdepend": "@stable",
+                "phpmd/phpmd": "@stable",
+                "phpunit/phpunit": "@stable",
+                "sebastian/phpcpd": "@stable",
+                "squizlabs/php_codesniffer": "@stable"
+            },
+            "type": "library",
+            "autoload": {
+                "psr-4": {
+                    "gamringer\\JSONPointer\\": "src/"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Guillaume Amringer",
+                    "email": "g.amringer@gmail.com"
+                }
+            ],
+            "description": "PHP JSON Pointer (RFC6901) implementation",
+            "homepage": "https://github.com/gamringer/JSONPointer",
+            "keywords": [
+                "6901",
+                "RFC6901",
+                "json",
+                "json pointer"
+            ],
+            "time": "2015-08-28 11:00:36"
         },
         {
             "name": "guzzlehttp/guzzle",

@@ -52,7 +52,8 @@ class ClassValidator {
       'Pimple\ServiceProviderInterface',
       'Silex\Api\ControllerProviderInterface',
       'Symfony\Component\EventDispatcher\EventSubscriberInterface',
-      'Psr\Http\Message\RequestInterface'
+      'Psr\Http\Message\RequestInterface',
+      'CloudObjects\PhpMAE\FunctionInterface'
     );
     $this->whitelisted_types = array(
       'Pimple\Container',
@@ -69,6 +70,7 @@ class ClassValidator {
       'Symfony\Component\HttpFoundation\RedirectResponse',
       'Symfony\Component\HttpFoundation\Request',
       'Symfony\Component\HttpFoundation\Response',
+      'Symfony\Component\HttpFoundation\ParameterBag',
       'Symfony\Component\DomCrawler\Crawler',
       'CloudObjects\SDK\NodeReader',
       'CloudObjects\SDK\AccountGateway\AccountContext',
@@ -154,12 +156,20 @@ class ClassValidator {
     $this->validate($sourceCode, 'Silex\Api\ControllerProviderInterface');
   }
 
+  public function validateAsFunction($sourceCode) {
+    $this->validate($sourceCode, 'CloudObjects\PhpMAE\FunctionInterface');
+  }
+
   public function validateAsProvider($sourceCode) {
     $this->validate($sourceCode, 'Pimple\ServiceProviderInterface');
   }
 
   public static function isController($class) {
     return (in_array('Silex\Api\ControllerProviderInterface', class_implements($class)));
+  }
+
+  public static function isFunction($class) {
+    return (in_array('CloudObjects\PhpMAE\FunctionInterface', class_implements($class)));
   }
 
   public static function isProvider($class) {

@@ -24,16 +24,17 @@ class UploadController implements ControllerProviderInterface {
 			$validator = new ClassValidator;
 
 			try {
-				if (TypeChecker::isController($object)) {
+				if (TypeChecker::isController($object))
 					// Validate as controller
 					$validator->validateAsController($content);
-				} else
-				if (TypeChecker::isProvider($object)) {
+				elseif (TypeChecker::isFunction($object))
+					// Validate as controller
+					$validator->validateAsFunction($content);
+				elseif (TypeChecker::isProvider($object))
 					// Validate as provider
 					$validator->validateAsProvider($content);
-				} else {
+				else
 					throw new \Exception('Invalid object type.');
-				}
 			} catch (\Exception $e) {
 				$response = $app->json(array(
 					'error_code' => get_class($e),

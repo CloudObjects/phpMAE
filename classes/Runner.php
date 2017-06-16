@@ -8,10 +8,12 @@ namespace CloudObjects\PhpMAE;
 
 use Pimple\Container;
 use Silex\Application;
-use Symfony\Component\HttpFoundation\Request, Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\HttpFoundation\Request, Symfony\Component\HttpFoundation\Response,
+	Symfony\Component\HttpFoundation\ParameterBag;
 use ML\IRI\IRI, ML\JsonLD\Node;
 use GuzzleHttp\Client;
-use CloudObjects\SDK\AccountGateway\AccountContext, CloudObjects\SDK\ObjectRetriever, CloudObjects\SDK\COIDParser, CloudObjects\SDK\NodeReader;
+use CloudObjects\SDK\AccountGateway\AccountContext, CloudObjects\SDK\ObjectRetriever,
+	CloudObjects\SDK\COIDParser, CloudObjects\SDK\NodeReader;
 use Doctrine\Common\Cache\RedisCache;
 use CloudObjects\PhpMAE\Exceptions\PhpMAEException;
 
@@ -305,15 +307,39 @@ class Runner {
 					$object = $objectRetriever->get($coid);
 					if (!$object) throw new PhpMAEException("Object <".$coid."> not found.");
 
-					$controller = $classRepository->createInstance($object, $objectRetriever, $errorHandler);
-					// Mount API if valid
-					if (ClassValidator::isController($controller)) {
+					$runclass = $classRepository->createInstance($object, $objectRetriever, $errorHandler);
+					if (ClassValidator::isController($runclass)) {
+						// Mount if valid controller
 						$app['self.object'] = $object;
 
 						self::prepareProvidersAndTemplates($app, $request, $object,
 							$objectRetriever, $classRepository, $errorHandler);
 						self::prepareContext($app, $request, $config);
-						$app->mount('/run/'.$path[2].'/'.$path[3].'/'.$path[4], $controller);
+						$app->mount('/run/'.$path[2].'/'.$path[3].'/'.$path[4], $runclass);
+					} else
+					if (ClassValidator::isFunction($runclass)) {
+						// Create single route for function
+						$app->post('/run/'.$path[2].'/'.$path[3].'/'.$path[4].'/',
+							function(Request $r) use ($runclass, $app) {
+								// Prepare input
+								if ($r->request->count() <= 1 && $r->getContent()[0] == "{")
+									$parameters = new ParameterBag(json_decode($r->getContent(), true));
+								else
+									$parameters = $r->request;
+								
+								// Run function
+								$result = $runclass->execute($parameters, $app);
+
+								// Generate response
+								if (!isset($result))
+									return new Response("", 204);
+								elseif (is_string($result))
+									return new Response($result, 200, [ 'Content-Type' => 'text/plain' ]);
+								elseif (is_a($result, 'Symfony\Component\HttpFoundation\Response'))
+									return $result;
+								else
+									return $app->json($result);
+							});
 					}
 				} catch (\Exception $e) {
 					// remember exception for later handling

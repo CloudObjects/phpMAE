@@ -81,9 +81,8 @@ class ClassRepository {
 	 */
 	public function createInstance(Node $object, ObjectRetriever $objectRetriever, ErrorHandler $errorHandler) {
 		// Check type
-		if ((!TypeChecker::isController($object)) && (!TypeChecker::isProvider($object))) {
+		if (!TypeChecker::isClass($object))
 			throw new PhpMAEException("<".$object->getId()."> must have a valid type.");
-		}
 
 		$uri = new IRI($object->getId());
 		$vars = $this->getURIVars($uri);
@@ -112,14 +111,15 @@ class ClassRepository {
 				// Run source code through validator to ensure sanity
 				$validator = new ClassValidator;
 
-				if (TypeChecker::isController($object)) {
+				if (TypeChecker::isController($object))
 					// Validate as controller
 					$validator->validateAsController($sourceCode);
-				} else
-				if (TypeChecker::isProvider($object)) {
+				elseif (TypeChecker::isProvider($object))
+					// Validate as function
+					$validator->validateAsFunction($sourceCode);
+				elseif (TypeChecker::isProvider($object))
 					// Validate as provider
 					$validator->validateAsProvider($sourceCode);
-				}
 
 				// Add namespace declaration
 				$sourceCode = str_replace("<?php", "<?php namespace ".$vars['php_namespace'].";", $sourceCode);

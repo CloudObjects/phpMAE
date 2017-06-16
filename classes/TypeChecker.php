@@ -7,24 +7,35 @@
 namespace CloudObjects\PhpMAE;
 
 use ML\JsonLD\Node;
+use CloudObjects\SDK\NodeReader;
 
 class TypeChecker {
 
+  private static $reader;
+
   public static function isType(Node $object, $typeString) {
-    $types = $object->getType();
-    if (!is_array($types)) $types = array($types);
-    foreach ($types as $t) {
-      if (is_a($t, 'ML\JsonLD\Node') && $t->getId()==$typeString) return true;
-    }
-    return false;
+    if (!isset(self::$reader))
+      self::$reader = new NodeReader([ 'prefixes' => [
+        'phpmae' => 'coid://phpmae.cloudobjects.io/'
+      ]]);
+    
+    return self::$reader->hasType($object, $typeString);
+  }
+
+  public static function isClass(Node $object) {
+    return self::isType($object, 'phpmae:Class');
   }
 
   public static function isController(Node $object) {
-    return self::isType($object, 'coid://phpmae.cloudobjects.io/ControllerClass');
+    return self::isType($object, 'phpmae:ControllerClass');
+  }
+
+  public static function isFunction(Node $object) {
+    return self::isType($object, 'phpmae:FunctionClass');
   }
 
   public static function isProvider(Node $object) {
-    return self::isType($object, 'coid://phpmae.cloudobjects.io/ServiceProviderClass');
+    return self::isType($object, 'phpmae:ServiceProviderClass');
   }
 
 }

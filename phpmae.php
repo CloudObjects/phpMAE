@@ -13,6 +13,11 @@ $app->command(new ControllerValidateCommand);
 $app->command(new ControllerTestEnvCommand);
 $app->command(new ControllerAddProviderCommand);
 
+$app->command(new FunctionCreateCommand);
+$app->command(new FunctionDeployCommand);
+$app->command(new FunctionValidateCommand);
+$app->command(new FunctionTestEnvCommand);
+
 $app->command(new DependenciesAddWebAPICommand);
 $app->command(new DependenciesAddAttachmentCommand);
 

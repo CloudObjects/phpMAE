@@ -114,7 +114,7 @@ class ClassRepository {
 				if (TypeChecker::isController($object))
 					// Validate as controller
 					$validator->validateAsController($sourceCode);
-				elseif (TypeChecker::isProvider($object))
+				elseif (TypeChecker::isFunction($object))
 					// Validate as function
 					$validator->validateAsFunction($sourceCode);
 				elseif (TypeChecker::isProvider($object))

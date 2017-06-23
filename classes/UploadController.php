@@ -28,7 +28,7 @@ class UploadController implements ControllerProviderInterface {
 					// Validate as controller
 					$validator->validateAsController($content);
 				elseif (TypeChecker::isFunction($object))
-					// Validate as controller
+					// Validate as function
 					$validator->validateAsFunction($content);
 				elseif (TypeChecker::isProvider($object))
 					// Validate as provider

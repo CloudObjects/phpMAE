@@ -41,4 +41,47 @@ class RoboFile extends \Robo\Tasks {
         $code = $this->_exec('php phpmae.phar');
     }
 
+    public function buildFunctionWhitelist() {
+        $allFunctions = get_defined_functions()['internal'];
+        $whitelisted = file_exists('data/function.whitelist.json')
+            ? json_decode(file_get_contents('data/function.whitelist.json'), true) : [];
+        $blacklisted = file_exists('data/function.blacklist.json')
+            ? json_decode(file_get_contents('data/function.blacklist.json'), true) : [];
+        
+        $client = new \GuzzleHttp\Client([ 'base_uri' => 'http://php.net/manual/en/' ]);
+
+        foreach ($allFunctions as $f) {
+            // Ignore if already handled
+            if (in_array($f, $whitelisted) || in_array($f, $blacklisted))
+                continue;
+            
+            $this->yell($f);
+
+            // Get and display documentation
+            $crawler = new \Symfony\Component\DomCrawler\Crawler(
+                $client->get('function.'.str_replace('_', '-', $f).'.php')->getBody()->getContents()
+            );
+            $this->say($crawler->filter('.refpurpose')->text());
+            $this->say($crawler->filter('.refsect1.description')->text());
+
+            // Ask what to do
+            $action = null;
+            while (!in_array($action, ['w','b','s','x']))
+                $action = $this->ask('(w)hitelist, (b)lacklist, (s)kip, e(x)it');
+            
+            switch ($action) {
+                case "w":
+                    $whitelisted[] = $f;
+                    break;
+                case "b":
+                    $blacklisted[] = $f;
+                    break;
+                case "x":
+                    file_put_contents('data/function.whitelist.json', json_encode($whitelisted));
+                    file_put_contents('data/function.blacklist.json', json_encode($blacklisted));
+                    exit(0);
+            }
+        }
+    }
+
 }

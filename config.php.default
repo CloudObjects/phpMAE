@@ -10,5 +10,6 @@ return array(
 	'classes' => [
 		'cache_dir' => '/tmp/cache',
 		'uploads_dir' => '/tmp/uploads'
-	]
+	],
+	'accountgateways.base_url_template' => ''
 );

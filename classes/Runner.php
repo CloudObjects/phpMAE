@@ -27,6 +27,11 @@ class Runner {
 				&& $request->headers->has('C-Access-Token')) {
 
 			$context = AccountContext::fromSymfonyRequest($request);
+			if (isset($config['accountgateways.base_url_template']) && !empty($config['accountgateways.base_url_template'])) {
+				// Apply custom configuration for Account Gateway URL
+				$context->setAccountGatewayBaseURLTemplate($config['accountgateways.base_url_template']);
+			}
+			
 			$app['context'] = function() use ($context) {
 				return $context;
 			};

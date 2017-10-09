@@ -12,7 +12,8 @@ echo "<?php return array(" \
 	"	'uploads_dir' => '/tmp/uploads' " \
 	" ), " \
 	" 'cloudobjects.auth_ns' => '$CO_AUTH_NS', " \
-	" 'cloudobjects.auth_secret' => '$CO_AUTH_SECRET' " \
+	" 'cloudobjects.auth_secret' => '$CO_AUTH_SECRET', " \
+	" 'accountgateways.base_url_template' => '$AGW_BASE_URL' " \
     " ); " > /var/www/app/config.php
 
 # Run start script from parent container

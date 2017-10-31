@@ -12,11 +12,19 @@ use CloudObjects\SDK\ObjectRetriever;
 class ObjectRetrieverPool {
 
     private $baseObjectRetriever;
+    private $baseHostname;
+    private $options;
     private $objectRetrievers = [];
 
-    public function __construct(ObjectRetriever $baseObjectRetriever, $baseHostname) {
+    public function __construct(ObjectRetriever $baseObjectRetriever, $baseHostname, $options) {
         $this->baseObjectRetriever = $baseObjectRetriever;
+        $this->baseHostname = $baseHostname;
         $this->objectRetrievers[$baseHostname] = $baseObjectRetriever;
+        $this->options = $options;
+    }
+
+    public function getBaseObjectRetriever() {
+        return $this->baseObjectRetriever;
     }
 
     public function getObjectRetriever($hostname) {
@@ -28,7 +36,9 @@ class ObjectRetrieverPool {
 			$config = $this->baseObjectRetriever->getClient()->getConfig();
 			$config['headers']['C-Act-As'] = $hostname;
 
-			$retriever = new ObjectRetriever;
+			$retriever = new ObjectRetriever(array_merge($this->options, [
+                'cache_prefix' => 'clobj:'.$hostname.':'
+            ]));
 			$retriever->setClient(new Client($config));
 			$this->objectRetrievers[$hostname] = $retriever;
         }

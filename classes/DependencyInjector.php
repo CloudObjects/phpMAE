@@ -24,9 +24,9 @@ class DependencyInjector {
      *
      * @param Node $object The object representing the PHP class.
      * @param Container $container The container on which the dependencies should be added.
-     * @param ObjectRetriever $retriever The retriever that should be used to fetch additional objects from CloudObjects.
+     * @param ObjectRetriever $retriever The retriever pool.
      */
-    public static function processDependencies(Node $object, Container $container, ObjectRetriever $retriever) {
+    public static function processDependencies(Node $object, Container $container, ObjectRetrieverPool $retrieverPool) {
         $dependencies = $object->getProperty('coid://phpmae.cloudobjects.io/hasDependency');
         if (!isset($dependencies)) return; // no dependencies to process
         if (!is_array($dependencies)) $dependencies = array($dependencies);
@@ -53,9 +53,11 @@ class DependencyInjector {
                 $apiCoid = $reader->getFirstValueString($d, 'phpmae:hasAPI');
                 if (!isset($apiCoid))
                     throw new PhpMAEException("<".$object->getId()."> has an invalid dependency: WebAPIDependency without API!");
-                $dependency = function() use ($apiCoid, $retriever, $object) {
-                    return APIClientFactory::createClient($retriever->get($apiCoid),
-                        $retriever->get(COIDParser::getNamespaceCOID(new IRI($object->getId()))));
+                $dependency = function() use ($apiCoid, $retrieverPool, $object) {
+                    $namespaceCoid = COIDParser::getNamespaceCOID(new IRI($object->getId()));
+                    $apiCoid = new IRI($apiCoid);                    
+                    return APIClientFactory::createClient($retrieverPool->getBaseObjectRetriever()->get($apiCoid),
+                        $retrieverPool->getObjectRetriever($apiCoid->getHost())->get($namespaceCoid));
                 };
             } else
                 throw new PhpMAEException("<".$object->getId()."> has an invalid dependency: unknown type!");

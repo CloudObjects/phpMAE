@@ -75,7 +75,7 @@ class Runner {
 	 */
 	private static function prepareProvidersAndTemplates(Application $app, Request $request,
 			Node $object, ObjectRetriever $objectRetriever, ClassRepository $classRepository,
-			ErrorHandler $errorHandler) {
+			ErrorHandler $errorHandler, array $objectRetrieverOptions) {
 
 		$objectIri = new IRI($object->getId());
 		
@@ -98,7 +98,7 @@ class Runner {
 		};
 
 		// CloudObjects Object Repository
-		$objectRetrieverPool = new ObjectRetrieverPool($objectRetriever, $app['phpmae.identity']);
+		$objectRetrieverPool = new ObjectRetrieverPool($objectRetriever, $app['phpmae.identity'], $objectRetrieverOptions);
 		$app['cloudobjects'] = $objectRetrieverPool->getObjectRetriever($objectIri->getHost());
 
 		$app['config'] = function() use ($app) {
@@ -109,7 +109,7 @@ class Runner {
 		};
 
 		// Custom Dependencies
-		DependencyInjector::processDependencies($object, $app, $objectRetriever);
+		DependencyInjector::processDependencies($object, $app, $objectRetrieverPool);
 
 		// Custom Providers
 		$providers = $object->getProperty('coid://phpmae.cloudobjects.io/usesProvider');
@@ -221,7 +221,7 @@ class Runner {
 		]);
 
 		// Initialize CloudObjects SDK
-		$objectRetriever = new ObjectRetriever([
+		$objectRetrieverOptions = [
 			'cache_provider' => $config['object_cache'],
 			'cache_provider.file.directory' => '/tmp/cache',
 			'cache_provider.redis.host' => @$config['redis']['host'],
@@ -229,7 +229,8 @@ class Runner {
 			'static_config_path' => __DIR__.'/../../../static-objects',
 			'auth_ns' => @$config['cloudobjects.auth_ns'],
 			'auth_secret' => @$config['cloudobjects.auth_secret']
-		]);
+		];
+		$objectRetriever = new ObjectRetriever($objectRetrieverOptions);
 		$app['phpmae.identity'] = @$config['cloudobjects.auth_ns'];
 
 		if (!isset($config['cloudobjects.auth_ns']) && CredentialManager::isConfigured()) {
@@ -262,7 +263,8 @@ class Runner {
 						$app['self.object'] = $object;
 
 						self::prepareProvidersAndTemplates($app, $request, $object,
-							$objectRetriever, $classRepository, $errorHandler);
+							$objectRetriever, $classRepository, $errorHandler,
+							$objectRetrieverOptions);
 						self::prepareContext($app, $request, $config);
 						$app->mount('/', $controller);
 					}
@@ -288,7 +290,8 @@ class Runner {
 								$app['self.object'] = $object;
 
 								self::prepareProvidersAndTemplates($app, $request,
-									$object, $objectRetriever, $classRepository, $errorHandler);
+									$object, $objectRetriever, $classRepository, $errorHandler,
+									$objectRetrieverOptions);
 								self::prepareContext($app, $request, $config);
 								$app->mount('/'.$path[1], $controller);
 							}
@@ -321,7 +324,8 @@ class Runner {
 						$app['self.object'] = $object;
 
 						self::prepareProvidersAndTemplates($app, $request, $object,
-							$objectRetriever, $classRepository, $errorHandler);
+							$objectRetriever, $classRepository, $errorHandler,
+							$objectRetrieverOptions);
 						self::prepareContext($app, $request, $config);
 						$app->mount('/run/'.$path[2].'/'.$path[3].'/'.$path[4], $runclass);
 					} else
@@ -362,12 +366,12 @@ class Runner {
 			}
 		}
 
-		$app->before(function(Request $r) use ($app) {
+		$app->before(function(Request $r) use ($app, $objectRetriever) {
 			switch ($app['client_authentication']) {
 				case "shared_secret.controller":
 					// Require shared secret client authentication by the namespace of the controller
 					if (isset($app['self.object'])
-							&& SharedSecretAuthentication::verifyCredentials($app['cloudobjects'], $r->getUser(), $r->getPassword())
+							&& SharedSecretAuthentication::verifyCredentials($objectRetriever, $r->getUser(), $r->getPassword())
 								!= SharedSecretAuthentication::RESULT_OK
 							&& 'coid://'.$r->getUser() != $app['self.object']->getId()) {
 						// Ask for authentication

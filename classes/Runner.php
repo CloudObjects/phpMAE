@@ -13,7 +13,7 @@ use Symfony\Component\HttpFoundation\Request, Symfony\Component\HttpFoundation\R
 use ML\IRI\IRI, ML\JsonLD\Node;
 use GuzzleHttp\Client;
 use CloudObjects\SDK\AccountGateway\AccountContext, CloudObjects\SDK\ObjectRetriever,
-	CloudObjects\SDK\COIDParser, CloudObjects\SDK\NodeReader;
+	CloudObjects\SDK\COIDParser, CloudObjects\SDK\NodeReader, CloudObjects\SDK\Helpers\SharedSecretAuthentication;
 use Doctrine\Common\Cache\RedisCache;
 use CloudObjects\PhpMAE\Exceptions\PhpMAEException;
 
@@ -203,6 +203,9 @@ class Runner {
 			$app['debug'] = false;
 		}
 
+		// Copy config variables
+		$app['client_authentication'] = @$config['client_authentication'];
+
 		$errorHandler = new ErrorHandler;
 		register_shutdown_function(function(ErrorHandler $handler) {
 			$handler->getErrorResponse();
@@ -359,7 +362,20 @@ class Runner {
 			}
 		}
 
-		$app->before(function() use ($app) {
+		$app->before(function(Request $r) use ($app) {
+			switch ($app['client_authentication']) {
+				case "shared_secret.controller":
+					// Require shared secret client authentication by the namespace of the controller
+					if (isset($app['self.object'])
+							&& SharedSecretAuthentication::verifyCredentials($app['cloudobjects'], $r->getUser(), $r->getPassword())
+								!= SharedSecretAuthentication::RESULT_OK
+							&& 'coid://'.$r->getUser() != $app['self.object']->getId()) {
+						// Ask for authentication
+						return new Response('', 401, [
+							'WWW-Authenticate' => 'Basic realm="phpMAE"'
+						]);
+					}					
+			}
 			foreach ($app['routes']->all() as $route) {
 				$controller = $route->getDefaults()['_controller'];
 				if (is_string($controller) && substr($controller, 0, 27) != "\CloudObjects\PhpMAE\Class_") {

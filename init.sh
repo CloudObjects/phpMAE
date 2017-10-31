@@ -11,6 +11,7 @@ echo "<?php return array(" \
 	"	'cache_dir' => '/tmp/cache', " \
 	"	'uploads_dir' => '/tmp/uploads' " \
 	" ), " \
+	" 'client_authentication' => '$CLIENT_AUTH', " \
 	" 'cloudobjects.auth_ns' => '$CO_AUTH_NS', " \
 	" 'cloudobjects.auth_secret' => '$CO_AUTH_SECRET', " \
 	" 'accountgateways.base_url_template' => '$AGW_BASE_URL' " \

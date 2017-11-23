@@ -24,7 +24,7 @@ class DependencyInjector {
      *
      * @param Node $object The object representing the PHP class.
      * @param Container $container The container on which the dependencies should be added.
-     * @param ObjectRetriever $retriever The retriever pool.
+     * @param ObjectRetrieverPool $retrieverPool The retriever pool.
      */
     public static function processDependencies(Node $object, Container $container, ObjectRetrieverPool $retrieverPool) {
         $dependencies = $object->getProperty('coid://phpmae.cloudobjects.io/hasDependency');

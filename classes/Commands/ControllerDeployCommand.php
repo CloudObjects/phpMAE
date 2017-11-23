@@ -9,6 +9,7 @@ namespace CloudObjects\PhpMAE\Commands;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
+use CloudObjects\SDK\COIDParser;
 use CloudObjects\PhpMAE\ClassValidator;
 
 class ControllerDeployCommand extends AbstractObjectCommand {
@@ -44,6 +45,33 @@ class ControllerDeployCommand extends AbstractObjectCommand {
       $this->updateRDFLocally($output);
       $this->createConfigurationJob($output);
     }
+
+    // Print URL so developer can easily access it
+    $output->writeln("");
+    $visibility = isset($object['coid://cloudobjects.io/isVisibleTo'])
+      ? $object['coid://cloudobjects.io/isVisibleTo'][0]['value']
+      : 'coid://cloudobjects.io/Vendor';
+    $path = $this->coid->getHost().$this->coid->getPath()
+      .((COIDParser::getType($this->coid) == COIDParser::COID_VERSIONED) ? "/" : "/Unversioned/");
+      
+    switch ($visibility) {
+      case "coid://cloudobjects.io/Private":
+        $output->writeln("<info>Private URL for Controller:</info>");
+        $output->writeln("➡️  http://YOUR_PHPMAE_INSTANCE/run/".$path);
+        break;
+      case "coid://cloudobjects.io/Public":
+        $output->writeln("<info>Public URL for Controller:</info>");
+        $output->writeln("➡️  https://phpmae.cloudobjects.io/run/".$path);
+        break;
+      case "coid://cloudobjects.io/Vendor":
+        $output->writeln("<info>Authenticated URL for Controller:</info>");
+        $output->writeln("➡️  https://".$this->coid->getHost().":SECRET@phpmae.cloudobjects.io/run/".$path);
+        $output->writeln("");
+        $output->writeln("To get value for SECRET:");
+        $output->writeln("➡️  cloudobjects domain-providers:secret ".$this->coid->getHost()." phpmae.cloudobjects.io");
+        break;
+    }
+    $output->writeln("");
   }
 
 }

@@ -8,7 +8,7 @@ namespace CloudObjects\PhpMAE\Commands;
 
 require_once __DIR__."/vendor/autoload.php";
 
-$app = new \Cilex\Application('phpMAE', '0.1.0');
+$app = new \Cilex\Application('phpMAE', '0.2.0');
 \CloudObjects\PhpMAE\TestEnvironmentManager::configure($app);
 
 $app->command(new ControllerCreateCommand);

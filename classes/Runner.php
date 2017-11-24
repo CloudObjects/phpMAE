@@ -243,6 +243,7 @@ class Runner {
 		$classRepository = new ClassRepository($config['classes']);
 
 		// Check for virtual host-style namespace configuration
+		$vhostMode = false;		
 		if (isset($config['enable_vhost_controllers']) && $config['enable_vhost_controllers'] === true
 				&& $request->getHost() && !in_array($request->getHost(), $config['exclude_vhosts'])
 				&& filter_var($request->getHost(), FILTER_VALIDATE_IP)===false) {
@@ -267,6 +268,7 @@ class Runner {
 							$objectRetrieverOptions);
 						self::prepareContext($app, $request, $config);
 						$app->mount('/', $controller);
+						$vhostMode = true;
 					}
 				} catch (\Exception $e) {
 					// remember exception for later handling
@@ -294,6 +296,7 @@ class Runner {
 									$objectRetrieverOptions);
 								self::prepareContext($app, $request, $config);
 								$app->mount('/'.$path[1], $controller);
+								$vhostMode = true;
 							}
 						}
 					}
@@ -366,19 +369,22 @@ class Runner {
 			}
 		}
 
-		$app->before(function(Request $r) use ($app, $objectRetriever) {
-			switch ($app['client_authentication']) {
-				case "shared_secret.controller":
-					// Require shared secret client authentication by the namespace of the controller
-					if (isset($app['self.object'])
+		$app->before(function(Request $r) use ($app, $objectRetriever, $vhostMode) {
+			if ($vhostMode == false) {
+				// For non-VHost requests use authentication
+				switch ($app['client_authentication']) {
+					case "shared_secret.controller":
+						// Require shared secret client authentication by the namespace of the controller
+						if (isset($app['self.object'])
 							&& SharedSecretAuthentication::verifyCredentials($objectRetriever, $r->getUser(), $r->getPassword())
 								!= SharedSecretAuthentication::RESULT_OK
-							&& 'coid://'.$r->getUser() != $app['self.object']->getId()) {
-						// Ask for authentication
-						return new Response('', 401, [
-							'WWW-Authenticate' => 'Basic realm="phpMAE"'
-						]);
-					}					
+							&& 'coid://'.$r->getUser() != $app['self.object']->getId()) {						
+							// Ask for authentication
+							return new Response('', 401, [
+								'WWW-Authenticate' => 'Basic realm="phpMAE"'
+							]);
+						}					
+				}
 			}
 			foreach ($app['routes']->all() as $route) {
 				$controller = $route->getDefaults()['_controller'];

@@ -39,7 +39,7 @@ When running the container you need to provide the _CO_AUTH_NS_ and _CO_AUTH_SEC
 
     docker run -e CO_AUTH_NS=example.com -e CO_AUTH_SECRET=XXXXXXXX -p 8080:80 cloudobjects/phpmae
 
-For _CO_AUTH_NS_ use a domain that you have added to CloudObjects and that you want to use as the identity for this phpMAE instance. For _CO_AUTH_SECRET_ you need to retrieve the shared secret between that domain and _cloudobjects.io_. You can retrieve this secret with the [CloudObjects CLI Tool]((https://cloudobjects.io/clitool) using the following command:
+For _CO_AUTH_NS_ use a domain that you have added to CloudObjects and that you want to use as the identity for this phpMAE instance. For _CO_AUTH_SECRET_ you need to retrieve the shared secret between that domain and _cloudobjects.io_. You can retrieve this secret with the [CloudObjects CLI Tool](https://cloudobjects.io/clitool) using the following command:
 
     cloudobjects domain-providers:secret example.com cloudobjects.io
 

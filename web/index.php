@@ -9,7 +9,6 @@ date_default_timezone_set('UTC');
 require "../vendor/autoload.php";
 
 $app = new Silex\Application();
-CloudObjects\PhpMAE\Runner::configure($app,
-	Symfony\Component\HttpFoundation\Request::createFromGlobals(),
-	require "../config.php");
-$app->run();
+$request = Symfony\Component\HttpFoundation\Request::createFromGlobals();
+CloudObjects\PhpMAE\Runner::configure($app, $request, require "../config.php");
+$app->run($request);

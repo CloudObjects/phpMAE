@@ -11,7 +11,7 @@ use Silex\Application;
 use Symfony\Component\HttpFoundation\Request, Symfony\Component\HttpFoundation\Response,
 	Symfony\Component\HttpFoundation\ParameterBag;
 use ML\IRI\IRI, ML\JsonLD\Node;
-use GuzzleHttp\Client;
+use JDesrosiers\Silex\Provider\CorsServiceProvider;
 use CloudObjects\SDK\AccountGateway\AccountContext, CloudObjects\SDK\ObjectRetriever,
 	CloudObjects\SDK\COIDParser, CloudObjects\SDK\NodeReader, CloudObjects\SDK\Helpers\SharedSecretAuthentication;
 use Doctrine\Common\Cache\RedisCache;
@@ -242,6 +242,9 @@ class Runner {
 		// Initialize Class Repository
 		$classRepository = new ClassRepository($config['classes']);
 
+		// Register CORS provider
+		$app->register(new CorsServiceProvider);
+
 		// Check for virtual host-style namespace configuration
 		$vhostMode = false;		
 		if (isset($config['enable_vhost_controllers']) && $config['enable_vhost_controllers'] === true
@@ -267,7 +270,7 @@ class Runner {
 							$objectRetriever, $classRepository, $errorHandler,
 							$objectRetrieverOptions);
 						self::prepareContext($app, $request, $config);
-						$app->mount('/', $app["cors-enabled"]($controller));
+						$app->mount('/', $app["cors-enabled"]($controller->connect($app)));
 						$vhostMode = true;
 					}
 				} catch (\Exception $e) {
@@ -295,7 +298,7 @@ class Runner {
 									$object, $objectRetriever, $classRepository, $errorHandler,
 									$objectRetrieverOptions);
 								self::prepareContext($app, $request, $config);
-								$app->mount('/'.$path[1], $app["cors-enabled"]($controller));
+								$app->mount('/'.$path[1], $app["cors-enabled"]($controller->connect($app)));
 								$vhostMode = true;
 							}
 						}
@@ -330,7 +333,7 @@ class Runner {
 							$objectRetriever, $classRepository, $errorHandler,
 							$objectRetrieverOptions);
 						self::prepareContext($app, $request, $config);
-						$app->mount('/run/'.$path[2].'/'.$path[3].'/'.$path[4], $app["cors-enabled"]($runclass));
+						$app->mount('/run/'.$path[2].'/'.$path[3].'/'.$path[4], $app["cors-enabled"]($runclass->connect($app)));
 					} else
 					if (ClassValidator::isFunction($runclass)) {
 						// Create single route for function

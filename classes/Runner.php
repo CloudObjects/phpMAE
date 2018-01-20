@@ -267,7 +267,7 @@ class Runner {
 							$objectRetriever, $classRepository, $errorHandler,
 							$objectRetrieverOptions);
 						self::prepareContext($app, $request, $config);
-						$app->mount('/', $controller);
+						$app->mount('/', $app["cors-enabled"]($controller));
 						$vhostMode = true;
 					}
 				} catch (\Exception $e) {
@@ -295,7 +295,7 @@ class Runner {
 									$object, $objectRetriever, $classRepository, $errorHandler,
 									$objectRetrieverOptions);
 								self::prepareContext($app, $request, $config);
-								$app->mount('/'.$path[1], $controller);
+								$app->mount('/'.$path[1], $app["cors-enabled"]($controller));
 								$vhostMode = true;
 							}
 						}
@@ -330,7 +330,7 @@ class Runner {
 							$objectRetriever, $classRepository, $errorHandler,
 							$objectRetrieverOptions);
 						self::prepareContext($app, $request, $config);
-						$app->mount('/run/'.$path[2].'/'.$path[3].'/'.$path[4], $runclass);
+						$app->mount('/run/'.$path[2].'/'.$path[3].'/'.$path[4], $app["cors-enabled"]($runclass));
 					} else
 					if (ClassValidator::isFunction($runclass)) {
 						// Create single route for function

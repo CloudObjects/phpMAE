@@ -34,14 +34,7 @@ class FunctionDeployCommand extends AbstractObjectCommand {
     passthru("cloudobjects attachment:put ".(string)$this->coid." ".$this->fullName.".php");
 
     // Updates configuration if necessary
-    $object = $this->index[(string)$this->coid];
-    if (!isset($object['coid://phpmae.cloudobjects.io/hasSourceFile'])) {
-      $object['coid://phpmae.cloudobjects.io/hasSourceFile'] = [[
-        'value' => 'file:///'.$this->fullName.'.php',
-        'type' => 'uri'
-      ]];
-      $this->index[(string)$this->coid] = $object;
-      $this->updateRDFLocally($output);
+    if ($this->ensureFilenameInConfig($output)) {
       $this->createConfigurationJob($output);
     }
   }

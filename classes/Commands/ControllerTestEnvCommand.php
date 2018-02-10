@@ -22,6 +22,7 @@ class ControllerTestEnvCommand extends AbstractObjectCommand {
       $this->setName('controller:testenv')
         ->setDescription('Uploads a controller into the current test environment.')
         ->addArgument('coid', InputArgument::REQUIRED, 'The COID of the object.')
+        ->addOption('config', null, InputOption::VALUE_OPTIONAL, 'Upload the local configuration of the controller to the test environment instead of retrieving it from CloudObjects.')
         ->addOption('watch', null, InputOption::VALUE_OPTIONAL, 'Keep watching for changes of the file and reupload automatically.', null);
     }
 
@@ -63,6 +64,17 @@ class ControllerTestEnvCommand extends AbstractObjectCommand {
       $suffix = (COIDParser::getType($this->coid) == COIDParser::COID_VERSIONED) ? "/" : "/Unversioned/";
       $output->writeln("➡️  ".$app['testenv.url']."run/".$this->coid->getHost().$this->coid->getPath().$suffix);
       $output->writeln("");
+
+      if ($input->getOption('config') !== null) {
+        // Upload configuration before uploading implementation
+        $this->ensureFilenameInConfig($output);
+        $app['testenv.client']->put('/uploads/'.$this->coid->getHost().$this->coid->getPath()
+        .(COIDParser::getType($this->coid)==COIDParser::COID_UNVERSIONED ? '/Unversioned/' : '/')
+        .'config.xml', [
+          'body' => file_get_contents($this->xmlFileName)
+        ]);
+        $output->writeln('Configuration uploaded successfully!');
+      }
 
       $this->validator = new ClassValidator;
       $this->upload($output);

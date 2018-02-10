@@ -15,6 +15,8 @@ abstract class AbstractObjectCommand extends Command {
 
   protected $coid;
   protected $fullName;
+  protected $phpFileName;
+  protected $xmlFileName;
   protected $rdfTypes;
   protected $index;
 
@@ -32,19 +34,20 @@ abstract class AbstractObjectCommand extends Command {
     $version = COIDParser::getVersion($this->coid);
     $this->fullName = isset($version) ? $name.".".$version : $name;
     $this->phpFileName = $this->fullName.'.php';
+    $this->xmlFileName = $this->fullName.'.xml';
   }
 
   protected function assertRDF() {
-    if (!file_exists($this->fullName.'.xml'))
-      throw new \Exception("File not found: ".$this->fullName.".xml");
+    if (!file_exists($this->xmlFileName))
+      throw new \Exception("File not found: ".$this->xmlFileName);
 
     $parser = \ARC2::getRDFXMLParser();
-  	$parser->parse('', file_get_contents($this->fullName.'.xml'));
+  	$parser->parse('', file_get_contents($this->xmlFileName));
   	$index = $parser->getSimpleIndex(false);
     $id = (string)$this->coid;
     if (!isset($index) || !isset($index[$id])
         || !isset($index[$id]['http://www.w3.org/1999/02/22-rdf-syntax-ns#type']))
-      throw new \Exception($this->fullName.".xml does not contain a valid RDF description of the object.");
+      throw new \Exception($this->xmlFileName." does not contain a valid RDF description of the object.");
 
     $this->rdfTypes = [];
     foreach ($index[$id]['http://www.w3.org/1999/02/22-rdf-syntax-ns#type'] as $o)
@@ -53,14 +56,28 @@ abstract class AbstractObjectCommand extends Command {
   }
 
   protected function updateRDFLocally(OutputInterface $output) {
-    file_put_contents($this->fullName.".xml",
+    file_put_contents($this->xmlFileName,
       $this->getSerializer()->getSerializedIndex($this->index));
-    $output->writeln("Updated ".$this->fullName.".xml.");
+    $output->writeln("Updated ".$this->xmlFileName);
   }
 
   protected function createConfigurationJob(OutputInterface $output) {
     $output->writeln("Calling cloudobjects configuration-job:create ...");
-    passthru("cloudobjects configuration-job:create ".$this->fullName.".xml");
+    passthru("cloudobjects configuration-job:create ".$this->xmlFileName);
+  }
+
+  protected function ensureFilenameInConfig(OutputInterface $output) {
+    $object = $this->index[(string)$this->coid];
+    if (!isset($object['coid://phpmae.cloudobjects.io/hasSourceFile'])) {
+      $object['coid://phpmae.cloudobjects.io/hasSourceFile'] = [[
+        'value' => 'file:///'.$this->fullName.'.php',
+        'type' => 'uri'
+      ]];
+      $this->index[(string)$this->coid] = $object;
+      $this->updateRDFLocally($output);
+      return true;
+    } else
+      return false;
   }
 
   protected function assertPHPExists() {

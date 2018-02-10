@@ -12,14 +12,15 @@
 		"cilex/cilex" : "~2.0",
 		"twig/twig": "~1.26.1",
 		"f21/jwt": "1.0",
-		"semsol/arc2" : "~2.2.6",
+		"semsol/arc2" : "~2.3.1",
 		"cloudobjects/sdk" : "dev-master",
 		"defuse/php-encryption" : "~2.0.3",
 		"symfony/css-selector" : "~v3.2.1",
 		"symfony/dom-crawler" : "~v3.2.1",
 		"guzzlehttp/oauth-subscriber": "0.3.*",
 		"gamringer/php-json-pointer" : "~3.1",
-		"jdesrosiers/silex-cors-provider" : "~1.0"
+		"jdesrosiers/silex-cors-provider" : "~1.0",
+		"cloudobjects/rdfutilities" : "dev-master"
 	},
 	"autoload": {
 		"classmap" : ["vendor/f21/jwt/JWT"],

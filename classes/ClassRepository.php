@@ -62,7 +62,9 @@ class ClassRepository {
 		$vars = $this->getURIVars($uri);
 
 		// Fetch class description
-		$revision = $object->getProperty(ObjectRetriever::REVISION_PROPERTY)->getValue();
+		$revision = $object->getProperty(ObjectRetriever::REVISION_PROPERTY)
+			? $object->getProperty(ObjectRetriever::REVISION_PROPERTY)->getValue()
+			: 'LocalConfig';
 
 		// Clear cache if cached version exists
 		$cachedFilename = $vars['cache_path'].DIRECTORY_SEPARATOR.$revision.".php";
@@ -88,7 +90,9 @@ class ClassRepository {
 		$vars = $this->getURIVars($uri);
 		if (!isset($this->classMap[$vars['php_classname']])) {
 			// Get revision
-			$revision = $object->getProperty(ObjectRetriever::REVISION_PROPERTY)->getValue();
+			$revision = $object->getProperty(ObjectRetriever::REVISION_PROPERTY)
+				? $object->getProperty(ObjectRetriever::REVISION_PROPERTY)->getValue()
+				: 'LocalConfig';
 
 			// Build filename where cached version should exist
 			$filename = $vars['cache_path'].DIRECTORY_SEPARATOR.$revision.".php";

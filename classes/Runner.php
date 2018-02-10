@@ -226,7 +226,7 @@ class Runner {
 			'cache_provider.file.directory' => '/tmp/cache',
 			'cache_provider.redis.host' => @$config['redis']['host'],
 			'cache_provider.redis.port' => @$config['redis']['port'],
-			'static_config_path' => __DIR__.'/../../../static-objects',
+			'static_config_path' => realpath($config['uploads_dir'].DIRECTORY_SEPARATOR.'config'),
 			'auth_ns' => @$config['cloudobjects.auth_ns'],
 			'auth_secret' => @$config['cloudobjects.auth_secret']
 		];
@@ -243,7 +243,7 @@ class Runner {
 		$classRepository = new ClassRepository($config['classes']);
 
 		// Register CORS provider
-		$app->register(new CorsServiceProvider);
+		// $app->register(new CorsServiceProvider);
 
 		// Check for virtual host-style namespace configuration
 		$vhostMode = false;		
@@ -270,7 +270,7 @@ class Runner {
 							$objectRetriever, $classRepository, $errorHandler,
 							$objectRetrieverOptions);
 						self::prepareContext($app, $request, $config);
-						$app->mount('/', $app["cors-enabled"]($controller->connect($app)));
+						$app->mount('/', $controller);
 						$vhostMode = true;
 					}
 				} catch (\Exception $e) {
@@ -298,7 +298,7 @@ class Runner {
 									$object, $objectRetriever, $classRepository, $errorHandler,
 									$objectRetrieverOptions);
 								self::prepareContext($app, $request, $config);
-								$app->mount('/'.$path[1], $app["cors-enabled"]($controller->connect($app)));
+								$app->mount('/'.$path[1], $controller);
 								$vhostMode = true;
 							}
 						}
@@ -333,7 +333,7 @@ class Runner {
 							$objectRetriever, $classRepository, $errorHandler,
 							$objectRetrieverOptions);
 						self::prepareContext($app, $request, $config);
-						$app->mount('/run/'.$path[2].'/'.$path[3].'/'.$path[4], $app["cors-enabled"]($runclass->connect($app)));
+						$app->mount('/run/'.$path[2].'/'.$path[3].'/'.$path[4], $runclass);
 					} else
 					if (ClassValidator::isFunction($runclass)) {
 						// Create single route for function
@@ -368,7 +368,7 @@ class Runner {
 				// Control request for uploading of configuration and/or source
 				$app['object_retriever'] = $objectRetriever;
 				$app['class_repository'] = $classRepository;
-				$app->mount('/uploads', new UploadController());
+				$app->mount('/uploads', new UploadController($config));
 			}
 		}
 

@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>phpMAE</title>
+    <link rel="stylesheet" type="text/css" href="css/materialize.min.css" />
+  </head>
+  <body>
+    <h1 class="center">phpMAE</h1>
+    <div class="row">            
+       <div class="col s6">
+            <div class="row">
+                <div class="input-field col s12">
+                    <textarea id="source-code" class="materialize-textarea"></textarea>
+                    <label for="source-code">Source Code:</label>
+                </div>
+            </div>
+            <div id="source-error" class="row" style="display:none;">
+                <div class="col s12 red-text"></div>
+            </div>
+            <div class="row">
+                <div class="col s12">
+                    <button type="button" id="source-submit" class="waves-effect waves-light btn">Save changes</button>
+                </div>
+            </div>
+        </div>
+        <div class="col s6">
+            <div class="row">
+                <div class="input-field col s4">
+                    <select id="rc-verb">
+                        <option value="GET" selected>GET</option>
+                        <option value="POST">POST</option>
+                        <option value="PUT">PUT</option>
+                        <option value="DELETE">DELETE</option>
+                    </select>
+                    <label for="rc-verb">Verb:</label>
+                </div>
+                <div class="input-field col s8">
+                    <input id="rc-path" type="text" value="/" />
+                    <label for="rc-path">Path</label>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col s12">
+                    <button type="button" id="rc-submit" class="waves-effect waves-light btn">Send request</button>
+                    <button type="button" id="rc-save-and-submit" class="waves-effect waves-light btn">Save changes &amp; send request</button>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col s12">
+                    <ul class="tabs">
+                        <li class="tab col s4"><a class="active" href="#rc-response-body">Body</a></li>
+                        <li class="tab col s4"><a href="#rc-response-headers">Headers</a></li>
+                        <li class="tab col s4"><a href="#rc-response-raw">Raw</a></li>
+                    </ul>
+                </div>
+                <div id="rc-response-body" class="col s12"></div>
+                <div id="rc-response-headers" class="col s12"></div>
+                <div id="rc-response-raw" class="col s12"></div>
+            </div>
+        </div>
+    </div>
+    <script type="application/javascript" src="js/jquery-3.3.1.min.js"></script>
+    <script type="application/javascript" src="js/materialize.min.js"></script>
+    <script type="application/javascript" src="js/phpmae.js"></script>
+  </body>
+</html>
+      

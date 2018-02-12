@@ -22,6 +22,8 @@ $app->command(new FunctionDeployCommand);
 $app->command(new FunctionValidateCommand);
 $app->command(new FunctionTestEnvCommand);
 
+$app->command(new HelpersGenerateKeyCommand);
+
 $app->command(new DependenciesAddWebAPICommand);
 $app->command(new DependenciesAddAttachmentCommand);
 

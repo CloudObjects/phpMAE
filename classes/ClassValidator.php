@@ -71,7 +71,7 @@ class ClassValidator {
       'CloudObjects\SDK\AccountGateway\AAUIDParser',
       'CloudObjects\SDK\COIDParser',
       'JWT',
-      'Defuse\Crypto\Crypto',
+      'Defuse\Crypto\Crypto', 'Defuse\Crypto\Key',
       'gamringer\JSONPointer\Pointer', 'gamringer\JSONPointer\Exception'
     );
   }

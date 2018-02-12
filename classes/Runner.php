@@ -9,7 +9,7 @@ namespace CloudObjects\PhpMAE;
 use Pimple\Container;
 use Silex\Application;
 use Symfony\Component\HttpFoundation\Request, Symfony\Component\HttpFoundation\Response,
-	Symfony\Component\HttpFoundation\ParameterBag;
+	Symfony\Component\HttpFoundation\ParameterBag, Symfony\Component\HttpFoundation\BinaryFileResponse;
 use ML\IRI\IRI, ML\JsonLD\Node;
 use JDesrosiers\Silex\Provider\CorsServiceProvider;
 use CloudObjects\SDK\AccountGateway\AccountContext, CloudObjects\SDK\ObjectRetriever,
@@ -312,9 +312,38 @@ class Runner {
 		} else {
 			// Regular mode (no vhosts)
 
-			$app->get('/', function() {
-				return file_get_contents(__DIR__."/../web/static-home.html");
+			$app->get('/', function(Request $r) use ($config) {
+				if (@$config['sandbox.enabled'] == true) {
+					$session = Session::createFromRequestWithKey($r, $config['sandbox.session_key']);
+					Sandbox::initialize($session, $config);
+					$html = file_get_contents(__DIR__."/../static/playground.html");
+					$html = str_replace('CONTROLLERNAMESPACE', $session['sbhostname'], $html);
+					$response = new Response($html);
+					$session->persistToResponse($response);
+					return $response;
+				} else {
+					return new BinaryFileResponse(__DIR__."/../static/static-home.html");
+				}
 			});
+
+			// Static file passthru
+			if ($path[1] == 'css' || $path[1] == 'js' || $path[1] == 'fonts') {
+				$app->get($request->getPathInfo(), function(Request $r) {
+					$file = __DIR__.'/../static'.$r->getPathInfo();					
+					$ext = pathinfo($file, PATHINFO_EXTENSION);
+					switch ($ext) {
+						case "js":
+							$mime = 'application/javascript';
+							break;
+						case "css":
+							$mime = 'text/css';
+							break;
+						default:
+							$mime = 'application/octet-stream';
+					}
+					return new BinaryFileResponse($file, 200, [ 'Content-Type' => $mime ]);
+				});
+			}
 
 			if (count($path)>=5 && $path[1]=='run') {
 				// Run request for an API

@@ -14,7 +14,8 @@ echo "<?php return array(" \
 	" 'client_authentication' => '$CLIENT_AUTH', " \
 	" 'cloudobjects.auth_ns' => '$CO_AUTH_NS', " \
 	" 'cloudobjects.auth_secret' => '$CO_AUTH_SECRET', " \
-	" 'accountgateways.base_url_template' => '$AGW_BASE_URL' " \
+	" 'accountgateways.base_url_template' => '$AGW_BASE_URL', " \
+	" 'sandbox.enabled' => false " \
     " ); " > /var/www/app/config.php
 
 # Run start script from parent container

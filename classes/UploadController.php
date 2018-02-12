@@ -25,6 +25,9 @@ class UploadController implements ControllerProviderInterface {
 
 		$controllers->put('/{namespace}/{name}/{version}/config.xml',
 			function($namespace, $name, $version, Request $request) use ($app, $config) {
+				if (@$config['uploads'] != true)
+					$app->abort(403);
+
 				// Parse RDF/XML config
 				$parser = \ARC2::getRDFXMLParser();
 				$parser->parse('', $request->getContent());
@@ -54,12 +57,14 @@ class UploadController implements ControllerProviderInterface {
 				return new Response('', 201);
 			});
 
-		$controllers->put('/{namespace}/{name}/{version}/source.php', function($namespace, $name, $version, Request $request) use ($app) {
+		$controllers->put('/{namespace}/{name}/{version}/source.php', function($namespace, $name, $version, Request $request) use ($app, $config) {						
+			if (!(@$config['uploads'] == true || Sandbox::isAuthenticated($request, $namespace, $config)))
+				$app->abort(403);
+
 			$object = $app['object_retriever']->get('coid://'.$namespace.'/'.$name
 				.(($version=='Unversioned') ? '' : '/'.$version));;
-			if (!$object) {
-				return new Response('', 404);
-			} // TODO: should check for local configuration as well
+			if (!$object)
+				$app->abort(403);
 
 			$content = $request->getContent();
 			$validator = new ClassValidator;

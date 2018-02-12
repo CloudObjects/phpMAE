@@ -1,5 +1,5 @@
 var phpMAE = {
-    classPath : "test.test/TestController/1.0",
+    classPath : "",
 
     saveChanges : function(successCallback) {
         $('#source-submit, #rc-save-and-submit').attr('disabled', true);

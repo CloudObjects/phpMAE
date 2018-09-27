@@ -70,7 +70,6 @@ class ClassValidator {
       'CloudObjects\SDK\AccountGateway\AccountContext',
       'CloudObjects\SDK\AccountGateway\AAUIDParser',
       'CloudObjects\SDK\COIDParser',
-      'JWT',
       'Defuse\Crypto\Crypto', 'Defuse\Crypto\Key',
       'gamringer\JSONPointer\Pointer', 'gamringer\JSONPointer\Exception'
     );
@@ -96,7 +95,7 @@ class ClassValidator {
     ));
   }
 
-  private function validate($sourceCode, $interface) {
+  public function validate($sourceCode) {
     // Initialize parser and parse source code
     $parser = (new ParserFactory)->create(ParserFactory::PREFER_PHP7);
     $ast = $parser->parse($sourceCode);
@@ -120,10 +119,10 @@ class ClassValidator {
         $name = (string)$i;
         $interfaces[] = (isset($aliasMap[$name])) ? $aliasMap[$name] : $name;
       }
-      if (!in_array($interface, $interfaces)) {
+      /*if (!in_array($interface, $interfaces)) {
         // Interface not implemented
         throw new PhpMAEException("Source code file must declare a class that implements <".$interface.">.");
-      }
+      } */
 
       // Allow self-references
       $this->whitelisted_types[] = strtolower($ast[0]->name);
@@ -146,28 +145,8 @@ class ClassValidator {
     }
   }
 
-  public function validateAsController($sourceCode) {
-    $this->validate($sourceCode, 'Silex\Api\ControllerProviderInterface');
-  }
-
-  public function validateAsFunction($sourceCode) {
-    $this->validate($sourceCode, 'CloudObjects\PhpMAE\FunctionInterface');
-  }
-
-  public function validateAsProvider($sourceCode) {
-    $this->validate($sourceCode, 'Pimple\ServiceProviderInterface');
-  }
-
-  public static function isController($class) {
-    return (in_array('Silex\Api\ControllerProviderInterface', class_implements($class)));
-  }
-
-  public static function isFunction($class) {
-    return (in_array('CloudObjects\PhpMAE\FunctionInterface', class_implements($class)));
-  }
-
-  public static function isProvider($class) {
-    return (in_array('Pimple\ServiceProviderInterface', class_implements($class)));
+  public static function isInvokableClass($class) {
+    return method_exists($class, '__invoke');
   }
 
 }

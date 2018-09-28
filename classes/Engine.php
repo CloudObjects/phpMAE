@@ -10,6 +10,7 @@ use Psr\Http\Message\RequestInterface, Psr\Http\Message\ResponseInterface;
 use Psr\Container\ContainerInterface;
 use Slim\App;
 use Slim\Http\Headers, Slim\Http\Request, Slim\Http\Response, Slim\Http\Environment;
+use JsonRpc\Server as JsonRPC;
 use CloudObjects\SDK\COIDParser, CloudObjects\SDK\NodeReader, CloudObjects\SDK\ObjectRetriever;
 use CloudObjects\PhpMAE\Exceptions\PhpMAEException;
 
@@ -59,6 +60,16 @@ class Engine {
     }
 
     /**
+     * Executes a standard class using JSON-RPC.
+     */
+    private function executeJsonRPC($runClass, RequestInterface $request) {        
+        $transport = new JsonRPCTransport;
+        $server = new JsonRPC($runClass, $transport);
+        $server->receive((string)$request->getBody());
+        return $transport->getResponse();
+    }
+
+    /**
      * Start execution of a request.
      */
     public function execute(RequestInterface $request) {
@@ -77,10 +88,12 @@ class Engine {
                 throw new PhpMAEException("The object <" . (string)$coid . "> does not exist or this phpMAE instance is not allowed to access it.");
             $runClass = $this->classRepository->createInstance($object, $this->objectRetriever, $this->errorHandler);
             if (ClassValidator::isInvokableClass($runClass)) {
+                // Run as invokable class
                 return $this->executeInvokableClass($runClass, $request);
             } else {
-                // TODO: implement other types
-                throw new PhpMAEException("The object <" . (string)$coid. "> cannot be executed by phpMAE.");
+                // Run as RPC
+                // JsonRPC
+                return $this->executeJsonRPC($runClass, $request);
             }
         } else {
             throw new PhpMAEException("You must provide a valid, non-root COID to specify the class for execution.");

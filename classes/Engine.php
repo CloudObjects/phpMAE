@@ -7,6 +7,7 @@
 namespace CloudObjects\PhpMAE;
 
 use Psr\Http\Message\RequestInterface, Psr\Http\Message\ResponseInterface;
+use Psr\Container\ContainerInterface;
 use Slim\App;
 use Slim\Http\Headers, Slim\Http\Request, Slim\Http\Response, Slim\Http\Environment;
 use CloudObjects\SDK\COIDParser, CloudObjects\SDK\NodeReader, CloudObjects\SDK\ObjectRetriever;
@@ -17,14 +18,18 @@ class Engine {
     private $objectRetriever;
     private $classRepository;
     private $errorHandler;
+    private $slim;
+    private $container;
 
     public function __construct(ObjectRetriever $objectRetriever,
-            ClassRepository $classRepository, ErrorHandler $errorHandler, App $slim) {
+            ClassRepository $classRepository, ErrorHandler $errorHandler,
+            App $slim, ContainerInterface $container) {
         
         $this->objectRetriever = $objectRetriever;
         $this->classRepository = $classRepository;
         $this->errorHandler = $errorHandler;
         $this->slim = $slim;
+        $this->container = $container;
     }
 
     /**
@@ -57,7 +62,14 @@ class Engine {
      * Start execution of a request.
      */
     public function execute(RequestInterface $request) {
-        $path = $request->getUri()->getBasePath();
+        $path = rtrim($request->getUri()->getBasePath().$request->getUri()->getPath(), '/');
+
+        if ($path == '/uploadTestenv') {
+            return $this->container
+                ->get(UploadController::class)
+                ->handle($request);
+        }
+
         $coid = COIDParser::fromString(substr($path, 1));
         if (COIDParser::isValidCOID($coid) && COIDParser::getType($coid) != COIDParser::COID_ROOT) {
             $object = $this->objectRetriever->get($coid);
@@ -86,7 +98,7 @@ class Engine {
             $response = $this->execute($request);
         } catch (PhpMAEException $e) {
             // Create plain-text error response
-            $response = (new Response)
+            $response = (new Response(500))
                 ->withHeader('Content-Type', 'text/plain')
                 ->write($e->getMessage());
         }

@@ -14,8 +14,7 @@ $app = new \Cilex\Application('phpMAE', '0.2.0');
 $app->command(new ClassCreateCommand);
 $app->command(new ClassDeployCommand);
 $app->command(new ClassValidateCommand);
-//$app->command(new ClassTestEnvCommand);
-// $app->command(new ClassAddProviderCommand);
+$app->command(new ClassTestEnvCommand);
 
 $app->command(new DependenciesAddWebAPICommand);
 $app->command(new DependenciesAddAttachmentCommand);

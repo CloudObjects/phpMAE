@@ -45,21 +45,20 @@ class ClassDeployCommand extends AbstractObjectCommand {
     $visibility = isset($object['coid://cloudobjects.io/isVisibleTo'])
       ? $object['coid://cloudobjects.io/isVisibleTo'][0]['value']
       : 'coid://cloudobjects.io/Vendor';
-    $path = $this->coid->getHost().$this->coid->getPath()
-      .((COIDParser::getType($this->coid) == COIDParser::COID_VERSIONED) ? "/" : "/Unversioned/");
+    $path = $this->coid->getHost().$this->coid->getPath();
       
     switch ($visibility) {
       case "coid://cloudobjects.io/Private":
         $output->writeln("<info>Private URL for Controller:</info>");
-        $output->writeln("➡️  http://YOUR_PHPMAE_INSTANCE/run/".$path);
+        $output->writeln("➡️  http://YOUR_PHPMAE_INSTANCE/".$path);
         break;
       case "coid://cloudobjects.io/Public":
         $output->writeln("<info>Public URL for Controller:</info>");
-        $output->writeln("➡️  https://phpmae.cloudobjects.io/run/".$path);
+        $output->writeln("➡️  https://phpmae.cloudobjects.io/".$path);
         break;
       case "coid://cloudobjects.io/Vendor":
         $output->writeln("<info>Authenticated URL for Controller:</info>");
-        $output->writeln("➡️  https://".$this->coid->getHost().":SECRET@phpmae.cloudobjects.io/run/".$path);
+        $output->writeln("➡️  https://".$this->coid->getHost().":SECRET@phpmae.cloudobjects.io/".$path);
         $output->writeln("");
         $output->writeln("To get value for SECRET:");
         $output->writeln("➡️  cloudobjects domain-providers:secret ".$this->coid->getHost()." phpmae.cloudobjects.io");

@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "b7a34a63a3b0f4ecad13f147d12bfeca",
+    "content-hash": "0b43bcc711cf8e1c5df1d351ba8141c3",
     "packages": [
         {
             "name": "cilex/cilex",
@@ -63,6 +63,52 @@
                 "microframework"
             ],
             "time": "2016-11-20T14:31:12+00:00"
+        },
+        {
+            "name": "cloudobjects/rdfutilities",
+            "version": "dev-master",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/CloudObjects/RDFUtilities.git",
+                "reference": "ba07a3f805e1fee7f333499de85684f1b4c677aa"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/CloudObjects/RDFUtilities/zipball/ba07a3f805e1fee7f333499de85684f1b4c677aa",
+                "reference": "ba07a3f805e1fee7f333499de85684f1b4c677aa",
+                "shasum": ""
+            },
+            "require": {
+                "ml/json-ld": ">=1.0.3",
+                "semsol/arc2": ">=2.1.0"
+            },
+            "require-dev": {
+                "phpunit/phpunit": ">=4.8.0,<5.0"
+            },
+            "type": "library",
+            "autoload": {
+                "psr-4": {
+                    "CloudObjects\\Utilities\\RDF\\": ""
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MPL-2.0"
+            ],
+            "authors": [
+                {
+                    "name": "Lukas Rosenstock"
+                }
+            ],
+            "description": "ARC2JsonLD Helper Class",
+            "homepage": "https://github.com/CloudObjects/RDFUtilities",
+            "keywords": [
+                "JSON-LD",
+                "RDF",
+                "arc2",
+                "cloudobjects"
+            ],
+            "time": "2018-02-01T13:23:30+00:00"
         },
         {
             "name": "cloudobjects/sdk",
@@ -4468,7 +4514,8 @@
     "aliases": [],
     "minimum-stability": "stable",
     "stability-flags": {
-        "cloudobjects/sdk": 20
+        "cloudobjects/sdk": 20,
+        "cloudobjects/rdfutilities": 20
     },
     "prefer-stable": false,
     "prefer-lowest": false,

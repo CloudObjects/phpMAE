@@ -11,7 +11,7 @@ use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 use Cilex\Provider\Console\Command;
-use CloudObjects\SDK\COIDParser, CloudObjects\SDK\NodeReader;
+use CloudObjects\SDK\COIDParser;
 use CloudObjects\PhpMAE\CredentialManager;
 
 class ClassCreateCommand extends Command {
@@ -20,7 +20,7 @@ class ClassCreateCommand extends Command {
       $this->setName('class:create')
         ->setDescription('Create a new class for the phpMAE.')
         ->addArgument('coid', InputArgument::REQUIRED, 'The COID of the object.')
-        ->addOption('invokable', 'i', InputOption::VALUE_OPTIONAL, 'Makes the class HTTP-invokable.', false)
+        ->addOption('http-invokable', 'h', InputOption::VALUE_OPTIONAL, 'Makes the class HTTP-invokable.', false)
         ->addOption('force', 'f', InputOption::VALUE_OPTIONAL, 'Forces new object creation and replaces existing files.', false)
         ->addOption('confjob', null, InputOption::VALUE_OPTIONAL, 'Calls "cloudobjects" to create a configuration job for the new controller.', false);
     }

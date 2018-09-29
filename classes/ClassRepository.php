@@ -104,7 +104,11 @@ class ClassRepository {
 
         // TODO: add compilation
 
-		return new Container($source);
+		$container = new Container($source);
+		$sandboxedContainer = new DI\SandboxedContainer($container);
+		$container->set(ContainerInterface::class, $sandboxedContainer);
+		$container->set(Container::class, $sandboxedContainer);
+		return $sandboxedContainer;
 	}
 
 	/**
@@ -168,9 +172,7 @@ class ClassRepository {
 			$this->classMap[$vars['php_classname']] = $filename;
 		}
 
-		$container = $this->buildContainer($vars['php_classname'], $object);
-
-		return new DI\SandboxedContainer($container);
+		return $this->buildContainer($vars['php_classname'], $object);
 	}
 
 }

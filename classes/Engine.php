@@ -12,6 +12,7 @@ use Slim\App;
 use Slim\Http\Headers, Slim\Http\Request, Slim\Http\Response, Slim\Http\Environment;
 use JsonRpc\Server as JsonRPC;
 use CloudObjects\SDK\COIDParser, CloudObjects\SDK\NodeReader, CloudObjects\SDK\ObjectRetriever;
+use CloudObjects\PhpMAE\DI\SandboxedContainer;
 use CloudObjects\PhpMAE\Exceptions\PhpMAEException;
 
 class Engine {
@@ -38,7 +39,7 @@ class Engine {
     /**
      * Executes an invokable class.
      */
-    private function executeInvokableClass($runClass, RequestInterface $request) {
+    private function executeInvokableClass(SandboxedContainer $runClass, RequestInterface $request) {
         $input = $request->getParsedBody();
         if (!is_array($input))
             $input = [];

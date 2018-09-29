@@ -17,6 +17,7 @@ $app->command(new ClassValidateCommand);
 $app->command(new ClassTestEnvCommand);
 
 $app->command(new DependenciesAddWebAPICommand);
+$app->command(new DependenciesAddStaticTextCommand);
 $app->command(new DependenciesAddAttachmentCommand);
 
 $app->command(new TestEnvironmentStartCommand);

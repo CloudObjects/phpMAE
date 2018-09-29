@@ -21,7 +21,6 @@ class JsonRPCTransport {
             ->write($data);
     }
 
-
     /**
      * Get the response
      */ 

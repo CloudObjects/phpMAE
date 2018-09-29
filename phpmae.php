@@ -16,6 +16,7 @@ $app->command(new ClassDeployCommand);
 $app->command(new ClassValidateCommand);
 $app->command(new ClassTestEnvCommand);
 
+$app->command(new DependenciesAddClassCommand);
 $app->command(new DependenciesAddWebAPICommand);
 $app->command(new DependenciesAddStaticTextCommand);
 $app->command(new DependenciesAddAttachmentCommand);

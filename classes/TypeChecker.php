@@ -24,21 +24,7 @@ class TypeChecker {
 
   public static function isClass(Node $object) {
     return self::isType($object, 'phpmae:Class')
-      || self::isController($object)
-      || self::isFunction($object)
-      || self::isProvider($object);
-  }
-
-  public static function isController(Node $object) {
-    return self::isType($object, 'phpmae:ControllerClass');
-  }
-
-  public static function isFunction(Node $object) {
-    return self::isType($object, 'phpmae:FunctionClass');
-  }
-
-  public static function isProvider(Node $object) {
-    return self::isType($object, 'phpmae:ServiceProviderClass');
+      || self::isType($object, 'phpmae:HTTPInvokableClass');
   }
 
 }

@@ -16,6 +16,8 @@ use CloudObjects\PhpMAE\Exceptions\PhpMAEException;
 
 class Engine {
 
+    const SKEY = '__self';
+
     private $objectRetriever;
     private $classRepository;
     private $errorHandler;
@@ -41,7 +43,7 @@ class Engine {
         if (!is_array($input))
             $input = [];
 
-        $result = $runClass->__invoke($input);
+        $result = $runClass->get(self::SKEY)->__invoke($input);
                 
         if (!isset($result))
             // Empty response
@@ -62,9 +64,9 @@ class Engine {
     /**
      * Executes a standard class using JSON-RPC.
      */
-    private function executeJsonRPC($runClass, RequestInterface $request) {        
+    private function executeJsonRPC(SandboxedContainer $runClass, RequestInterface $request) {        
         $transport = new JsonRPCTransport;
-        $server = new JsonRPC($runClass, $transport);
+        $server = new JsonRPC($runClass->get(self::SKEY), $transport);
         $server->receive((string)$request->getBody());
         return $transport->getResponse();
     }
@@ -87,7 +89,7 @@ class Engine {
             if (!isset($object))
                 throw new PhpMAEException("The object <" . (string)$coid . "> does not exist or this phpMAE instance is not allowed to access it.");
             $runClass = $this->classRepository->createInstance($object, $this->objectRetriever, $this->errorHandler);
-            if (ClassValidator::isInvokableClass($runClass)) {
+            if (ClassValidator::isInvokableClass($runClass->get(self::SKEY))) {
                 // Run as invokable class
                 return $this->executeInvokableClass($runClass, $request);
             } else {

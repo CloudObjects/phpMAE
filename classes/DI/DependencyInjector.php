@@ -74,12 +74,14 @@ class DependencyInjector {
                 if (!isset($classCoid))
                     throw new PhpMAEException("<".$object->getId()."> has an invalid dependency: ClassDependency without class!");
 
-                $classRepository = $this->classRepository;
-                $keyedDependency = function() use ($classRepository, $classCoid) {
-                    $dependencyContainer = $classRepository->createInstance($this->retrieverPool->getBaseObjectRetriever()->getObject($classCoid),
+                $dependencyContainer = $this->classRepository->createInstance($this->retrieverPool->getBaseObjectRetriever()->getObject($classCoid),
                         $this->retrieverPool->getBaseObjectRetriever(), new ErrorHandler);
+                $keyedDependency = function() use ($dependencyContainer) {
                     return $dependencyContainer->get(Engine::SKEY);
                 };
+
+                // Also add with classname to allow constructor autowiring
+                $definitions[$this->classRepository->coidToClassName($classCoid)] = $keyedDependency;
             } else
                 throw new PhpMAEException("<".$object->getId()."> has an invalid dependency: unknown type!");
 
@@ -88,4 +90,33 @@ class DependencyInjector {
 
         return $definitions;
     }
+
+    /**
+     * Get a list of COIDs for class dependencies.
+     *
+     * @param Node $object The object representing the PHP class.
+     */
+    public function getClassDependencyList(Node $object) {
+        $reader = new NodeReader([
+            'prefixes' => [ 'phpmae' => 'coid://phpmae.cloudobjects.io/' ]
+        ]);
+
+        $dependencies = $reader->getAllValuesNode($object, 'phpmae:hasDependency');
+        
+        $list = [];
+
+        foreach ($dependencies as $d) {            
+            if ($reader->hasType($d, 'phpmae:ClassDependency')) {
+                // Class Dependency
+                $classCoid = $reader->getFirstValueIRI($d, 'phpmae:hasClass');
+                if (!isset($classCoid))
+                    throw new PhpMAEException("<".$object->getId()."> has an invalid dependency: ClassDependency without class!");
+
+                $list[] = $classCoid;
+            }
+        }
+
+        return $list;
+    }
+
 }

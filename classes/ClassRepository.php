@@ -50,6 +50,11 @@ class ClassRepository {
 		return $vars;
 	}
 
+	public function coidToClassName(IRI $uri) {
+		$vars = $this->getURIVars($uri);
+		return $vars['php_classname'];
+	}
+
 	/**
 	 * Get a path on which custom files can be cached for a object.
 	 * @param Node $object
@@ -145,8 +150,14 @@ class ClassRepository {
 				$validator = new ClassValidator;
 				$validator->validate($sourceCode);
 
+				// Add namespaces for dependencies
+				$use = '';
+				$classList = $this->container->get(DI\DependencyInjector::class)->getClassDependencyList($object);
+				foreach ($classList as $cl)
+					$use .= " use ".$this->coidToClassName($cl).";";
+
 				// Add namespace declaration
-				$sourceCode = str_replace("<?php", "<?php namespace ".$vars['php_namespace'].";", $sourceCode);
+				$sourceCode = str_replace("<?php", "<?php namespace ".$vars['php_namespace'].";".$use, $sourceCode);
 				$sourceCode = str_replace($vars['php_classname_local'].'::', '\\'.$vars['php_classname'].'::', $sourceCode);
 
 				// Store

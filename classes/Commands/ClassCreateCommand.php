@@ -20,7 +20,7 @@ class ClassCreateCommand extends Command {
       $this->setName('class:create')
         ->setDescription('Create a new class for the phpMAE.')
         ->addArgument('coid', InputArgument::REQUIRED, 'The COID of the object.')
-        ->addOption('http-invokable', 'h', InputOption::VALUE_OPTIONAL, 'Makes the class HTTP-invokable.', false)
+        ->addOption('http-invokable', 'hi', InputOption::VALUE_OPTIONAL, 'Makes the class HTTP-invokable.', false)
         ->addOption('force', 'f', InputOption::VALUE_OPTIONAL, 'Forces new object creation and replaces existing files.', false)
         ->addOption('confjob', null, InputOption::VALUE_OPTIONAL, 'Calls "cloudobjects" to create a configuration job for the new controller.', false);
     }
@@ -38,7 +38,7 @@ class ClassCreateCommand extends Command {
       $name = COIDParser::getName($coid);
       $version = COIDParser::getVersion($coid);
       $fullName = isset($version) ? $name.".".$version : $name;
-      $invokable = ($input->getOption('invokable') !== false);
+      $invokable = ($input->getOption('http-invokable') !== false);
 
       if (!file_exists($fullName.'.xml') || $input->getOption('force') !== false) {
         // Create RDF configuration file

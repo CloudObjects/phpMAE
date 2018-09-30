@@ -13,7 +13,8 @@
 		"jsonrpc/jsonrpc": "^1.0",
 		"vlucas/phpdotenv" : "^2.4.0",
 		"semsol/arc2" : "~2.3.1",
-		"cloudobjects/rdfutilities" : "dev-master"
+		"cloudobjects/rdfutilities" : "dev-master",
+		"tuupola/slim-basic-auth": "^3.2"
 	},
 	"autoload": {
 		"psr-4": {

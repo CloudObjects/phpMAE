@@ -6,16 +6,21 @@
 
 namespace CloudObjects\PhpMAE;
 
-use Psr\Http\Message\RequestInterface, Psr\Http\Message\ResponseInterface;
+use Psr\Http\Message\RequestInterface, Psr\Http\Message\ResponseInterface,
+    Psr\Http\Message\ServerRequestInterface;
 use Psr\Container\ContainerInterface;
+use Psr\Http\Server\RequestHandlerInterface;
 use Slim\App;
 use Slim\Http\Headers, Slim\Http\Request, Slim\Http\Response, Slim\Http\Environment;
 use JsonRpc\Server as JsonRPC;
+use ML\JsonLD\Node;
+use Tuupola\Middleware\HttpBasicAuthentication;
 use CloudObjects\SDK\COIDParser, CloudObjects\SDK\NodeReader, CloudObjects\SDK\ObjectRetriever;
+use CloudObjects\SDK\Helpers\SharedSecretAuthentication;
 use CloudObjects\PhpMAE\DI\SandboxedContainer;
 use CloudObjects\PhpMAE\Exceptions\PhpMAEException;
 
-class Engine {
+class Engine implements RequestHandlerInterface {
 
     const SKEY = '__self';
 
@@ -24,6 +29,7 @@ class Engine {
     private $errorHandler;
     private $slim;
     private $container;
+    private $runClass;
 
     public function __construct(ObjectRetriever $objectRetriever,
             ClassRepository $classRepository, ErrorHandler $errorHandler,
@@ -34,6 +40,24 @@ class Engine {
         $this->errorHandler = $errorHandler;
         $this->slim = $slim;
         $this->container = $container;
+    }
+
+    private function getAuthenticationMiddleware(Node $object) {
+        switch ($this->container->get('client_authentication')) {
+            case "shared_secret.runclass":
+                return new HttpBasicAuthentication([
+                    'realm' => 'phpMAE',
+                    'authenticator' => function($args) use ($object) {
+                        return SharedSecretAuthentication::verifyCredentials($this->objectRetriever,
+                            $args['user'], $args['password']) == SharedSecretAuthentication::RESULT_OK
+                            && strpos($object->getId(), '/'.$args['user'].'/') !== false;
+                    }
+                ]);
+            case "none":
+                return new EmptyMiddleware;
+            default:
+                throw new PhpMAEException("Unsupported authentication mode!");
+        }
     }
 
     /**
@@ -89,17 +113,23 @@ class Engine {
             $object = $this->objectRetriever->get($coid);
             if (!isset($object))
                 throw new PhpMAEException("The object <" . (string)$coid . "> does not exist or this phpMAE instance is not allowed to access it.");
-            $runClass = $this->classRepository->createInstance($object, $this->objectRetriever, $this->errorHandler);
-            if (ClassValidator::isInvokableClass($runClass->get(self::SKEY))) {
-                // Run as invokable class
-                return $this->executeInvokableClass($runClass, $request);
-            } else {
-                // Run as RPC
-                // JsonRPC
-                return $this->executeJsonRPC($runClass, $request);
-            }
+            $this->runClass = $this->classRepository->createInstance($object, $this->objectRetriever, $this->errorHandler);
+
+            $auth = $this->getAuthenticationMiddleware($object);
+            return $auth->process($request, $this);
         } else {
             throw new PhpMAEException("You must provide a valid, non-root COID to specify the class for execution.");
+        }
+    }
+
+    public function handle(ServerRequestInterface $request): ResponseInterface {
+        if (ClassValidator::isInvokableClass($this->runClass->get(self::SKEY))) {
+            // Run as invokable class
+            return $this->executeInvokableClass($this->runClass, $request);
+        } else {
+            // Run as RPC
+            // JsonRPC
+            return $this->executeJsonRPC($this->runClass, $request);
         }
     }
 

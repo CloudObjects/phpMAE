@@ -13,6 +13,7 @@ use Psr\Http\Server\RequestHandlerInterface;
 use Slim\App;
 use Slim\Http\Headers, Slim\Http\Request, Slim\Http\Response, Slim\Http\Environment;
 use JsonRpc\Server as JsonRPC;
+use ML\IRI\IRI;
 use ML\JsonLD\Node;
 use Tuupola\Middleware\HttpBasicAuthentication;
 use CloudObjects\SDK\COIDParser, CloudObjects\SDK\NodeReader, CloudObjects\SDK\ObjectRetriever;
@@ -29,6 +30,8 @@ class Engine implements RequestHandlerInterface {
     private $errorHandler;
     private $slim;
     private $container;
+
+    private $object;
     private $runClass;
 
     public function __construct(ObjectRetriever $objectRetriever,
@@ -42,9 +45,10 @@ class Engine implements RequestHandlerInterface {
         $this->container = $container;
     }
 
-    private function getAuthenticationMiddleware(Node $object) {
+    private function getAuthenticationMiddleware() {
         switch ($this->container->get('client_authentication')) {
             case "shared_secret.runclass":
+                $object = $this->object;
                 return new HttpBasicAuthentication([
                     'realm' => 'phpMAE',
                     'authenticator' => function($args) use ($object) {
@@ -73,6 +77,9 @@ class Engine implements RequestHandlerInterface {
         if (!isset($result))
             // Empty response
             return new Response(204);
+        elseif (is_string($result) && (substr($result, 0, 5) == '<html' || substr($result, 0, 14) == '<!doctype html'))
+            // HTML response
+            return (new Response)->write($result);
         elseif (is_string($result) || is_numeric($result))
             // Plain text response
             return (new Response)->withHeader('Content-Type', 'text/plain')->write($result);
@@ -109,14 +116,21 @@ class Engine implements RequestHandlerInterface {
         }
 
         $coid = COIDParser::fromString(substr($path, 1));
-        if (COIDParser::isValidCOID($coid) && COIDParser::getType($coid) != COIDParser::COID_ROOT) {
-            $object = $this->objectRetriever->get($coid);
-            if (!isset($object))
-                throw new PhpMAEException("The object <" . (string)$coid . "> does not exist or this phpMAE instance is not allowed to access it.");
-            $this->runClass = $this->classRepository->createInstance($object, $this->objectRetriever, $this->errorHandler);
+        $this->loadRunClass($coid);
+        
+        $auth = $this->getAuthenticationMiddleware($object);
+        return $auth->process($request, $this);
+    }
 
-            $auth = $this->getAuthenticationMiddleware($object);
-            return $auth->process($request, $this);
+    /**
+     * Load a class to execute.
+     */
+    public function loadRunClass(IRI $coid) {
+        if (COIDParser::isValidCOID($coid) && COIDParser::getType($coid) != COIDParser::COID_ROOT) {
+            $this->object = $this->objectRetriever->get($coid);
+            if (!isset($this->object))
+                throw new PhpMAEException("The object <" . (string)$coid . "> does not exist or this phpMAE instance is not allowed to access it.");
+            $this->runClass = $this->classRepository->createInstance($this->object, $this->objectRetriever, $this->errorHandler);
         } else {
             throw new PhpMAEException("You must provide a valid, non-root COID to specify the class for execution.");
         }
@@ -137,18 +151,27 @@ class Engine implements RequestHandlerInterface {
      * Create main request and execute.
      */
     public function run() {
-        $env = new Environment($_SERVER);
-        $request = Request::createFromEnvironment($env);
+        $mode = $this->container->get('mode');
 
-        try {
-            $response = $this->execute($request);
-        } catch (PhpMAEException $e) {
-            // Create plain-text error response
-            $response = (new Response(500))
-                ->withHeader('Content-Type', 'text/plain')
-                ->write($e->getMessage());
+        if ($mode == 'default') {
+            // Default mode
+            $env = new Environment($_SERVER);
+            $request = Request::createFromEnvironment($env);
+    
+            try {
+                $response = $this->execute($request);
+            } catch (PhpMAEException $e) {
+                // Create plain-text error response
+                $response = (new Response(500))
+                    ->withHeader('Content-Type', 'text/plain')
+                    ->write($e->getMessage());
+            }
+    
+            $this->slim->respond($response);
+        } else
+        if (substr($mode, 0, 7) == 'router:') {
+            // Router mode with specified router
+            $this->container->get(Router::class)->run();
         }
-
-        $this->slim->respond($response);
     }
 }

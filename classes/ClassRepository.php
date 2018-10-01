@@ -8,7 +8,7 @@ namespace CloudObjects\PhpMAE;
 
 use Psr\Container\ContainerInterface;
 use ML\IRI\IRI, ML\JsonLD\Node;
-use DI\Container;
+use DI\Container, DI\FactoryInterface, Invoker\InvokerInterface;
 use DI\Definition\Source\DefinitionArray, DI\Definition\Source\SourceChain;
 use CloudObjects\SDK\ObjectRetriever, CloudObjects\SDK\COIDParser;
 use CloudObjects\PhpMAE\Exceptions\PhpMAEException;
@@ -108,6 +108,8 @@ class ClassRepository {
 		$sandboxedContainer = new DI\SandboxedContainer($container);
 		$container->set(ContainerInterface::class, $sandboxedContainer);
 		$container->set(Container::class, $sandboxedContainer);
+		$container->set(FactoryInterface::class, $sandboxedContainer);
+        $container->set(InvokerInterface::class, $sandboxedContainer);
 		return $sandboxedContainer;
 	}
 

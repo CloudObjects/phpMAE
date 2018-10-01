@@ -14,27 +14,13 @@ class ClassValidatorTest extends \PHPUnit_Framework_TestCase {
         $this->validator = new ClassValidator;
     }
 
-    public function testValidateAsController() {
-        $this->validator->validateAsController($this->loadFromFile('controller1.php'));
-    }
-
-    public function testValidateControllerAsProvider() {
-        $this->expectException(Exceptions\PhpMAEException::class);
-        $this->validator->validateAsProvider($this->loadFromFile('controller1.php'));
-    }
-
-    public function testValidateAsProvider() {
-        $this->validator->validateAsProvider($this->loadFromFile('provider1.php'));
-    }
-
-    public function testValidateProviderAsController() {
-        $this->expectException(Exceptions\PhpMAEException::class); 
-        $this->validator->validateAsController($this->loadFromFile('provider1.php'));
+    public function testValidate() {
+        $this->validator->validate($this->loadFromFile('class1.php'));
     }
 
     public function testNonWhitelistedClass() {
         $this->expectException(\PHPSandbox\Error::class); 
-        $this->validator->validateAsController($this->loadFromFile('controller2.php'));
+        $this->validator->validate($this->loadFromFile('class2.php'));
     }
 
 }

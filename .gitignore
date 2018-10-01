@@ -1,4 +1,6 @@
 vendor
+cache
+uploads
 config.php
 *.phar
 page

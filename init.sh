@@ -1,21 +1,18 @@
 # Write configuration file
 
 echo "<?php return array(" \
-	" 'enable_vhost_controllers' => true, " \
-	" 'exclude_vhosts' => ['localhost', 'phpmae.cloudobjects.io'], " \
-	" 'debug' => false, " \
-	" 'account_data_cache' => 'none', " \
-	" 'object_cache' => 'file', " \
-	" 'redis' => array(), " \
-	" 'classes' => array( " \
-	"	'cache_dir' => '/tmp/cache', " \
-	"	'uploads_dir' => '/tmp/uploads' " \
-	" ), " \
+	" 'uploads' => false, " \
+	" 'cache_dir' => __DIR__.'/cache', " \
+	" 'uploads_dir' => __DIR__.'/uploads', " \
+	" 'mode' => 'hybrid', " \
 	" 'client_authentication' => '$CLIENT_AUTH', " \
-	" 'cloudobjects.auth_ns' => '$CO_AUTH_NS', " \
-	" 'cloudobjects.auth_secret' => '$CO_AUTH_SECRET', " \
-	" 'accountgateways.base_url_template' => '$AGW_BASE_URL', " \
-	" 'sandbox.enabled' => false " \
+	" 'CloudObjects\SDK\ObjectRetriever' => function() { " \
+	"   return new CloudObjects\SDK\ObjectRetriever([ " \
+	"    'auth_ns' => '$CO_AUTH_NS', " \
+	"    'auth_secret' => '$CO_AUTH_SECRET', " \
+	"    'static_config_path' => __DIR__.'/uploads/config' " \
+	"   ]); " \
+	" } " \
     " ); " > /var/www/app/config.php
 
 # Run start script from parent container

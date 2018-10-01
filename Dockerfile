@@ -1,4 +1,4 @@
-FROM cloudobjects/php-app-base
+FROM cloudobjects/php-app-base:7.1
 MAINTAINER "Lukas Rosenstock"
 
 # Add application code

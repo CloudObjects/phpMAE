@@ -17,7 +17,6 @@ class RoboFile extends \Robo\Tasks {
             ->addFile('phpmae.php', 'phpmae.php')
             ->addFile('config.php', 'config.php')
             ->addFile('web/index.php', 'web/index.php')
-            ->addFile('web/static-home.html', 'web/static-home.html')
             ->stub('stub.php');
 
         $finder = Finder::create()
@@ -39,6 +38,27 @@ class RoboFile extends \Robo\Tasks {
 
         // Verify Phar is packed correctly
         $code = $this->_exec('php phpmae.phar');
+    }
+
+    public function sanitizeDependencies() {
+        $finder = Finder::create()->files()
+            ->name('*.php')
+            ->in('vendor');
+        
+        $parser = (new \PhpParser\ParserFactory)->create(\PhpParser\ParserFactory::PREFER_PHP7);
+        $traverser = new \PhpParser\NodeTraverser;
+        $printer = new \PhpParser\PrettyPrinter\Standard;        
+        $traverser->addVisitor(new \CloudObjects\PhpMAE\Validation\FunctionWhitelistOnlyVisitor);
+
+        foreach ($finder as $file) {
+            try {
+                $ast = $parser->parse(file_get_contents($file));
+                $traverser->traverse($ast);
+                file_put_contents($file, $printer->prettyPrintFile($ast));
+            } catch (\Exception $e) {
+                $this->say($file.': '.get_class($e).' '.$e->getMessage());
+            }
+        }
     }
 
     public function buildFunctionWhitelist() {

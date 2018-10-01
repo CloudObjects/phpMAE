@@ -8,11 +8,20 @@ date_default_timezone_set('UTC');
 
 require __DIR__.'/../vendor/autoload.php';
 
-$app = new Slim\App();
-
 $builder = new DI\ContainerBuilder();
 $builder->addDefinitions(require __DIR__.'/../config.php');
-$app = new Slim\App($builder->build());
-$engine = $app->getContainer()->get('CloudObjects\PhpMAE\Engine');
+$container = $builder->build();
 
-$engine->run();
+$mode = $container->get('mode');
+if ($mode == 'default') {
+    // Default mode
+    $container->get('CloudObjects\PhpMAE\Engine')
+        ->run();
+} elseif (substr($mode, 0, 7) == 'router:' || $mode == 'hybrid') {
+    // Router or hybrid mode
+    $container->get('CloudObjects\PhpMAE\Router')
+        ->run();
+} else {
+    // Error
+    die("Invalid mode!");
+}

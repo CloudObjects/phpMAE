@@ -9,7 +9,7 @@ namespace CloudObjects\PhpMAE;
 use Psr\Http\Message\RequestInterface, Psr\Http\Message\ResponseInterface;
 use Psr\Container\ContainerInterface;
 use Slim\App;
-use Slim\Http\Environment, Slim\Http\Request, Slim\Http\Response;
+use Slim\Http\Environment, Slim\Http\Uri, Slim\Http\Response;
 use ML\JsonLD\Node, ML\JsonLD\JsonLD;
 use CloudObjects\Utilities\RDF\Arc2JsonLdConverter;
 use CloudObjects\SDK\NodeReader, CloudObjects\SDK\ObjectRetriever;
@@ -61,16 +61,41 @@ class Router {
      * Setup and run router.
      */
     public function run() {
-        $mode = $this->container->get('mode');
-
 		try {
+            $mode = $this->container->get('mode');
+            $fallback = false;
+    
             $app = new App;
-            if (substr($mode, 0, 7) == 'router:') {
-                // Router mode with specified router
-                $coid = substr($mode, 7);
-                $object = $this->objectRetriever->get($coid);
-                $this->configure($app, $object);
+
+            if ($mode == 'hybrid') {
+                $mode = 'router:vhost';
+                $fallback = true;
             }
+
+            if (substr($mode, 0, 7) == 'router:') {
+                try {
+                    $coid = substr($mode, 7);
+                    if ($coid == 'vhost') {
+                        // Get router COID from namespace configuration
+                        $env = new Environment($_SERVER);
+                        $uri = Uri::createFromEnvironment($env);
+
+                        $namespace = $this->objectRetriever->get('coid://'.$uri->getHost());
+                        if ($router = $namespace->getProperty('coid://phpmae.cloudobjects.io/hasRouter'))
+                            $coid = $router->getId();
+                    }
+
+                    $object = $this->objectRetriever->get($coid);
+                    $this->configure($app, $object);
+                } catch (\Exception $e) {
+                    if ($fallback) {
+                        $this->container->get(Engine::class)
+                            ->run();
+                        exit;
+                    }
+                }
+            }
+
             $response = $app->run(true);
         } catch (PhpMAEException $e) {
             // Create plain-text error response

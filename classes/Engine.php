@@ -151,27 +151,18 @@ class Engine implements RequestHandlerInterface {
      * Create main request and execute.
      */
     public function run() {
-        $mode = $this->container->get('mode');
-
-        if ($mode == 'default') {
-            // Default mode
-            $env = new Environment($_SERVER);
-            $request = Request::createFromEnvironment($env);
+        $env = new Environment($_SERVER);
+        $request = Request::createFromEnvironment($env);
     
-            try {
-                $response = $this->execute($request);
-            } catch (PhpMAEException $e) {
-                // Create plain-text error response
-                $response = (new Response(500))
-                    ->withHeader('Content-Type', 'text/plain')
-                    ->write($e->getMessage());
-            }
-    
-            $this->slim->respond($response);
-        } else
-        if (substr($mode, 0, 7) == 'router:') {
-            // Router mode with specified router
-            $this->container->get(Router::class)->run();
+        try {
+            $response = $this->execute($request);
+        } catch (PhpMAEException $e) {
+            // Create plain-text error response
+            $response = (new Response(500))
+                ->withHeader('Content-Type', 'text/plain')
+                ->write($e->getMessage());
         }
+    
+        $this->slim->respond($response);        
     }
 }

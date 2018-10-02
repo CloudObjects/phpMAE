@@ -50,7 +50,10 @@ class Router {
                     if ($reader->hasProperty($r, 'phpmae:runsClass')) {
                         $engine->loadRunClass($reader->getFirstValueIRI($r, 'phpmae:runsClass'));
                         return $engine->handle($request);
+                    } elseif ($reader->hasProperty($r, 'phpmae:redirectsToURL')) {
+                        return (new Response)->withRedirect($reader->getFirstValueString($r, 'phpmae:redirectsToURL'));
                     } else {
+                        // Route has no implementation
                         return new Response(500);
                     }
                 });

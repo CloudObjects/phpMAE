@@ -118,10 +118,8 @@ class ClassRepository {
 	 * as well as all dependencies specified by the class.
 	 * 
 	 * @param Node $object The object describing the class.
-	 * @param ObjectRetriever $objectRetriever The repository, which is used to fetch the implementation.
-	 * @param ErrorHandler $errorHandler An error handler; used to add information about the class for debugging.
 	 */
-	public function createInstance(Node $object, ObjectRetriever $objectRetriever, ErrorHandler $errorHandler) {
+	public function createInstance(Node $object) {
 		// Check type
 		if (!TypeChecker::isClass($object))
 			throw new PhpMAEException("<".$object->getId()."> must have a valid type.");
@@ -129,6 +127,8 @@ class ClassRepository {
 		$uri = new IRI($object->getId());
 		$vars = $this->getURIVars($uri);
 		if (!isset($this->classMap[$vars['php_classname']])) {
+			$objectRetriever = $this->container->get(ObjectRetriever::class);
+
 			// Get revision
 			$revision = $object->getProperty(ObjectRetriever::REVISION_PROPERTY)
 				? $object->getProperty(ObjectRetriever::REVISION_PROPERTY)->getValue()
@@ -136,7 +136,8 @@ class ClassRepository {
 
 			// Build filename where cached version should exist
 			$filename = $vars['cache_path'].DIRECTORY_SEPARATOR.$revision.".php";
-			$errorHandler->addMapping($filename, $object);
+			$this->container->get(ErrorHandler::class)
+				->addMapping($filename, $object);
 
 			if (!file_exists($filename)) {
 				// File does not exist -> check in uploads first

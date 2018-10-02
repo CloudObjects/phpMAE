@@ -27,7 +27,6 @@ class Engine implements RequestHandlerInterface {
 
     private $objectRetriever;
     private $classRepository;
-    private $errorHandler;
     private $slim;
     private $container;
 
@@ -35,12 +34,11 @@ class Engine implements RequestHandlerInterface {
     private $runClass;
 
     public function __construct(ObjectRetriever $objectRetriever,
-            ClassRepository $classRepository, ErrorHandler $errorHandler,
+            ClassRepository $classRepository,
             App $slim, ContainerInterface $container) {
         
         $this->objectRetriever = $objectRetriever;
         $this->classRepository = $classRepository;
-        $this->errorHandler = $errorHandler;
         $this->slim = $slim;
         $this->container = $container;
     }
@@ -133,7 +131,7 @@ class Engine implements RequestHandlerInterface {
             $this->object = $this->objectRetriever->get($coid);
             if (!isset($this->object))
                 throw new PhpMAEException("The object <" . (string)$coid . "> does not exist or this phpMAE instance is not allowed to access it.");
-            $this->runClass = $this->classRepository->createInstance($this->object, $this->objectRetriever, $this->errorHandler);
+            $this->runClass = $this->classRepository->createInstance($this->object);
         } else {
             throw new PhpMAEException("You must provide a valid, non-root COID to specify the class for execution.");
         }

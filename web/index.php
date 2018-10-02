@@ -7,9 +7,29 @@
 date_default_timezone_set('UTC');
 
 require __DIR__.'/../vendor/autoload.php';
+$config = require __DIR__.'/../config.php';
 
+// Create Dependency Injection Container
 $builder = new DI\ContainerBuilder();
-$builder->addDefinitions(require __DIR__.'/../config.php');
+$builder->addDefinitions($config);
+$builder->addDefinitions([
+    'CloudObjects\PhpMAE\ObjectRetrieverPool' => DI\autowire()
+        ->constructorParameter('baseHostname', $config['co.auth_ns'])
+        ->constructorParameter('options', [
+            'cache_provider' => 'file',
+            'cache_provider.file.directory' => $config['cache_dir'] . '/config',
+            'static_config_path' => $config['uploads_dir'] . '/config'
+        ]),
+    'CloudObjects\SDK\ObjectRetriever' => DI\autowire()
+        ->constructor([
+            'auth_ns' => $config['co.auth_ns'],
+            'auth_secret' => $config['co.auth_secret'],
+            'cache_provider' => 'file',
+            'cache_provider.file.directory' => $config['cache_dir'] . '/config',
+            'static_config_path' => $config['uploads_dir'] . '/config'
+        ])
+]);
+$builder->enableCompilation($config['cache_dir']);
 $container = $builder->build();
 
 $mode = $container->get('mode');

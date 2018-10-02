@@ -27,7 +27,7 @@ class ClassRepository {
 
 	public function __construct(ContainerInterface $container) {
 		$this->options = [
-			'cache_dir' => $container->get('cache_dir'),
+			'cache_dir' => $container->get('cache_dir') . '/classes',
 			'uploads_dir' => $container->get('uploads_dir')
 		];
 

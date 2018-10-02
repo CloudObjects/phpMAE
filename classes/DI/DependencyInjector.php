@@ -61,11 +61,11 @@ class DependencyInjector {
                 if (!isset($apiCoid))
                     throw new PhpMAEException("<".$object->getId()."> has an invalid dependency: WebAPIDependency without API!");
 
-                $keyedDependency = function() use ($apiCoid, $retrieverPool, $object) {
+                $keyedDependency = function() use ($apiCoid, $object) {
                     $namespaceCoid = COIDParser::getNamespaceCOID(new IRI($object->getId()));
                     $apiCoid = new IRI($apiCoid);                    
                     return APIClientFactory::createClient($this->retrieverPool->getBaseObjectRetriever()->get($apiCoid),
-                        $retrieverPool->getObjectRetriever($apiCoid->getHost())->get($namespaceCoid));
+                        $this->retrieverPool->getObjectRetriever($apiCoid->getHost())->get($namespaceCoid));
                 };
             } else
             if ($reader->hasType($d, 'phpmae:ClassDependency')) {

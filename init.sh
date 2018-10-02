@@ -15,6 +15,11 @@ echo "<?php return array(" \
 	" } " \
     " ); " > /var/www/app/config.php
 
+# Make cache folder
+
+mkdir cache
+chown lighttpd:lighttpd cache
+
 # Run start script from parent container
 
 sh /tmp/start.sh

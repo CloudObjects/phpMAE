@@ -16,11 +16,11 @@ class ObjectRetrieverPool {
     private $options;
     private $objectRetrievers = [];
 
-    public function __construct(ObjectRetriever $baseObjectRetriever) { // TODO: add $baseHostname, $options) {
+    public function __construct(ObjectRetriever $baseObjectRetriever, $baseHostname, $options) {
         $this->baseObjectRetriever = $baseObjectRetriever;
-        /*$this->baseHostname = $baseHostname;
+        $this->baseHostname = $baseHostname;
         $this->objectRetrievers[$baseHostname] = $baseObjectRetriever;
-        $this->options = $options; */
+        $this->options = $options;
     }
 
     public function getBaseObjectRetriever() {

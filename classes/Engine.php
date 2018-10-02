@@ -46,10 +46,13 @@ class Engine implements RequestHandlerInterface {
     }
 
     private function getAuthenticationMiddleware() {
-        switch ($this->container->get('client_authentication')) {
+        $auth = $this->container->get('client_authentication');
+        switch ($auth) {
             case "shared_secret.runclass":
+            case "shared_secret.runclass+secure":
                 $object = $this->object;
                 return new HttpBasicAuthentication([
+                    'secure' => ($auth == 'shared_secret.runclass+secure'),
                     'realm' => 'phpMAE',
                     'authenticator' => function($args) use ($object) {
                         return SharedSecretAuthentication::verifyCredentials($this->objectRetriever,

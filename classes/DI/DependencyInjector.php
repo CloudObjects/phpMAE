@@ -39,7 +39,13 @@ class DependencyInjector {
 
         $dependencies = $reader->getAllValuesNode($object, 'phpmae:hasDependency');
         
-        $definitions = [];
+        $namespaceCoid = COIDParser::getNamespaceCOID(new IRI($object->getId()));                    
+        $definitions = [
+            ObjectRetriever::class => function() use ($namespaceCoid) {
+                // Get or create an object retriever with the identity of the namespace of this object
+                return $this->retrieverPool->getObjectRetriever($namespaceCoid->getHost());
+            }
+        ];
 
         foreach ($dependencies as $d) {
             $keyedDependency = null;
@@ -61,8 +67,7 @@ class DependencyInjector {
                 if (!isset($apiCoid))
                     throw new PhpMAEException("<".$object->getId()."> has an invalid dependency: WebAPIDependency without API!");
 
-                $keyedDependency = function() use ($apiCoid, $object) {
-                    $namespaceCoid = COIDParser::getNamespaceCOID(new IRI($object->getId()));
+                $keyedDependency = function() use ($apiCoid, $namespaceCoid, $object) {
                     $apiCoid = new IRI($apiCoid);                    
                     return APIClientFactory::createClient($this->retrieverPool->getBaseObjectRetriever()->get($apiCoid),
                         $this->retrieverPool->getObjectRetriever($apiCoid->getHost())->get($namespaceCoid));

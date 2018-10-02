@@ -6,19 +6,14 @@ echo "<?php return array(" \
 	" 'uploads_dir' => __DIR__.'/uploads', " \
 	" 'mode' => 'hybrid', " \
 	" 'client_authentication' => '$CLIENT_AUTH', " \
-	" 'CloudObjects\SDK\ObjectRetriever' => function() { " \
-	"   return new CloudObjects\SDK\ObjectRetriever([ " \
-	"    'auth_ns' => '$CO_AUTH_NS', " \
-	"    'auth_secret' => '$CO_AUTH_SECRET', " \
-	"    'static_config_path' => __DIR__.'/uploads/config' " \
-	"   ]); " \
-	" } " \
+	" 'co.auth_ns' => '$CO_AUTH_NS', " \
+	" 'co.auth_secret' => '$CO_AUTH_SECRET', " \
     " ); " > /var/www/app/config.php
 
 # Make cache folder
 
-mkdir cache
-chown lighttpd:lighttpd cache
+mkdir /var/www/app/cache
+chown lighttpd:lighttpd /var/www/app/cache
 
 # Run start script from parent container
 

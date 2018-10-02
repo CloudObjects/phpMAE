@@ -44,7 +44,9 @@ class DependencyInjector {
             ObjectRetriever::class => function() use ($namespaceCoid) {
                 // Get or create an object retriever with the identity of the namespace of this object
                 return $this->retrieverPool->getObjectRetriever($namespaceCoid->getHost());
-            }
+            },
+            DynamicLoader::class => \DI\autowire()
+                ->constructorParameter('repository', $this->classRepository)
         ];
 
         foreach ($dependencies as $d) {
@@ -79,8 +81,8 @@ class DependencyInjector {
                 if (!isset($classCoid))
                     throw new PhpMAEException("<".$object->getId()."> has an invalid dependency: ClassDependency without class!");
 
-                $dependencyContainer = $this->classRepository->createInstance($this->retrieverPool->getBaseObjectRetriever()->getObject($classCoid),
-                        $this->retrieverPool->getBaseObjectRetriever(), new ErrorHandler);
+                $dependencyContainer = $this->classRepository
+                    ->createInstance($this->retrieverPool->getBaseObjectRetriever()->getObject($classCoid));
                 $keyedDependency = function() use ($dependencyContainer) {
                     return $dependencyContainer->get(Engine::SKEY);
                 };

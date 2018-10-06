@@ -49,8 +49,10 @@ class DependencyInjector {
                 // Get or create an object retriever with the identity of the namespace of this object
                 return $this->retrieverPool->getObjectRetriever($namespaceCoid->getHost());
             },
-            DynamicLoader::class => \DI\autowire()
-                ->constructorParameter('repository', $this->classRepository)
+            DynamicLoader::class => function() {
+                return new DynamicLoader($this->retrieverPool->getBaseObjectRetriever(),
+                    $this->classRepository);
+            }
         ];
 
         $definitions = array_merge($definitions, $additionalDefinitions);

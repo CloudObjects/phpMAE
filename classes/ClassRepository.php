@@ -10,6 +10,7 @@ use Psr\Container\ContainerInterface;
 use ML\IRI\IRI, ML\JsonLD\Node;
 use DI\Container, DI\FactoryInterface, Invoker\InvokerInterface;
 use DI\Definition\Source\DefinitionArray, DI\Definition\Source\SourceChain;
+use Psr\Http\Message\RequestInterface;
 use CloudObjects\SDK\ObjectRetriever, CloudObjects\SDK\COIDParser;
 use CloudObjects\PhpMAE\Exceptions\PhpMAEException;
 
@@ -87,12 +88,12 @@ class ClassRepository {
 		return true;
 	}
 
-	private function buildContainer($className, Node $object) {
+	private function buildContainer($className, Node $object, $additionalDefinitions = []) {
 		$autowiring = new DI\WhitelistReflectionBasedAutowiring;
 
 		$sources = [
 			new DefinitionArray($this->container->get(DI\DependencyInjector::class)
-				->getDependencies($object), $autowiring),
+				->getDependencies($object, $additionalDefinitions), $autowiring),
 			new DefinitionArray([
 				Engine::SKEY => \DI\autowire($className)
 			], $autowiring),
@@ -118,8 +119,9 @@ class ClassRepository {
 	 * as well as all dependencies specified by the class.
 	 * 
 	 * @param Node $object The object describing the class.
+	 * @param RequestInterface $request The optional request, if it should be made available
 	 */
-	public function createInstance(Node $object) {
+	public function createInstance(Node $object, RequestInterface $request = null) {
 		// Check type
 		if (!TypeChecker::isClass($object))
 			throw new PhpMAEException("<".$object->getId()."> must have a valid type.");
@@ -175,7 +177,12 @@ class ClassRepository {
 			$this->classMap[$vars['php_classname']] = $filename;
 		}
 
-		return $this->buildContainer($vars['php_classname'], $object);
+		$additionalDefinitions = [];
+		if (isset($request)) {
+			$additionalDefinitions['request'] = $request;
+			$additionalDefinitions[RequestInterface::class] = $request;
+		}
+		return $this->buildContainer($vars['php_classname'], $object, $additionalDefinitions);
 	}
 
 }

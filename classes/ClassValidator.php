@@ -59,7 +59,7 @@ class ClassValidator {
       'GuzzleHttp\Handler\CurlHandler',
       'GuzzleHttp\Subscriber\Oauth\Oauth1',
       'GuzzleHttp\Promise',
-      'Symfony\Component\HttpFoundation\Cookie',
+      'Dflydev\FigCookies\SetCookie',
       'Symfony\Component\HttpFoundation\RedirectResponse',
       'Symfony\Component\HttpFoundation\Request',
       'Symfony\Component\HttpFoundation\Response',

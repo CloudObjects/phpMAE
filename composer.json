@@ -14,7 +14,10 @@
 		"vlucas/phpdotenv" : "^2.4.0",
 		"semsol/arc2" : "~2.3.1",
 		"cloudobjects/rdfutilities" : "dev-master",
-		"tuupola/slim-basic-auth": "^3.2"
+		"tuupola/slim-basic-auth": "^3.2",
+		"dflydev/fig-cookies": "^1.0",
+		"doctrine/collections": "^1.5",
+		"defuse/php-encryption": "^2.2"
 	},
 	"autoload": {
 		"psr-4": {

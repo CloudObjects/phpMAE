@@ -9,9 +9,11 @@ namespace CloudObjects\PhpMAE\DI;
 use ML\JsonLD\Node;
 use ML\IRI\IRI;
 use DI\ContainerBuilder;
+use Doctrine\Common\Collections\ArrayCollection;
 use CloudObjects\SDK\ObjectRetriever, CloudObjects\SDK\NodeReader, CloudObjects\SDK\COIDParser;
 use CloudObjects\SDK\WebAPI\APIClientFactory;
-use CloudObjects\PhpMAE\ObjectRetrieverPool, CloudObjects\PhpMAE\ClassRepository, CloudObjects\PhpMAE\ErrorHandler, CloudObjects\PhpMAE\Engine;
+use CloudObjects\PhpMAE\ObjectRetrieverPool, CloudObjects\PhpMAE\ClassRepository,
+    CloudObjects\PhpMAE\ErrorHandler, CloudObjects\PhpMAE\Engine;
 use CloudObjects\PhpMAE\Exceptions\PhpMAEException;
 
 /**
@@ -31,16 +33,18 @@ class DependencyInjector {
      * Get all dependencies for injection.
      *
      * @param Node $object The object representing the PHP class.
+     * @param array $additionalDefinitions Additional definitions to add to the container
      */
-    public function getDependencies(Node $object) {
+    public function getDependencies(Node $object, $additionalDefinitions = []) {
         $reader = new NodeReader([
             'prefixes' => [ 'phpmae' => 'coid://phpmae.cloudobjects.io/' ]
         ]);
 
         $dependencies = $reader->getAllValuesNode($object, 'phpmae:hasDependency');
         
-        $namespaceCoid = COIDParser::getNamespaceCOID(new IRI($object->getId()));                    
+        $namespaceCoid = COIDParser::getNamespaceCOID(new IRI($object->getId()));
         $definitions = [
+            'cookies' => \DI\create(ArrayCollection::class),
             ObjectRetriever::class => function() use ($namespaceCoid) {
                 // Get or create an object retriever with the identity of the namespace of this object
                 return $this->retrieverPool->getObjectRetriever($namespaceCoid->getHost());
@@ -48,6 +52,8 @@ class DependencyInjector {
             DynamicLoader::class => \DI\autowire()
                 ->constructorParameter('repository', $this->classRepository)
         ];
+
+        $definitions = array_merge($definitions, $additionalDefinitions);
 
         foreach ($dependencies as $d) {
             $keyedDependency = null;

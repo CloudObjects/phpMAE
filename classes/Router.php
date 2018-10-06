@@ -50,7 +50,7 @@ class Router {
                 function(RequestInterface $request, ResponseInterface $response, $args) use ($r, $reader, $engine) {
                     if ($reader->hasProperty($r, 'phpmae:runsClass')) {
                         // Route is mapped to a class
-                        $engine->loadRunClass($reader->getFirstValueIRI($r, 'phpmae:runsClass'), $request);
+                        $runClass = $engine->loadRunClass($reader->getFirstValueIRI($r, 'phpmae:runsClass'), $request);
                         if ($reader->hasProperty($r, 'phpmae:runsMethod')) {
                             // Calls to specific methods must be rewritten
                             // Path, request and query parameters are merged and used as method input
@@ -71,7 +71,7 @@ class Router {
                             $rpcResponse = json_decode($innerResponse->getBody(), true);
 
                             if (isset($rpcResponse['result'])) {
-                                return $engine->generateResponse($rpcResponse['result']);
+                                return $engine->generateResponse($rpcResponse['result'], $runClass);
                             } else {
                                 return (new Response(500))->withJson($rpcResponse);
                             }                            

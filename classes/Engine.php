@@ -154,6 +154,8 @@ class Engine implements RequestHandlerInterface {
             if (!isset($this->object))
                 throw new PhpMAEException("The object <" . (string)$coid . "> does not exist or this phpMAE instance is not allowed to access it.");
             $this->runClass = $this->classRepository->createInstance($this->object, $request);
+
+            return $this->runClass;
         } else {
             throw new PhpMAEException("You must provide a valid, non-root COID to specify the class for execution.");
         }

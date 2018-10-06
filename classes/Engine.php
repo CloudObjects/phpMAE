@@ -74,30 +74,38 @@ class Engine implements RequestHandlerInterface {
             $input = [];
 
         $result = $runClass->get(self::SKEY)->__invoke($input);
-                
-        if (!isset($result))
+
+        return $this->generateResponse($result);
+    }
+
+    /**
+     * Generates an response with adequate Content Type based on the format of the content.
+     * @param mixed $content Content for the body of the response.
+     */
+    public function generateResponse($content) {
+        if (!isset($content))
             // Empty response
             return new Response(204);
-        elseif (is_string($result) && (substr($result, 0, 5) == '<html' || substr($result, 0, 14) == '<!doctype html'))
+        elseif (is_string($content) && (substr($content, 0, 5) == '<html' || substr($content, 0, 14) == '<!doctype html'))
             // HTML response
-            return (new Response)->write($result);
-        elseif (is_string($result) || is_numeric($result))
+            return (new Response)->write($content);
+        elseif (is_string($content) || is_numeric($content))
             // Plain text response
-            return (new Response)->withHeader('Content-Type', 'text/plain')->write($result);
-        elseif (is_object($result) && in_array(ResponseInterface::class, class_implements($result)))
-            // Existing response
+            return (new Response)->withHeader('Content-Type', 'text/plain')->write($content);
+        elseif (is_object($content) && in_array(ResponseInterface::class, class_implements($content)))
+            // Existing response to pass through
             return $result;
         else
             // JSON response (default)
-            return (new Response)->withJson($result);
-        
+            return (new Response)->withJson($content);
+    
         // TODO: add support for XML
     }
 
     /**
      * Executes a standard class using JSON-RPC.
      */
-    private function executeJsonRPC(SandboxedContainer $runClass, RequestInterface $request) {        
+    private function executeJsonRPC(SandboxedContainer $runClass, RequestInterface $request) {
         $transport = new JsonRPCTransport;
         $server = new JsonRPC($runClass->get(self::SKEY), $transport);
         $server->receive((string)$request->getBody());

@@ -10,6 +10,7 @@ use Psr\Http\Message\RequestInterface, Psr\Http\Message\ResponseInterface;
 use Psr\Container\ContainerInterface;
 use Slim\App;
 use Slim\Http\Environment, Slim\Http\Uri, Slim\Http\Response;
+use GuzzleHttp\Psr7\ServerRequest;
 use ML\JsonLD\Node, ML\JsonLD\JsonLD;
 use CloudObjects\Utilities\RDF\Arc2JsonLdConverter;
 use CloudObjects\SDK\NodeReader, CloudObjects\SDK\ObjectRetriever;
@@ -46,10 +47,38 @@ class Router {
             $engine = $this->engine;
             $app->map([ $reader->getFirstValueString($r, 'wa:hasVerb') ],
                 $reader->getFirstValueString($r, 'wa:hasPath'),
-                function(RequestInterface $request) use ($r, $reader, $engine) {
+                function(RequestInterface $request, ResponseInterface $response, $args) use ($r, $reader, $engine) {
                     if ($reader->hasProperty($r, 'phpmae:runsClass')) {
+                        // Route is mapped to a class
                         $engine->loadRunClass($reader->getFirstValueIRI($r, 'phpmae:runsClass'));
-                        return $engine->handle($request);
+                        if ($reader->hasProperty($r, 'phpmae:runsMethod')) {
+                            // Calls to specific methods must be rewritten
+                            // Path, request and query parameters are merged and used as method input
+                            $rpcBody = json_encode([
+                                'jsonrpc' => '2.0',
+                                'method' => $reader->getFirstValueString($r, 'phpmae:runsMethod'),
+                                'params' => array_merge(
+                                    is_array($args) ? $args : [],
+                                    is_array($request->getQueryParams()) ? $request->getQueryParams() : [],
+                                    is_array($request->getParsedBody()) ? $request->getParsedBody() : []
+                                ),
+                                'id' => 'R'
+                            ]);
+                            $innerRequest = new ServerRequest('POST', $request->getUri(),
+                                $request->getHeaders(), $rpcBody);
+
+                            $innerResponse = $engine->handle($innerRequest);
+                            $rpcResponse = json_decode($innerResponse->getBody(), true);
+
+                            if (isset($rpcResponse['result'])) {
+                                return $engine->generateResponse($rpcResponse['result']);
+                            } else {
+                                return (new Response(500))->withJson($rpcResponse);
+                            }                            
+                        } else {
+                            // Generic class execution (invokable)
+                            return $engine->handle($request);
+                        }
                     } elseif ($reader->hasProperty($r, 'phpmae:redirectsToURL')) {
                         return (new Response)->withRedirect($reader->getFirstValueString($r, 'phpmae:redirectsToURL'));
                     } else {
@@ -68,7 +97,14 @@ class Router {
             $mode = $this->container->get('mode');
             $fallback = false;
     
-            $app = new App;
+            $configuration = [
+                'settings' => [
+                    'displayErrorDetails' => true,
+                ],
+            ];
+            $c = new \Slim\Container($configuration);
+            $app = new App($c);
+            
 
             if ($mode == 'hybrid') {
                 $mode = 'router:vhost';

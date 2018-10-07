@@ -57,10 +57,10 @@ class Router {
                             $rpcBody = json_encode([
                                 'jsonrpc' => '2.0',
                                 'method' => $reader->getFirstValueString($r, 'phpmae:runsMethod'),
-                                'params' => array_merge(
-                                    is_array($args) ? $args : [],
-                                    is_array($request->getQueryParams()) ? $request->getQueryParams() : [],
-                                    is_array($request->getParsedBody()) ? $request->getParsedBody() : []
+                                'params' => (is_array($args) && count($args) > 0) ? $args
+                                    : ($request->getMethod() == 'POST'
+                                        ? (is_array($request->getParsedBody()) ? $request->getParsedBody() : [])
+                                        : (is_array($request->getQueryParams()) ? $request->getQueryParams() : [])
                                 ),
                                 'id' => 'R'
                             ]);

@@ -90,7 +90,7 @@ class Engine implements RequestHandlerInterface {
         elseif (is_string($content) && (substr($content, 0, 5) == '<html' || substr($content, 0, 14) == '<!doctype html'))
             // HTML response
             $response = (new Response)->write($content);
-        elseif (is_string($content) && (substr($content, 0, 7) == 'http://' || substr($content, 0, 7) == 'https://'))
+        elseif (is_string($content) && (substr($content, 0, 7) == 'http://' || substr($content, 0, 8) == 'https://'))
             // Redirect response
             $response = (new Response)->withRedirect($content);
         elseif (is_string($content) || is_numeric($content))

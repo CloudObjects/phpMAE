@@ -69,21 +69,21 @@ class Engine implements RequestHandlerInterface {
     /**
      * Executes an invokable class.
      */
-    private function executeInvokableClass(SandboxedContainer $runClass, RequestInterface $request) {
+    private function executeInvokableClass(RequestInterface $request) {
         $input = $request->getParsedBody();
         if (!is_array($input))
             $input = [];
 
-        $result = $runClass->get(self::SKEY)->__invoke($input);
+        $result = $this->runClass->get(self::SKEY)->__invoke($input);
 
-        return $this->generateResponse($result, $runClass);
+        return $this->generateResponse($result);
     }
 
     /**
      * Generates an response with adequate Content Type based on the format of the content.
      * @param mixed $content Content for the body of the response.
      */
-    public function generateResponse($content, SandboxedContainer $runClass) {
+    public function generateResponse($content) {
         if (!isset($content))
             // Empty response
             $response = new Response(204);
@@ -106,8 +106,8 @@ class Engine implements RequestHandlerInterface {
         // TODO: add support for XML
 
         // Add cookies if any
-        if (isset($runClass) && $runClass->has('cookies')) {
-            foreach ($runClass->get('cookies') as $cookie) {
+        if (isset($this->runClass) && $this->runClass->has('cookies')) {
+            foreach ($this->runClass->get('cookies') as $cookie) {
                 if (is_a($cookie, SetCookie::class))
                     $response = FigResponseCookies::set($response, $cookie);
             }
@@ -119,11 +119,11 @@ class Engine implements RequestHandlerInterface {
     /**
      * Executes a standard class using JSON-RPC.
      */
-    private function executeJsonRPC(SandboxedContainer $runClass, RequestInterface $request) {
+    private function executeJsonRPC(RequestInterface $request) {
         $transport = new JsonRPCTransport;
-        $server = new JsonRPC($runClass->get(self::SKEY), $transport);
+        $server = new JsonRPC($this->runClass->get(self::SKEY), $transport);
         $server->receive((string)$request->getBody());
-        return $this->generateResponse($transport->getResponse(), $runClass);
+        return $this->generateResponse($transport->getResponse());
     }
 
     /**
@@ -155,7 +155,7 @@ class Engine implements RequestHandlerInterface {
                 throw new PhpMAEException("The object <" . (string)$coid . "> does not exist or this phpMAE instance is not allowed to access it.");
             $this->runClass = $this->classRepository->createInstance($this->object, $request);
 
-            return $this->runClass;
+            $this->runClass;
         } else {
             throw new PhpMAEException("You must provide a valid, non-root COID to specify the class for execution.");
         }
@@ -164,11 +164,11 @@ class Engine implements RequestHandlerInterface {
     public function handle(ServerRequestInterface $request): ResponseInterface {
         if (ClassValidator::isInvokableClass($this->runClass->get(self::SKEY))) {
             // Run as invokable class
-            return $this->executeInvokableClass($this->runClass, $request);
+            return $this->executeInvokableClass($request);
         } else {
             // Run as RPC
             // JsonRPC
-            return $this->executeJsonRPC($this->runClass, $request);
+            return $this->executeJsonRPC($request);
         }
     }
 

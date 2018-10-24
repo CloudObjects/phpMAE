@@ -120,8 +120,10 @@ class ClassRepository {
 	 * 
 	 * @param Node $object The object describing the class.
 	 * @param RequestInterface $request The optional request, if it should be made available
+	 * @param array $additionalDefinitions Definitions to add to the DI container for this class
 	 */
-	public function createInstance(Node $object, RequestInterface $request = null) {
+	public function createInstance(Node $object, RequestInterface $request = null,
+			array $additionalDefinitions = []) {
 		// Check type
 		if (!TypeChecker::isClass($object))
 			throw new PhpMAEException("<".$object->getId()."> must have a valid type.");
@@ -177,7 +179,6 @@ class ClassRepository {
 			$this->classMap[$vars['php_classname']] = $filename;
 		}
 
-		$additionalDefinitions = [];
 		if (isset($request)) {
 			$additionalDefinitions['request'] = $request;
 			$additionalDefinitions[RequestInterface::class] = $request;

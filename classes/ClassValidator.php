@@ -47,8 +47,6 @@ class ClassValidator {
       'CloudObjects\PhpMAE\FunctionInterface'
     );
     $this->whitelisted_types = array(
-      'Pimple\Container',
-      'Silex\Application',
       'ArrayObject', 'DateInterval', 'DateTime', 'DateTimeImmutable', 'DateTimeZone',
       'DOMElement', 'Exception',
       'SimpleXMLElement',
@@ -60,18 +58,14 @@ class ClassValidator {
       'GuzzleHttp\Subscriber\Oauth\Oauth1',
       'GuzzleHttp\Promise',
       'Dflydev\FigCookies\SetCookie',
-      'Symfony\Component\HttpFoundation\RedirectResponse',
-      'Symfony\Component\HttpFoundation\Request',
-      'Symfony\Component\HttpFoundation\Response',
-      'Symfony\Component\HttpFoundation\ParameterBag',
-      'Symfony\Component\Routing\Generator\UrlGenerator',
       'Symfony\Component\DomCrawler\Crawler',
+      'CloudObjects\PhpMAE\ConfigLoader',
       'CloudObjects\SDK\NodeReader',
       'CloudObjects\SDK\AccountGateway\AccountContext',
       'CloudObjects\SDK\AccountGateway\AAUIDParser',
       'CloudObjects\SDK\COIDParser',
       'Defuse\Crypto\Crypto', 'Defuse\Crypto\Key',
-      'gamringer\JSONPointer\Pointer', 'gamringer\JSONPointer\Exception'
+      'gamringer\JSONPointer\Pointer', 'gamringer\JSONPointer\Exception',
     );
   }
 

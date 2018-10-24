@@ -8,12 +8,14 @@ namespace CloudObjects\PhpMAE\DI;
 
 use ML\JsonLD\Node;
 use ML\IRI\IRI;
+use Psr\Container\ContainerInterface;
 use DI\ContainerBuilder;
 use Doctrine\Common\Collections\ArrayCollection;
 use CloudObjects\SDK\ObjectRetriever, CloudObjects\SDK\NodeReader, CloudObjects\SDK\COIDParser;
 use CloudObjects\SDK\WebAPI\APIClientFactory;
 use CloudObjects\PhpMAE\ObjectRetrieverPool, CloudObjects\PhpMAE\ClassRepository,
-    CloudObjects\PhpMAE\ErrorHandler, CloudObjects\PhpMAE\Engine;
+    CloudObjects\PhpMAE\ErrorHandler, CloudObjects\PhpMAE\Engine,
+    CloudObjects\PhpMAE\ConfigLoader;
 use CloudObjects\PhpMAE\Exceptions\PhpMAEException;
 
 /**
@@ -35,14 +37,16 @@ class DependencyInjector {
      * @param Node $object The object representing the PHP class.
      * @param array $additionalDefinitions Additional definitions to add to the container
      */
-    public function getDependencies(Node $object, $additionalDefinitions = []) {
+    public function getDependencies(Node $object, array $additionalDefinitions = []) {
         $reader = new NodeReader([
             'prefixes' => [ 'phpmae' => 'coid://phpmae.cloudobjects.io/' ]
         ]);
 
         $dependencies = $reader->getAllValuesNode($object, 'phpmae:hasDependency');
         
-        $namespaceCoid = COIDParser::getNamespaceCOID(new IRI($object->getId()));
+        $objectCoid = new IRI($object->getId());
+        $namespaceCoid = COIDParser::getNamespaceCOID($objectCoid);        
+
         $definitions = [
             'cookies' => \DI\create(ArrayCollection::class),
             ObjectRetriever::class => function() use ($namespaceCoid) {
@@ -52,6 +56,18 @@ class DependencyInjector {
             DynamicLoader::class => function() {
                 return new DynamicLoader($this->retrieverPool->getBaseObjectRetriever(),
                     $this->classRepository);
+            },
+            ConfigLoader::class => function(ContainerInterface $c) use ($objectCoid, $additionalDefinitions) {
+                // Get a ConfigLoader that allows the class to read the configuration
+                // of various objects, including itself and additional definitions
+                $configDefinitions = [
+                    'self' => $objectCoid
+                ];
+                foreach ($additionalDefinitions as $key => $value)
+                    if (is_a($value, IRI::class))
+                        $configDefinitions[$key] = $value;
+
+                return new ConfigLoader($configDefinitions, $c->get(ObjectRetriever::class));
             }
         ];
 
@@ -89,8 +105,9 @@ class DependencyInjector {
                 if (!isset($classCoid))
                     throw new PhpMAEException("<".$object->getId()."> has an invalid dependency: ClassDependency without class!");
 
+                // TODO: can we optimize this? only create dependency container in inject function
                 $dependencyContainer = $this->classRepository
-                    ->createInstance($this->retrieverPool->getBaseObjectRetriever()->getObject($classCoid));
+                    ->createInstance($this->retrieverPool->getBaseObjectRetriever()->getObject($classCoid), null, [ 'callerClass' => $objectCoid ]);
                 $keyedDependency = function() use ($dependencyContainer) {
                     return $dependencyContainer->get(Engine::SKEY);
                 };

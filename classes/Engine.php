@@ -46,24 +46,38 @@ class Engine implements RequestHandlerInterface {
 
     private function getAuthenticationMiddleware() {
         $auth = $this->container->get('client_authentication');
-        switch ($auth) {
-            case "shared_secret.runclass":
-            case "shared_secret.runclass+secure":
-                $object = $this->object;
-                return new HttpBasicAuthentication([
-                    'secure' => ($auth == 'shared_secret.runclass+secure'),
-                    'realm' => 'phpMAE',
-                    'authenticator' => function($args) use ($object) {
-                        return SharedSecretAuthentication::verifyCredentials($this->objectRetriever,
-                            $args['user'], $args['password']) == SharedSecretAuthentication::RESULT_OK
-                            && strpos($object->getId(), '/'.$args['user'].'/') !== false;
-                    }
-                ]);
-            case "none":
-                return new EmptyMiddleware;
-            default:
-                throw new PhpMAEException("Unsupported authentication mode!");
-        }
+        if ($auth == 'none')
+            return new EmptyMiddleware; // no authentication required
+
+        $object = $this->object;
+        return new HttpBasicAuthentication([
+            'secure' => $this->container->get('client_authentication_must_be_secure'),
+            'realm' => 'phpMAE',
+            'authenticator' => function($args) use ($object, $auth) {
+                $authSchemes = explode('|', $auth);
+                $authenticated = false;
+                foreach ($authSchemes as $as) {
+                    if (substr($as, 0, 14) == 'shared_secret:') {
+                        $authResult = (SharedSecretAuthentication::verifyCredentials(
+                            $this->objectRetriever, $args['user'], $args['password'])
+                            == SharedSecretAuthentication::RESULT_OK);
+                        if ($authResult != true)
+                            continue;
+                        
+                        if (substr($as, 14) == 'runclass')
+                            $authenticated = (substr($object->getId(), 7, strlen($args['user']) +1) == $args['user'].'/');
+                        else
+                            $authenticated = (substr($as, 14) == 'coid://'.$args['user']);
+                    } else
+                        throw new PhpMAEException("Unsupported authentication scheme!");
+                    
+                    if ($authenticated == true)
+                        break;
+                }
+
+                return $authenticated;
+            }
+        ]);
     }
 
     /**

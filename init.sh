@@ -6,6 +6,7 @@ echo "<?php return array(" \
 	" 'uploads_dir' => __DIR__.'/uploads', " \
 	" 'mode' => 'hybrid', " \
 	" 'client_authentication' => '$CLIENT_AUTH', " \
+	" 'client_authentication_must_be_secure' => false, " \
 	" 'co.auth_ns' => '$CO_AUTH_NS', " \
 	" 'co.auth_secret' => '$CO_AUTH_SECRET', " \
     " ); " > /var/www/app/config.php

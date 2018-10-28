@@ -1,0 +1,21 @@
+<h5>Public PHP Methods</h5>
+{% if custom.methods|length > 0 %}
+<ul class="collapsible popout" data-collapsible="accordion">
+    {% for m in custom.methods %}
+    <li id="method-{{m.name}}">
+        <div class="collapsible-header">
+            <code><strong>{{m.name}}</strong>({{m.params}})</code>
+        </div>
+        <div class="collapsible-body">
+            {% if m.comment is empty %}
+            <p>No documentation available.</p>
+            {% else %}
+            <p>{{m.comment|nl2br}}</p>
+            {% endif %}
+        </div>
+    </li>
+    {% endfor %}
+</ul>
+{% else %} 
+<p>This class has no public methods yet or a problem occurred while retrieving them.</p>
+{% endif %}

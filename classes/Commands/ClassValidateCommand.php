@@ -16,6 +16,7 @@ class ClassValidateCommand extends AbstractObjectCommand {
 
   protected function configure() {
     $this->setName('class:validate')
+      ->setAliases([ 'validate', 'v' ])
       ->setDescription('Validates a class for the phpMAE.')
       ->addArgument('coid', InputArgument::REQUIRED, 'The COID of the object.')
       ->addOption('watch', null, InputOption::VALUE_OPTIONAL, 'Keep watching for changes of the file and revalidate automatically.', null);

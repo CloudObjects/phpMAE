@@ -11,7 +11,9 @@ use ML\IRI\IRI;
 use Psr\Container\ContainerInterface;
 use DI\ContainerBuilder;
 use Doctrine\Common\Collections\ArrayCollection;
+use Psr\Http\Message\RequestInterface;
 use CloudObjects\SDK\ObjectRetriever, CloudObjects\SDK\NodeReader, CloudObjects\SDK\COIDParser;
+use CloudObjects\SDK\AccountGateway\AccountContext;
 use CloudObjects\SDK\WebAPI\APIClientFactory;
 use CloudObjects\PhpMAE\ObjectRetrieverPool, CloudObjects\PhpMAE\ClassRepository,
     CloudObjects\PhpMAE\ErrorHandler, CloudObjects\PhpMAE\Engine,
@@ -29,6 +31,25 @@ class DependencyInjector {
     public function __construct(ObjectRetrieverPool $retrieverPool, ClassRepository $classRepository) {
         $this->retrieverPool = $retrieverPool;
         $this->classRepository = $classRepository;
+    }
+
+    /**
+     * Checks whether the request comes from a CloudObjects Account Gateway and,
+     * if so, configures an AccountContext for the class to use.
+     */
+    private function configureAccountGateway(RequestInterface $request) {
+        $definitions = [];
+
+        if ($request->hasHeader('C-AAUID')
+				&& $request->hasHeader('C-Access-Token')) {
+			
+			$definitions[AccountContext::class] = function() use ($request) {
+                $context = AccountContext::fromPsrRequest($request);
+                return $context;
+            };
+		}		
+        
+        return $definitions;
     }
 
     /**
@@ -67,11 +88,22 @@ class DependencyInjector {
                     if (is_a($value, IRI::class))
                         $configDefinitions[$key] = $value;
 
+                if (isset($additionalDefinitions[RequestInterface::class])) {
+                    $request = $c->get(RequestInterface::class);
+                    if ($request->hasHeader('C-Accessor'))
+                        $configDefinitions['accessor'] =
+                            new IRI($request->getHeaderLine('C-Accessor'));
+                }
+
                 return new ConfigLoader($configDefinitions, $c->get(ObjectRetriever::class));
             }
         ];
 
         $definitions = array_merge($definitions, $additionalDefinitions);
+
+        if (isset($definitions[RequestInterface::class])) {                        
+            $definitions = array_merge($definitions, $this->configureAccountGateway($definitions[RequestInterface::class]));
+        }
 
         foreach ($dependencies as $d) {
             $keyedDependency = null;

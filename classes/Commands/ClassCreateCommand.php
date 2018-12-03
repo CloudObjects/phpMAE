@@ -73,6 +73,7 @@ class ClassCreateCommand extends Command {
           $useStatements[] = $fullyQualifiedClassname;
           $className = substr($fullyQualifiedClassname, strrpos($fullyQualifiedClassname, '\\') + 1);
           $variableName = strtolower($className[0]).substr($className, 1);
+          $classVariables[] = $variableName;
           $constructor = "    public function __construct(".$className." \$".$variableName.") {\n"
               . "        \$this->".$variableName." = \$".$variableName.";\n"
               . "    }\n\n";
@@ -93,7 +94,7 @@ class ClassCreateCommand extends Command {
           . "class ".$name." {\n"
           . "\n";
         foreach ($classVariables as $v)
-            $content .= "    \$".$v.";\n";
+            $content .= "    private \$".$v.";\n";
         if (count($classVariables) > 0)
           $content .= "\n";
         

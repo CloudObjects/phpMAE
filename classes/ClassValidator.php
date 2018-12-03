@@ -44,7 +44,7 @@ class ClassValidator {
       'Silex\Api\ControllerProviderInterface',
       'Symfony\Component\EventDispatcher\EventSubscriberInterface',
       'Psr\Http\Message\RequestInterface',
-      'CloudObjects\PhpMAE\FunctionInterface'
+      'Psr\Container\ContainerInterface'
     );
     $this->whitelisted_types = array(
       'ArrayObject', 'DateInterval', 'DateTime', 'DateTimeImmutable', 'DateTimeZone',
@@ -67,6 +67,11 @@ class ClassValidator {
       'Defuse\Crypto\Crypto', 'Defuse\Crypto\Key',
       'gamringer\JSONPointer\Pointer', 'gamringer\JSONPointer\Exception',
     );
+  }
+
+  public function isWhitelisted($name) {
+    return in_array($name, $this->whitelisted_types)
+      || in_array($name, $this->whitelisted_interfaces);
   }
 
   private function initializeWhitelist() {

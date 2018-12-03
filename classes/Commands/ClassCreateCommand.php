@@ -12,7 +12,8 @@ use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 use Cilex\Provider\Console\Command;
 use CloudObjects\SDK\COIDParser;
-use CloudObjects\PhpMAE\CredentialManager;
+use CloudObjects\PhpMAE\CredentialManager, CloudObjects\PhpMAE\ClassValidator;
+use CloudObjects\PhpMAE\Exceptions\PhpMAEException;
 
 class ClassCreateCommand extends Command {
 
@@ -22,7 +23,8 @@ class ClassCreateCommand extends Command {
         ->addArgument('coid', InputArgument::REQUIRED, 'The COID of the object.')
         ->addOption('http-invokable', 'hi', InputOption::VALUE_OPTIONAL, 'Makes the class HTTP-invokable.', false)
         ->addOption('force', 'f', InputOption::VALUE_OPTIONAL, 'Forces new object creation and replaces existing files.', false)
-        ->addOption('confjob', null, InputOption::VALUE_OPTIONAL, 'Calls "cloudobjects" to create a configuration job for the new controller.', false);
+        ->addOption('confjob', null, InputOption::VALUE_OPTIONAL, 'Calls "cloudobjects" to create a configuration job for the new controller.', false)
+        ->addOption('autowire', null, InputOption::VALUE_OPTIONAL, 'Creates a constructor that autowires a PHP dependency.', null);
     }
 
     protected function execute(InputInterface $input, OutputInterface $output) {
@@ -59,14 +61,44 @@ class ClassCreateCommand extends Command {
       }
 
       if (!file_exists($fullName.'.php') || $input->getOption('force') !== false) {
+        $useStatements = [];
+        $classVariables = [];
+        $constructor = '';
+
+        if ($input->getOption('autowire') != null) {
+          $fullyQualifiedClassname = $input->getOption('autowire');
+          $validator = new ClassValidator;
+          if (!$validator->isWhitelisted($fullyQualifiedClassname))
+            throw new PhpMAEException('Cannot autowire non-whitelisted type <'.$fullyQualifiedClassname.'>.');
+          $useStatements[] = $fullyQualifiedClassname;
+          $className = substr($fullyQualifiedClassname, strrpos($fullyQualifiedClassname, '\\') + 1);
+          $variableName = strtolower($className[0]).substr($className, 1);
+          $constructor = "    public function __construct(".$className." \$".$variableName.") {\n"
+              . "        \$this->".$variableName." = \$".$variableName.";\n"
+              . "    }\n\n";
+        }
+
         // Create PHP source file
         $content = "<?php\n"
-          . "\n"
-          . "/**\n"
+          . "\n";
+        foreach ($useStatements as $u)
+          $content .= "use ".$u.";\n";
+        if (count($useStatements) > 0)
+          $content .= "\n";
+
+        $content .=
+            "/**\n"
           . " * Implementation for ".(string)$coid."\n"
           . " */\n"
           . "class ".$name." {\n"
-          . "\n"
+          . "\n";
+        foreach ($classVariables as $v)
+            $content .= "    \$".$v.";\n";
+        if (count($classVariables) > 0)
+          $content .= "\n";
+        
+        $content .=
+            $constructor
           . ($invokable
             ? "    public function __invoke(\$args) {\n        // Add your code here\n    }\n"
             : "    // Add methods here ...\n")

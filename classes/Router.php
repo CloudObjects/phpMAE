@@ -34,11 +34,15 @@ class Router {
         $reader = new NodeReader([
             'prefixes' => [
                 'phpmae' => 'coid://phpmae.cloudobjects.io/',
-                'wa' => 'coid://webapi.cloudobjects.io/'
+                'wa' => 'coid://webapi.cloudobjects.io/',
+                'agws' => 'coid://accountgateways.cloudobjects.io/',
             ]
         ]);
 
-        $routes = $reader->getAllValuesNode($object, 'phpmae:hasRoute');
+        $routes = array_merge(
+            $reader->getAllValuesNode($object, 'phpmae:hasRoute'),
+            $reader->getAllValuesNode($object, 'agws:hasMethod')
+        );
         
         foreach ($routes as $r) {
             if (!$reader->hasProperty($r, 'wa:hasVerb') || !$reader->hasProperty($r, 'wa:hasPath'))

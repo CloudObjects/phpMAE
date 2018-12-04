@@ -9,7 +9,7 @@ namespace CloudObjects\PhpMAE;
 use Psr\Http\Message\RequestInterface, Psr\Http\Message\ResponseInterface;
 use Psr\Container\ContainerInterface;
 use Slim\App;
-use Slim\Http\Environment, Slim\Http\Uri, Slim\Http\Response;
+use Slim\Http\Environment, Slim\Http\Uri, Slim\Http\Response, Slim\Http\Request;
 use GuzzleHttp\Psr7\ServerRequest;
 use ML\JsonLD\Node, ML\JsonLD\JsonLD;
 use CloudObjects\Utilities\RDF\Arc2JsonLdConverter;
@@ -94,7 +94,7 @@ class Router {
      */
     public function run() {
 		try {
-            $mode = $this->container->get('mode');
+            $modes = explode('|', $this->container->get('mode'));
             $fallback = false;
     
             $configuration = [
@@ -106,36 +106,49 @@ class Router {
             $app = new App($c);
             
 
-            if ($mode == 'hybrid') {
-                $mode = 'router:vhost';
-                $fallback = true;
-            }
+            $router = null;
+            $env = new Environment($_SERVER);
+            foreach ($modes as $m) {
+                switch ($m) {
+                    case 'router:vhost':
+                        if ($router == null) {
+                            $uri = Uri::createFromEnvironment($env);
+                            if ($uri->getHost() == 'localhost' || filter_var($uri->getHost(), FILTER_VALIDATE_IP) !== false) continue;
 
-            if (substr($mode, 0, 7) == 'router:') {
-                try {
-                    $coid = substr($mode, 7);
-                    if ($coid == 'vhost') {
-                        // Get router COID from namespace configuration
-                        $env = new Environment($_SERVER);
-                        $uri = Uri::createFromEnvironment($env);
-
-                        $namespace = $this->objectRetriever->get('coid://'.$uri->getHost());
-                        if ($router = $namespace->getProperty('coid://phpmae.cloudobjects.io/hasRouter'))
-                            $coid = $router->getId();
-                    }
-
-                    $object = $this->objectRetriever->get($coid);
-                    $this->configure($app, $object);
-                } catch (\Exception $e) {
-                    if ($fallback) {
-                        $this->container->get(Engine::class)
-                            ->run();
-                        exit;
-                    }
+                            $namespace = $this->objectRetriever->get('coid://'.$uri->getHost());
+                            if (isset($namespace) && $routerCoid = $namespace->getProperty('coid://phpmae.cloudobjects.io/hasRouter'))
+                                $router = $this->objectRetriever->get($routerCoid->getId());
+                        }
+                        break;
+                    case 'router:header':
+                        if ($router == null) {
+                            $request = Request::createFromEnvironment($env);
+                            if ($request->hasHeader('C-PhpMae-Router-COID'))
+                                $router = $this->objectRetriever->get($request->getHeaderLine('C-PhpMae-Router-COID'));
+                        }
+                        break;
+                    case 'default':
+                        $fallback = true;
+                        break;
+                    default:
+                        if (substr($m, 0, 14) == 'router:coid://')
+                            $router = $this->objectRetriever->get(substr($m, 7));
+                        else
+                            throw new PhpMAEException("Unsupported mode!");
                 }
             }
 
-            $response = $app->run(true);
+            if (isset($router)) {
+                $this->configure($app, $router);
+                $response = $app->run(true);
+            } elseif ($fallback) {
+                $this->container->get(Engine::class)
+                    ->run();
+                exit;
+            } else {
+                throw new PhpMAEException("No router found!");
+            }
+
         } catch (PhpMAEException $e) {
             // Create plain-text error response
             $response = (new Response(500))

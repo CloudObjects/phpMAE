@@ -1,0 +1,45 @@
+<?php
+
+return [
+	/**
+	 * Specifies whether the /uploadTestenv endpoint can be used.
+	 * - false: no uploads are possible (except if sandbox is enabled and session is present)
+	 * - true: any uploads are possible - DO NOT USE THIS IN PRODUCTION!
+	 */
+	'uploads' => true,
+
+	/**
+	 * Client authentication requires all requests to have HTTP Basic Authentication.
+	 * - none: Authentication is disabled.
+	 * - shared_secret:runclass: Client must authenticate with the shared secret between
+	 *   the identity of this phpMAE instance (auth_ns) and the namespace of the class
+	 *   that is requested to run
+	 * - shared_secret:<COID>: Client must authenticate with the shared secret between
+	 * 	 the identity of this phpMAE instance (auth_ns) and the namespace identified
+	 * 	 by the COID.
+	 * Multiple authentication schemes (except "none") can be separated with the
+	 * pipe (|) character. The first valid scheme will be used.
+	 */
+	'client_authentication' => 'none',
+
+	/**
+	 * Choose an operation mode of this phpMAE instance.
+	 * - default: Runs classes as specified in the request URI. Routing functionality is disabled.
+	 * - router:<COID>: Mounts the router specified by the COID. No other classes can be run.
+	 * - router:vhost: Mounts the router specified as phpmae:hasRouter for the namespace
+	 *   of the HTTP Host header.
+	 * - router:header: Mounts the router specified by the "C-PhpMae-Router-COID" header.
+	 * Multiple modes can be separated with the pipe (|) character. The first mode
+	 * that applies will be used.
+	 */
+	'mode' => 'default',
+
+	/**
+	 * Specify the identity and CloudObjects Core authentication credential for this phpMAE instance.
+	 */
+	'co.auth_ns' => 'phpmae.cloudobjects.io',
+	'co.auth_secret' => 'YOUR_SECRET_HERE',
+
+	'cache_dir' => __DIR__.'/cache',
+	'uploads_dir' => __DIR__.'/uploads',
+];

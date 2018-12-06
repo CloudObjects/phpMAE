@@ -98,6 +98,7 @@ abstract class AbstractObjectCommand extends Command {
   protected function watchPHPFile(OutputInterface $output, callable $callable) {
     $fileTime = filemtime($this->phpFileName);
     $output->writeln('Watching for changes ...');
+    set_time_limit(0);
     while (true) {
       clearstatcache();
       if (filemtime($this->phpFileName)!=$fileTime) {

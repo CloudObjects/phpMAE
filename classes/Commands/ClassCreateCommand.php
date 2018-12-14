@@ -10,7 +10,7 @@ use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
-use Cilex\Provider\Console\Command;
+use Symfony\Component\Console\Command\Command;
 use CloudObjects\SDK\COIDParser;
 use CloudObjects\PhpMAE\CredentialManager, CloudObjects\PhpMAE\ClassValidator;
 use CloudObjects\PhpMAE\Exceptions\PhpMAEException;

@@ -6,7 +6,7 @@
  
 namespace CloudObjects\PhpMAE\Commands;
 
-use Cilex\Provider\Console\Command;
+use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Output\OutputInterface;
 use CloudObjects\SDK\COIDParser;
 use CloudObjects\PhpMAE\CredentialManager;

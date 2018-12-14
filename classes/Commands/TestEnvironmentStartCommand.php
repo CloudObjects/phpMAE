@@ -9,7 +9,7 @@ namespace CloudObjects\PhpMAE\Commands;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
-use Cilex\Provider\Console\Command;
+use Symfony\Component\Console\Command\Command;
 use CloudObjects\PhpMAE\TestEnvironmentManager;
 use CloudObjects\PhpMAE\CredentialManager;
 
@@ -46,6 +46,7 @@ class TestEnvironmentStartCommand extends Command {
           $pharCp = sys_get_temp_dir().DIRECTORY_SEPARATOR.'phpmae.phar';
           copy(substr($phar, 7), $pharCp);
           passthru('php -S '.$host.':'.$port.' phar://'.$pharCp.'/web/index.php');
+          die("THRU!");
         }
       }
     }

@@ -7,19 +7,17 @@
 namespace CloudObjects\PhpMAE\Commands;
 
 require_once __DIR__."/vendor/autoload.php";
+$app = new \Symfony\Component\Console\Application('phpMAE', '0.2.0');
 
-$app = new \Cilex\Application('phpMAE', '0.2.0');
-\CloudObjects\PhpMAE\TestEnvironmentManager::configure($app);
+$app->add(new ClassCreateCommand);
+$app->add(new ClassDeployCommand);
+$app->add(new ClassValidateCommand);
+$app->add(new ClassTestEnvCommand);
 
-$app->command(new ClassCreateCommand);
-$app->command(new ClassDeployCommand);
-$app->command(new ClassValidateCommand);
-$app->command(new ClassTestEnvCommand);
+$app->add(new DependenciesAddClassCommand);
+$app->add(new DependenciesAddWebAPICommand);
+$app->add(new DependenciesAddStaticTextCommand);
+$app->add(new DependenciesAddAttachmentCommand);
 
-$app->command(new DependenciesAddClassCommand);
-$app->command(new DependenciesAddWebAPICommand);
-$app->command(new DependenciesAddStaticTextCommand);
-$app->command(new DependenciesAddAttachmentCommand);
-
-$app->command(new TestEnvironmentStartCommand);
+$app->add(new TestEnvironmentStartCommand);
 $app->run();

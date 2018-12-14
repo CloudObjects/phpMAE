@@ -10,13 +10,22 @@ use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
-use Cilex\Provider\Console\Command;
 use ML\IRI\IRI;
 use Guzzle\Http\Exception\BadResponseException;
 use CloudObjects\SDK\COIDParser;
-use CloudObjects\PhpMAE\ClassValidator;
+use CloudObjects\PhpMAE\ClassValidator, CloudObjects\PhpMAE\TestEnvironmentManager;
 
 class ClassTestEnvCommand extends AbstractObjectCommand {
+
+    private $container;
+
+    protected function getContainer() {
+      if (!isset($this->container)) {
+        $this->container = TestEnvironmentManager::getContainer();  
+      }
+
+      return $this->container;
+    }
 
     protected function configure() {
       $this->setName('class:testenv')
@@ -27,11 +36,9 @@ class ClassTestEnvCommand extends AbstractObjectCommand {
     }
 
     private function upload(OutputInterface $output) {
-      $app = $this->getContainer();
-
       try {
         $this->validator->validate(file_get_contents($this->phpFileName));
-        $app['testenv.client']->put('/uploadTestenv?type=source&coid='.urlencode((string)$this->coid), [
+        $this->getContainer()->get('testenv.client')->put('/uploadTestenv?type=source&coid='.urlencode((string)$this->coid), [
             'body' => file_get_contents($this->phpFileName)
           ]);
         $output->writeln('File uploaded successfully!');
@@ -48,8 +55,9 @@ class ClassTestEnvCommand extends AbstractObjectCommand {
     }
 
     protected function execute(InputInterface $input, OutputInterface $output) {      
-      $app = $this->getContainer();
-      if (!isset($app['testenv.client'])) throw new \Exception("No test environment configured.");
+      $container = $this->getContainer();
+      if (!$container->has('testenv.client'))
+        throw new \Exception("No test environment configured.");
 
       $this->parse($input->getArgument('coid'));
       $this->assertRDF();
@@ -60,13 +68,13 @@ class ClassTestEnvCommand extends AbstractObjectCommand {
 
       // Print URL so developer can easily access it
       $output->writeln("<info>Test Environment Base URL for Controller:</info>");
-      $output->writeln("➡️  ".$app['testenv.url'].$this->coid->getHost().$this->coid->getPath());
+      $output->writeln("➡️  ".$container->get('testenv.url').$this->coid->getHost().$this->coid->getPath());
       $output->writeln("");
 
       if ($input->getOption('config') !== null) {
         // Upload configuration before uploading implementation
         $this->ensureFilenameInConfig($output);
-        $app['testenv.client']->put('/uploadTestenv?type=config&coid='.urlencode((string)$this->coid), [
+        $container->get('testenv.client')->put('/uploadTestenv?type=config&coid='.urlencode((string)$this->coid), [
           'body' => file_get_contents($this->xmlFileName)
         ]);
         $output->writeln('Configuration uploaded successfully!');

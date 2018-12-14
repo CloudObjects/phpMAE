@@ -6,7 +6,8 @@
  
 namespace CloudObjects\PhpMAE;
 
-use Cilex\Application;
+use DI\ContainerBuilder;
+use Psr\Container\ContainerInterface;
 use GuzzleHttp\Client;
 
 class TestEnvironmentManager {
@@ -15,16 +16,23 @@ class TestEnvironmentManager {
       return getenv('HOME').DIRECTORY_SEPARATOR.'.phpmae';
     }
 
-    public static function configure(Application $app) {
+    public static function getContainer() {
+      $definitions = [];
+          
       if (file_exists(self::getFilename())) {
         $data = json_decode(file_get_contents(self::getFilename()), true);
         if (isset($data['testenv_url'])) {
-          $app['testenv.url'] = $data['testenv_url'];
-          $app['testenv.client'] = function() use ($app) {
-            return new Client([ 'base_uri' => $app['testenv.url'] ]);
-          };
+          $definitions['testenv.url'] = $data['testenv_url'];
+          $definitions['testenv.client'] = \DI\factory(function (ContainerInterface $c) {
+            return new Client([ 'base_uri' => $c->get('testenv.url') ]);
+          });
         }
       }
+
+      $containerBuilder = new ContainerBuilder;
+      $containerBuilder->addDefinitions($definitions);
+      return $containerBuilder->build();
+
     }
 
     public static function setTestEnvironment($url) {

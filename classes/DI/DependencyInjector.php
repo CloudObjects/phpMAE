@@ -18,7 +18,7 @@ use CloudObjects\SDK\AccountGateway\AccountContext;
 use CloudObjects\SDK\WebAPI\APIClientFactory;
 use CloudObjects\PhpMAE\ObjectRetrieverPool, CloudObjects\PhpMAE\ClassRepository,
     CloudObjects\PhpMAE\ErrorHandler, CloudObjects\PhpMAE\Engine,
-    CloudObjects\PhpMAE\ConfigLoader;
+    CloudObjects\PhpMAE\ConfigLoader, CloudObjects\PhpMAE\TwigTemplate;
 use CloudObjects\PhpMAE\Exceptions\PhpMAEException;
 
 /**
@@ -158,6 +158,19 @@ class DependencyInjector {
 
                 // Also add with classname to allow constructor autowiring
                 $definitions[$this->classRepository->coidToClassName($classCoid)] = $keyedDependency;
+            } else
+            if ($reader->hasType($d, 'phpmae:TwigTemplateDependency')) {
+                // Twig Template Dependency
+                $filename = $reader->getFirstValueString($d, 'phpmae:usesAttachedTwigFile');
+                if (!isset($filename))
+                    throw new PhpMAEException("<".$object->getId()."> has an invalid dependency: TwigTemplateDependency without attachment!");
+                
+                $keyedDependency = function() use ($object, $objectCoid, $filename) {
+                    $content = $this->retrieverPool->getBaseObjectRetriever()
+                        ->getAttachment($objectCoid, $filename);
+                    $cachePath = $this->classRepository->getCustomFilesCachePath($object);
+                    return new TwigTemplate($filename, $content, $cachePath);         
+                };
             } else
                 throw new PhpMAEException("<".$object->getId()."> has an invalid dependency: unknown type!");
 

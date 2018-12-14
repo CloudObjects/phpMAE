@@ -18,6 +18,7 @@ $app->add(new DependenciesAddClassCommand);
 $app->add(new DependenciesAddWebAPICommand);
 $app->add(new DependenciesAddStaticTextCommand);
 $app->add(new DependenciesAddAttachmentCommand);
+$app->add(new DependenciesAddTemplateCommand);
 
 $app->add(new TestEnvironmentStartCommand);
 $app->run();

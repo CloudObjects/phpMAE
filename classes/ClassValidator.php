@@ -65,6 +65,7 @@ class ClassValidator {
       'CloudObjects\SDK\AccountGateway\AAUIDParser',
       'CloudObjects\SDK\COIDParser',
       'Defuse\Crypto\Crypto', 'Defuse\Crypto\Key',
+      'Firebase\JWT\JWT',
       'Jenssegers\Agent\Agent',
       'Ramsey\Uuid\Uuid',
       'Webmozart\Assert\Assert'

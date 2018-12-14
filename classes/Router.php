@@ -81,7 +81,7 @@ class Router {
                             }                            
                         } else {
                             // Generic class execution (invokable)
-                            return $engine->handle($request);
+                            return $engine->handle($request, (is_array($args) && count($args) > 0) ? $args : null);
                         }
                     } elseif ($reader->hasProperty($r, 'phpmae:redirectsToURL')) {
                         return (new Response)->withRedirect($reader->getFirstValueString($r, 'phpmae:redirectsToURL'));

@@ -83,10 +83,14 @@ class Engine implements RequestHandlerInterface {
     /**
      * Executes an invokable class.
      */
-    private function executeInvokableClass(RequestInterface $request) {
-        $input = $request->getParsedBody();
-        if (!is_array($input))
-            $input = [];
+    private function executeInvokableClass(RequestInterface $request, $args = null) {
+        if (is_array($args) && count($args) > 0) {
+            $input = $args;
+        } else {
+            $input = $request->getParsedBody();
+            if (!is_array($input))
+                $input = [];    
+        }
 
         $result = $this->runClass->get(self::SKEY)->__invoke($input);
 
@@ -175,10 +179,10 @@ class Engine implements RequestHandlerInterface {
         }
     }
 
-    public function handle(ServerRequestInterface $request): ResponseInterface {
+    public function handle(ServerRequestInterface $request, $args = null): ResponseInterface {
         if (ClassValidator::isInvokableClass($this->runClass->get(self::SKEY))) {
             // Run as invokable class
-            return $this->executeInvokableClass($request);
+            return $this->executeInvokableClass($request, $args);
         } else {
             // Run as RPC
             // JsonRPC

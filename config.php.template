@@ -40,6 +40,14 @@ return [
 	'co.auth_ns' => 'phpmae.cloudobjects.io',
 	'co.auth_secret' => 'YOUR_SECRET_HERE',
 
+	/**
+	 * Specify whether and how data about accounts should be cached. This applies to requests that
+	 * originate from a CloudObjects Account Gateway.
+	 * - none: No caching.
+	 * - file: Cache in filesystem. Uses the "cache_dir" configuration option.
+	 */
+	'agws.data_cache' => 'file',
+
 	'cache_dir' => __DIR__.'/cache',
 	'uploads_dir' => __DIR__.'/uploads',
 ];

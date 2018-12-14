@@ -11,6 +11,7 @@ use ML\IRI\IRI;
 use Psr\Container\ContainerInterface;
 use DI\ContainerBuilder;
 use Doctrine\Common\Collections\ArrayCollection;
+use Doctrine\Common\Cache\FilesystemCache;
 use Psr\Http\Message\RequestInterface;
 use CloudObjects\SDK\ObjectRetriever, CloudObjects\SDK\NodeReader, CloudObjects\SDK\COIDParser;
 use CloudObjects\SDK\AccountGateway\AccountContext;
@@ -27,10 +28,14 @@ class DependencyInjector {
 
     private $retrieverPool;
     private $classRepository;
+    private $container;
 
-    public function __construct(ObjectRetrieverPool $retrieverPool, ClassRepository $classRepository) {
+    public function __construct(ObjectRetrieverPool $retrieverPool, ClassRepository $classRepository,
+            ContainerInterface $container) {
+        
         $this->retrieverPool = $retrieverPool;
         $this->classRepository = $classRepository;
+        $this->container = $container;
     }
 
     /**
@@ -45,6 +50,13 @@ class DependencyInjector {
 			
 			$definitions[AccountContext::class] = function() use ($request) {
                 $context = AccountContext::fromPsrRequest($request);
+
+                if ($this->container->get('agws.data_cache') == 'file') {
+                    // Enable filesystem cache for account data
+                    $cache = new FilesystemCache($this->container->get('cache_dir') . '/acct');
+                    $context->getDataLoader()->setCache($cache);
+                }
+
                 return $context;
             };
 		}		

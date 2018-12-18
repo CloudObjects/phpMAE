@@ -18,7 +18,8 @@ use CloudObjects\SDK\AccountGateway\AccountContext;
 use CloudObjects\SDK\WebAPI\APIClientFactory;
 use CloudObjects\PhpMAE\ObjectRetrieverPool, CloudObjects\PhpMAE\ClassRepository,
     CloudObjects\PhpMAE\ErrorHandler, CloudObjects\PhpMAE\Engine,
-    CloudObjects\PhpMAE\ConfigLoader, CloudObjects\PhpMAE\TwigTemplate;
+    CloudObjects\PhpMAE\ConfigLoader, CloudObjects\PhpMAE\TwigTemplate,
+    CloudObjects\PhpMAE\TwigTemplateFactory;
 use CloudObjects\PhpMAE\Exceptions\PhpMAEException;
 
 /**
@@ -108,6 +109,10 @@ class DependencyInjector {
                 }
 
                 return new ConfigLoader($configDefinitions, $c->get(ObjectRetriever::class));
+            },
+            TwigTemplateFactory::class => function() use ($object) {
+                return new TwigTemplateFactory($this->classRepository
+                    ->getCustomFilesCachePath($object));
             }
         ];
 

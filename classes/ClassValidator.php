@@ -60,6 +60,7 @@ class ClassValidator {
       'Dflydev\FigCookies\SetCookie',
       'Symfony\Component\DomCrawler\Crawler',
       'CloudObjects\PhpMAE\ConfigLoader',
+      'CloudObjects\PhpMAE\TwigTemplateFactory',
       'CloudObjects\SDK\NodeReader',
       'CloudObjects\SDK\AccountGateway\AccountContext',
       'CloudObjects\SDK\AccountGateway\AAUIDParser',

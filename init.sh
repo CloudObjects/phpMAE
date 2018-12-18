@@ -13,6 +13,7 @@ echo "<?php return array(" \
 	" 'client_authentication_must_be_secure' => false, " \
 	" 'co.auth_ns' => '$CO_AUTH_NS', " \
 	" 'co.auth_secret' => '$CO_AUTH_SECRET', " \
+	" 'agws.data_cache' => 'file', " \
     " ); " > /var/www/app/config.php
 
 # Make cache folder

@@ -22,7 +22,8 @@
 		"ramsey/uuid": "^3.8",
 		"jenssegers/agent": "^2.6",
 		"firebase/php-jwt": "^5.0",
-		"twig/twig": "^2.5"
+		"twig/twig": "^2.5",
+		"monolog/monolog": "^1.24"
 	},
 	"autoload": {
 		"psr-4": {

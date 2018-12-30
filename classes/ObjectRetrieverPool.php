@@ -37,7 +37,8 @@ class ObjectRetrieverPool {
 			$config['headers']['C-Act-As'] = $hostname;
 
 			$retriever = new ObjectRetriever(array_merge($this->options, [
-                'cache_prefix' => 'clobj:'.$hostname.':'
+                'cache_prefix' => 'clobj:'.$hostname.':',
+                'logger' => $this->options['logger']->withName('CO-'.$hostname)
             ]));
 			$retriever->setClient(new Client($config));
 			$this->objectRetrievers[$hostname] = $retriever;

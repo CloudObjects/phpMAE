@@ -48,6 +48,16 @@ return [
 	 */
 	'agws.data_cache' => 'file',
 
+	/**
+	 * Specifies whether and how phpMAE should write a log.
+	 * log.target:
+	 * - none: Write no log.
+	 * - errorlog: Write to the default error logger.
+	 * log.level: Use Monolog constants.
+	 */
+	'log.target' => 'errorlog',
+	'log.level' => Monolog\Logger::DEBUG,
+
 	'cache_dir' => __DIR__.'/cache',
 	'uploads_dir' => __DIR__.'/uploads',
 ];

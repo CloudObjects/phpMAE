@@ -14,6 +14,8 @@ echo "<?php return array(" \
 	" 'co.auth_ns' => '$CO_AUTH_NS', " \
 	" 'co.auth_secret' => '$CO_AUTH_SECRET', " \
 	" 'agws.data_cache' => 'file', " \
+	" 'log.target' => 'errorlog', " \
+	" 'log.level' => Monolog\Logger::INFO, " \
     " ); " > /var/www/app/config.php
 
 # Make cache folder

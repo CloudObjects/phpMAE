@@ -40,8 +40,6 @@ class ClassValidator {
     ));
 
     $this->whitelisted_interfaces = array(
-      'Pimple\ServiceProviderInterface',
-      'Silex\Api\ControllerProviderInterface',
       'Symfony\Component\EventDispatcher\EventSubscriberInterface',
       'Psr\Http\Message\RequestInterface',
       'Psr\Container\ContainerInterface'

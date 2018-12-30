@@ -43,7 +43,7 @@ class ClassValidateCommand extends AbstractObjectCommand {
         $cmd = $this;
         $this->watchPHPFile($output, function() use ($validator, $cmd, $output) {
             try {
-              $validator->validateAsController(file_get_contents($cmd->phpFileName));
+              $validator->validate(file_get_contents($cmd->phpFileName));
               $output->writeln("Validated successfully.");
             } catch (\Exception $e) {
               $output->writeln('<error>'.get_class($e).'</error> '.$e->getMessage());

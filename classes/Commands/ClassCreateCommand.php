@@ -23,7 +23,7 @@ class ClassCreateCommand extends Command {
         ->addArgument('coid', InputArgument::REQUIRED, 'The COID of the object.')
         ->addOption('http-invokable', 'hi', InputOption::VALUE_OPTIONAL, 'Makes the class HTTP-invokable.', false)
         ->addOption('force', 'f', InputOption::VALUE_OPTIONAL, 'Forces new object creation and replaces existing files.', false)
-        ->addOption('confjob', null, InputOption::VALUE_OPTIONAL, 'Calls "cloudobjects" to create a configuration job for the new controller.', false)
+        ->addOption('confjob', null, InputOption::VALUE_OPTIONAL, 'Calls "cloudobjects" to create a configuration job for the new class.', false)
         ->addOption('autowire', null, InputOption::VALUE_OPTIONAL, 'Creates a constructor that autowires a PHP dependency.', null);
     }
 

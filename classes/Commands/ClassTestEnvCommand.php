@@ -31,7 +31,7 @@ class ClassTestEnvCommand extends AbstractObjectCommand {
       $this->setName('class:testenv')
         ->setDescription('Uploads a class into the current test environment.')
         ->addArgument('coid', InputArgument::REQUIRED, 'The COID of the object.')
-        ->addOption('config', null, InputOption::VALUE_OPTIONAL, 'Upload the local configuration of the controller to the test environment instead of retrieving it from CloudObjects.')
+        ->addOption('config', null, InputOption::VALUE_OPTIONAL, 'Upload the local configuration of the class to the test environment instead of retrieving it from CloudObjects.')
         ->addOption('watch', null, InputOption::VALUE_OPTIONAL, 'Keep watching for changes of the file and reupload automatically.', null);
     }
 
@@ -67,7 +67,7 @@ class ClassTestEnvCommand extends AbstractObjectCommand {
       $this->assertPHPExists();
 
       // Print URL so developer can easily access it
-      $output->writeln("<info>Test Environment Base URL for Controller:</info>");
+      $output->writeln("<info>Test Environment Base URL for Class Execution:</info>");
       $output->writeln("➡️  ".$container->get('testenv.url').$this->coid->getHost().$this->coid->getPath());
       $output->writeln("");
 

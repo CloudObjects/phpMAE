@@ -29,7 +29,8 @@ class ClassRepository {
 	public function __construct(ContainerInterface $container) {
 		$this->options = [
 			'cache_dir' => $container->get('cache_dir') . '/classes',
-			'uploads_dir' => $container->get('uploads_dir')
+			'uploads_dir' => $container->get('uploads_dir'),
+			'uploads' => $container->get('uploads')
 		];
 
 		$this->container = $container;
@@ -47,7 +48,8 @@ class ClassRepository {
 		$vars['php_classname'] = $vars['php_namespace'].'\\'.$vars['php_classname_local'];
 		$vars['cache_path'] = $this->options['cache_dir'].DIRECTORY_SEPARATOR.$vars['uri_hash'];
 		$vars['upload_filename'] = $this->options['uploads_dir'].DIRECTORY_SEPARATOR.$vars['uri_hash'].'.php';
-		if (!is_dir($this->options['uploads_dir'])) mkdir($this->options['uploads_dir'], 0777, true);
+		if ($this->options['uploads'] == true && !is_dir($this->options['uploads_dir']))
+			mkdir($this->options['uploads_dir'], 0777, true);
 		return $vars;
 	}
 

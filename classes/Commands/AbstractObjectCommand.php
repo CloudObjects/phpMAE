@@ -66,10 +66,12 @@ abstract class AbstractObjectCommand extends Command {
     passthru("cloudobjects configuration-job:create ".$this->xmlFileName);
   }
 
-  protected function ensureFilenameInConfig(OutputInterface $output) {
+  protected function ensureFilenameInConfig(OutputInterface $output, $interface = false) {
+    $property = ($interface ? 'coid://phpmae.cloudobjects.io/hasDefinitionFile'
+      : 'coid://phpmae.cloudobjects.io/hasSourceFile');
     $object = $this->index[(string)$this->coid];
-    if (!isset($object['coid://phpmae.cloudobjects.io/hasSourceFile'])) {
-      $object['coid://phpmae.cloudobjects.io/hasSourceFile'] = [[
+    if (!isset($object[$property])) {
+      $object[$property] = [[
         'value' => 'file:///'.$this->fullName.'.php',
         'type' => 'uri'
       ]];

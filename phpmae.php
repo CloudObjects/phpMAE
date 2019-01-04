@@ -20,5 +20,9 @@ $app->add(new DependenciesAddStaticTextCommand);
 $app->add(new DependenciesAddAttachmentCommand);
 $app->add(new DependenciesAddTemplateCommand);
 
+$app->add(new InterfaceCreateCommand);
+$app->add(new InterfaceDeployCommand);
+$app->add(new InterfaceValidateCommand);
+
 $app->add(new TestEnvironmentStartCommand);
 $app->run();

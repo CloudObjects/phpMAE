@@ -36,7 +36,7 @@ class ClassDeployCommand extends AbstractObjectCommand {
     passthru("cloudobjects attachment:put ".(string)$this->coid." ".$this->fullName.".php");
 
     // Updates configuration if necessary
-    if ($this->ensureFilenameInConfig($output)) {
+    if ($this->ensureFilenameInConfig($output, false)) {
       $this->createConfigurationJob($output);
     }
 

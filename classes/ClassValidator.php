@@ -25,6 +25,7 @@ class ClassValidator {
     $this->sandbox = new PHPSandbox();
     $this->sandbox->set_options(array(
       'allow_classes' => true,
+      'allow_interfaces' => true,
       'allow_aliases' => true,
       'allow_closures' => true,
       'allow_casting' => true,
@@ -143,6 +144,45 @@ class ClassValidator {
     } else {
       // Throw exeption if conditions are not met
       throw new PhpMAEException("Source code file must include exactly one class declaration and must not contain further side effects.");
+    }
+  }
+
+  public function validateInterface($sourceCode) {
+    // Initialize parser and parse source code
+    $parser = (new ParserFactory)->create(ParserFactory::PREFER_PHP7);
+    $ast = $parser->parse($sourceCode);
+
+    // Parse and dump use statements
+    $aliasMap = array();
+    while (get_class($ast[0])=='PhpParser\Node\Stmt\Use_') {
+      foreach ($ast[0]->uses as $use) {
+        $name = (string)$use->name;
+        $aliasMap[$use->alias] = $name;
+        $this->aliases[$name] = $use->alias;
+      }
+      array_shift($ast);
+    }
+    // Check for class definition and implemented interfaces
+    if (count($ast)==1 && get_class($ast[0])=='PhpParser\Node\Stmt\Interface_') {
+
+      // Allow self-references
+      $this->whitelisted_types[] = strtolower($ast[0]->name);
+
+      // Initialize whitelist
+      $this->initializeWhitelist();
+
+      // Apply whitelist visitor
+      $traverser = new NodeTraverser;
+      $traverser->addVisitor(new CustomValidationVisitor($this->sandbox));
+      $traverser->addVisitor(new SandboxWhitelistVisitor($this->sandbox));
+      $traverser->addVisitor(new ValidatorVisitor($this->sandbox));
+      $traverser->traverse($ast);
+
+      return;
+
+    } else {
+      // Throw exeption if conditions are not met
+      throw new PhpMAEException("Source code file must include exactly one interface declaration and must not contain further side effects.");
     }
   }
 

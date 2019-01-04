@@ -1,6 +1,6 @@
 <?php
 
-use CloudObjects\SDK\ObjectRetriever;
+use CloudObjects\SDK\NodeReader, CloudObjects\SDK\ObjectRetriever;
 use ML\IRI\IRI;
 
 /**
@@ -9,9 +9,13 @@ use ML\IRI\IRI;
 class DirectoryTemplateVariableGenerator {
 
     private $retriever;
+    private $reader;
 
     public function __construct(ObjectRetriever $retriever) {
         $this->retriever = $retriever;
+        $this->reader = new NodeReader([
+            'prefixes' => [ 'phpmae' => 'coid://phpmae.cloudobjects.io/' ]
+        ]);
     }
 
     public function getTemplateVariables($coid) {
@@ -21,10 +25,12 @@ class DirectoryTemplateVariableGenerator {
             return false;
         
         // Retrieve source code
-        $sourceUrl = $object->getProperty('coid://phpmae.cloudobjects.io/hasSourceFile');
+        $sourceUrl = $this->reader->hasType($object, 'phpmae:Interface')
+            ? $this->reader->getFirstValueString($object, 'phpmae:hasDefinitionFile')
+            : $this->reader->getFirstValueString($object, 'phpmae:hasSourceFile');
         if (!$sourceUrl)
             return false;        
-        $sourceCode = $this->retriever->getAttachment($coid, $sourceUrl->getId());
+        $sourceCode = $this->retriever->getAttachment($coid, $sourceUrl);
         
         // Find method signatures and comment blocks using regular expression
         $matches = [];

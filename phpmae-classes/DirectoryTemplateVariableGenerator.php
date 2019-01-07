@@ -46,7 +46,7 @@ class DirectoryTemplateVariableGenerator {
         $methods = [];
         for ($i = 0; $i < count($matches[0]); $i++) {
             // Remove * and whitespace from from comment string.
-            $commentString = trim(preg_replace('/\n\s+\*\s+/', "\n", $matches[1][$i]));
+            $commentString = trim(preg_replace('/\n\s+\*/', "\n", $matches[1][$i]));
 
             // Filter magic methods (incl. constructor), except __invoke
             if (substr($matches[2][$i], 0, 2) == '__' && $matches[2][$i] != '__invoke')

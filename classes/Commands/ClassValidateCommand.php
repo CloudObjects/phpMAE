@@ -33,7 +33,8 @@ class ClassValidateCommand extends AbstractObjectCommand {
     // Running validator
     $validator = new ClassValidator;
     try {
-        $validator->validate(file_get_contents($this->phpFileName));
+        $validator->validate(file_get_contents($this->phpFileName),
+          $this->getAdditionalTypes());
         $output->writeln("Validated successfully.");
     } catch (\Exception $e) {
         $output->writeln('<error>'.get_class($e).'</error> '.$e->getMessage());
@@ -43,7 +44,8 @@ class ClassValidateCommand extends AbstractObjectCommand {
         $cmd = $this;
         $this->watchPHPFile($output, function() use ($validator, $cmd, $output) {
             try {
-              $validator->validate(file_get_contents($cmd->phpFileName));
+              $validator->validate(file_get_contents($cmd->phpFileName),
+                $this->getAdditionalTypes());
               $output->writeln("Validated successfully.");
             } catch (\Exception $e) {
               $output->writeln('<error>'.get_class($e).'</error> '.$e->getMessage());

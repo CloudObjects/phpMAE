@@ -9,6 +9,7 @@ namespace CloudObjects\PhpMAE;
 use PHPSandbox\PHPSandbox;
 use PHPSandbox\SandboxWhitelistVisitor, PHPSandbox\ValidatorVisitor;
 use PhpParser\ParserFactory, PhpParser\NodeTraverser;
+use CloudObjects\SDK\COIDParser;
 use CloudObjects\PhpMAE\Exceptions\PhpMAEException;
 
 /**
@@ -97,7 +98,7 @@ class ClassValidator {
     ));
   }
 
-  public function validate($sourceCode) {
+  public function validate($sourceCode, $interfaceCoids = []) {
     // Initialize parser and parse source code
     $parser = (new ParserFactory)->create(ParserFactory::PREFER_PHP7);
     $ast = $parser->parse($sourceCode);
@@ -121,10 +122,23 @@ class ClassValidator {
         $name = (string)$i;
         $interfaces[] = (isset($aliasMap[$name])) ? $aliasMap[$name] : $name;
       }
-      /*if (!in_array($interface, $interfaces)) {
-        // Interface not implemented
-        throw new PhpMAEException("Source code file must declare a class that implements <".$interface.">.");
-      } */
+
+      // Check for any interfaces and whitelist them for validation
+      foreach ($interfaceCoids as $coid) {
+        if (!COIDParser::isValidCOID($coid)) continue;
+        
+        $name = COIDParser::getName($coid);
+        $found = false;
+        foreach ($interfaces as $i) {
+          if ($i == $name) {
+            $this->whitelisted_interfaces[] = $i;
+            $found = true;
+            break;
+          }          
+        }
+        if (!$found)
+          throw new PhpMAEException("Source code file must declare a class that implements <".$name.">.");
+      }      
 
       // Allow self-references
       $this->whitelisted_types[] = strtolower($ast[0]->name);

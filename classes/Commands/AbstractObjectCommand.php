@@ -8,6 +8,7 @@ namespace CloudObjects\PhpMAE\Commands;
 
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Output\OutputInterface;
+use ML\IRI\IRI;
 use CloudObjects\SDK\COIDParser;
 use CloudObjects\PhpMAE\CredentialManager;
 
@@ -114,4 +115,13 @@ abstract class AbstractObjectCommand extends Command {
     }
   }
 
+  protected function getAdditionalTypes() {
+		$coids = [];
+		foreach ($this->rdfTypes as $t) {
+      if (in_array($t, [ 'coid://phpmae.cloudobjects.io/Class', 'coid://phpmae.cloudobjects.io/Interface' ])) continue;
+			$coids[] = new IRI($t);
+		}
+
+		return $coids;
+	}
 }

@@ -6,6 +6,7 @@
  
 namespace CloudObjects\PhpMAE;
 
+use ML\IRI\IRI;
 use ML\JsonLD\Node;
 use CloudObjects\SDK\NodeReader;
 
@@ -26,5 +27,19 @@ class TypeChecker {
     return self::isType($object, 'phpmae:Class')
       || self::isType($object, 'phpmae:HTTPInvokableClass');
   }
+
+  public static function getAdditionalTypes(Node $object) {
+		$types = $object->getType();
+		if (!is_array($types))
+			return [];
+
+		$coids = [];
+		foreach ($types as $t) {
+			if (in_array($t->getId(), [ 'coid://phpmae.cloudobjects.io/Class', 'coid://phpmae.cloudobjects.io/Interface' ])) continue;
+			$coids[] = new IRI($t->getId());
+		}
+
+		return $coids;
+	}
 
 }

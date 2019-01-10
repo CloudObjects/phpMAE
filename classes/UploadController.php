@@ -27,7 +27,7 @@ class UploadController {
 		$this->container = $container;
 		$this->objectRetriever = $objectRetriever;
 		$this->classRepository = $classRepository;
-	}
+	}	
 
 	private function uploadSource(RequestInterface $request) {
 		$object = $this->objectRetriever->get($request->getQueryParam('coid'));
@@ -38,7 +38,8 @@ class UploadController {
 		$validator = new ClassValidator;
 
 		try {
-			$validator->validate($content);
+			$validator->validate($content,
+				TypeChecker::getAdditionalTypes($object));
 		} catch (\Exception $e) {
 			$response = (new Response(400))->withJson([
 				'error_code' => get_class($e),

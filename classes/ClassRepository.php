@@ -145,6 +145,17 @@ class ClassRepository {
 			$this->container->get(ErrorHandler::class)
 				->addMapping($filename, $object);
 
+			// Check for required implemented interfaces
+			$interfaces = [];
+			foreach (TypeChecker::getAdditionalTypes($object) as $i) {
+				$interfaceObject = $objectRetriever->get($i);
+				if (!TypeChecker::isInterface($interfaceObject))
+					continue;
+					
+				$this->createInterfaceInstance($interfaceObject);
+				$interfaces[] = $i;
+			}
+
 			if (!file_exists($filename)) {
 				// File does not exist -> check in uploads first
 				if (file_exists($vars['upload_filename'])) {
@@ -161,11 +172,14 @@ class ClassRepository {
 
 				// Run source code through validator to ensure sanity
 				$validator = new ClassValidator;
-				$validator->validate($sourceCode);
+				$validator->validate($sourceCode, $interfaces);
 
-				// Add namespaces for dependencies
+				// Add namespaces for dependencies and interfaces
 				$use = '';
-				$classList = $this->container->get(DI\DependencyInjector::class)->getClassDependencyList($object);
+				$classList = array_merge(
+					$this->container->get(DI\DependencyInjector::class)->getClassDependencyList($object),
+					$interfaces
+				);
 				foreach ($classList as $cl)
 					$use .= " use ".$this->coidToClassName($cl).";";
 
@@ -188,4 +202,59 @@ class ClassRepository {
 		return $this->buildContainer($vars['php_classname'], $object, $additionalDefinitions);
 	}
 
+	/**
+	 * Creates an instance of an interface.
+	 * 
+	 * @param Node $object The object describing the interface.
+	 */
+	public function createInterfaceInstance(Node $object) {
+		// Check type
+		if (!TypeChecker::isInterface($object))
+			throw new PhpMAEException("<".$object->getId()."> must have a valid type.");
+
+		$uri = new IRI($object->getId());
+		$vars = $this->getURIVars($uri);
+		if (!isset($this->classMap[$vars['php_classname']])) {
+			$objectRetriever = $this->container->get(ObjectRetriever::class);
+
+			// Get revision
+			$revision = $object->getProperty(ObjectRetriever::REVISION_PROPERTY)
+				? $object->getProperty(ObjectRetriever::REVISION_PROPERTY)->getValue()
+				: 'LocalConfig';
+
+			// Build filename where cached version should exist
+			$filename = $vars['cache_path'].DIRECTORY_SEPARATOR.$revision.".php";
+			$this->container->get(ErrorHandler::class)
+				->addMapping($filename, $object);
+
+			if (!file_exists($filename)) {
+				// File does not exist -> check in uploads first
+				if (file_exists($vars['upload_filename'])) {
+					$sourceCode = file_get_contents($vars['upload_filename']);
+				} else {
+					// Not found in local uploads -> download source from CloudObjects
+					$sourceUrl = $object->getProperty('coid://phpmae.cloudobjects.io/hasDefinitionFile');
+					if (!$sourceUrl) throw new PhpMAEException("<".$object->getId()."> does not have a definition file.");
+					if (get_class($sourceUrl)=='ML\JsonLD\Node')
+						$sourceCode = $objectRetriever->getAttachment($uri, $sourceUrl->getId());
+					else
+						$sourceCode = $objectRetriever->getAttachment($uri, $sourceUrl->getValue());
+				}
+			
+				// Run source code through validator to ensure sanity
+				$validator = new ClassValidator;
+				$validator->validateInterface($sourceCode);
+	
+				// Add namespace declaration
+				$sourceCode = str_replace("<?php", "<?php namespace ".$vars['php_namespace'].";".$use, $sourceCode);
+				$sourceCode = str_replace($vars['php_classname_local'].'::', '\\'.$vars['php_classname'].'::', $sourceCode);
+
+				// Store
+				if (!file_exists($vars['cache_path'])) mkdir($vars['cache_path'], 0777, true);
+				file_put_contents($filename, $sourceCode);
+			}
+
+			$this->classMap[$vars['php_classname']] = $filename;
+		}
+	}
 }

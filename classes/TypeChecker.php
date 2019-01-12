@@ -28,6 +28,10 @@ class TypeChecker {
       || self::isType($object, 'phpmae:HTTPInvokableClass');
   }
 
+  public static function isInterface(Node $object) {
+    return self::isType($object, 'phpmae:Interface');
+  }
+
   public static function getAdditionalTypes(Node $object) {
 		$types = $object->getType();
 		if (!is_array($types))

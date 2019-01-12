@@ -6,28 +6,39 @@
 
 namespace CloudObjects\PhpMAE;
 
-use Symfony\Component\HttpFoundation\Response;
+use Slim\App;
+use Slim\Http\Response;
 use ML\JsonLD\Node;
 use CloudObjects\SDK\ObjectRetriever;
 
 class ErrorHandler {
 
     private $classMap;
+    private $slim;
+
+    public function __construct(App $slim) {
+        $this->slim = $slim;
+        ini_set("display_errors", 0);
+    }
 
     public function addMapping($filename, Node $object) {
         $this->classMap[realpath($filename)] = $object;
     }
 
     public function getErrorResponse() {
-        $error = error_get_last();     
-        if ($error !== null && $error['type'] === E_ERROR && isset($this->classMap[$error['file']])) {
+        $error = error_get_last();
+        if ($error !== null && in_array($error['type'], [ E_ERROR, E_COMPILE_ERROR ])
+                && isset($this->classMap[$error['file']])) {
+            
+            $message = preg_replace("/CloudObjects\\\PhpMAE\\\Class_\w{32}\\\/", "", $error['message']);
             $object = $this->classMap[$error['file']];
-            $response = new Response("Error in implementation of <".$object->getId()."> at revision "
+            $response = (new Response(500))
+                ->withHeader('Content-Type', 'text/plain')
+                ->write("Error in implementation of <".$object->getId()."> at revision "
                 . $object->getProperty(ObjectRetriever::REVISION_PROPERTY)->getValue()
                 . ":\n"
-                . "- [line ".$error['line']."] ".$error['message'], 500,
-                ["Content-Type" => "text/plain"]);
-            $response->send();
+                . "- [line ".$error['line']."] ".$message);
+            $this->slim->respond($response);
         }
     }
 

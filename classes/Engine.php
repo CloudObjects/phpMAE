@@ -35,13 +35,17 @@ class Engine implements RequestHandlerInterface {
     private $runClass;
 
     public function __construct(ObjectRetriever $objectRetriever,
-            ClassRepository $classRepository,
-            App $slim, ContainerInterface $container) {
+            ClassRepository $classRepository, App $slim,
+            ErrorHandler $errorHandler, ContainerInterface $container) {
         
         $this->objectRetriever = $objectRetriever;
         $this->classRepository = $classRepository;
         $this->slim = $slim;
         $this->container = $container;
+
+        register_shutdown_function(function(ErrorHandler $handler) {
+            $handler->getErrorResponse();
+		}, $errorHandler); // see: http://stackoverflow.com/questions/4410632/handle-fatal-errors-in-php-using-register-shutdown-function
     }
 
     private function getAuthenticationMiddleware() {
@@ -206,6 +210,6 @@ class Engine implements RequestHandlerInterface {
                 ->write($e->getMessage());
         }
     
-        $this->slim->respond($response);        
+        $this->slim->respond($response);
     }
 }

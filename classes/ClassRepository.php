@@ -246,7 +246,7 @@ class ClassRepository {
 				$validator->validateInterface($sourceCode);
 	
 				// Add namespace declaration
-				$sourceCode = str_replace("<?php", "<?php namespace ".$vars['php_namespace'].";".$use, $sourceCode);
+				$sourceCode = str_replace("<?php", "<?php namespace ".$vars['php_namespace'].";", $sourceCode);
 				$sourceCode = str_replace($vars['php_classname_local'].'::', '\\'.$vars['php_classname'].'::', $sourceCode);
 
 				// Store

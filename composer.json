@@ -24,7 +24,9 @@
 		"firebase/php-jwt": "^5.0",
 		"twig/twig": "^2.5",
 		"monolog/monolog": "^1.24",
-		"guzzlehttp/oauth-subscriber": "^0.3.0"
+		"guzzlehttp/oauth-subscriber": "^0.3.0",
+		"symfony/dom-crawler": "^4.2",
+		"symfony/css-selector": "^4.2"
 	},
 	"autoload": {
 		"psr-4": {

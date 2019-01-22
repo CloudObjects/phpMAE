@@ -39,7 +39,10 @@ class TypeChecker {
 
 		$coids = [];
 		foreach ($types as $t) {
-			if (in_array($t->getId(), [ 'coid://phpmae.cloudobjects.io/Class', 'coid://phpmae.cloudobjects.io/Interface' ])) continue;
+      if (in_array($t->getId(), [ 'coid://phpmae.cloudobjects.io/Class',  
+        'coid://phpmae.cloudobjects.io/HTTPInvokableClass',
+        'coid://phpmae.cloudobjects.io/Interface',
+        ])) continue;
 			$coids[] = new IRI($t->getId());
 		}
 

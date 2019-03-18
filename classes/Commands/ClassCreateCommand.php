@@ -11,6 +11,7 @@ use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Command\Command;
+use ML\IRI\IRI;
 use CloudObjects\SDK\COIDParser;
 use CloudObjects\PhpMAE\CredentialManager, CloudObjects\PhpMAE\ClassValidator;
 use CloudObjects\PhpMAE\Exceptions\PhpMAEException;
@@ -72,7 +73,7 @@ class ClassCreateCommand extends Command {
       
       // Run through validator
       $validator = new ClassValidator;
-      $validator->validateInterface($interfaceCode);
+      $validator->validateInterface($interfaceCode, new IRI($implements));
 
       // Find use statements
       $matches = [];

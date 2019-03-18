@@ -31,7 +31,7 @@ class ClassDeployCommand extends AbstractObjectCommand {
     // Running validator
     $validator = new ClassValidator();
     $validator->validate(file_get_contents($this->fullName.'.php'),
-      $this->getAdditionalTypes());
+      $this->coid, $this->getAdditionalTypes());
     $output->writeln("Validated successfully, calling cloudobjects ...");
 
     passthru("cloudobjects attachment:put ".(string)$this->coid." ".$this->fullName.".php");

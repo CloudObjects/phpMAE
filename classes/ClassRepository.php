@@ -172,7 +172,7 @@ class ClassRepository {
 
 				// Run source code through validator to ensure sanity
 				$validator = new ClassValidator;
-				$validator->validate($sourceCode, $interfaces);
+				$validator->validate($sourceCode, $uri, $interfaces);
 
 				// Add namespaces for dependencies and interfaces
 				$use = '';
@@ -243,7 +243,7 @@ class ClassRepository {
 			
 				// Run source code through validator to ensure sanity
 				$validator = new ClassValidator;
-				$validator->validateInterface($sourceCode);
+				$validator->validateInterface($sourceCode, $uri);
 	
 				// Add namespace declaration
 				$sourceCode = str_replace("<?php", "<?php namespace ".$vars['php_namespace'].";", $sourceCode);

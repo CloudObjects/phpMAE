@@ -118,7 +118,8 @@ abstract class AbstractObjectCommand extends Command {
   protected function getAdditionalTypes() {
 		$coids = [];
 		foreach ($this->rdfTypes as $t) {
-      if (in_array($t, [ 'coid://phpmae.cloudobjects.io/Class', 'coid://phpmae.cloudobjects.io/Interface' ])) continue;
+      if (in_array($t, [ 'coid://phpmae.cloudobjects.io/Class', 'coid://phpmae.cloudobjects.io/HTTPInvokableClass',
+          'coid://phpmae.cloudobjects.io/Interface' ])) continue;
 			$coids[] = new IRI($t);
 		}
 

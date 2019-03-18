@@ -38,7 +38,7 @@ class ClassTestEnvCommand extends AbstractObjectCommand {
     private function upload(OutputInterface $output) {
       try {
         $this->validator->validate(file_get_contents($this->phpFileName),
-          $this->getAdditionalTypes());
+          $this->coid, $this->getAdditionalTypes());
         $this->getContainer()->get('testenv.client')->put('/uploadTestenv?type=source&coid='.urlencode((string)$this->coid), [
             'body' => file_get_contents($this->phpFileName)
           ]);

@@ -39,6 +39,7 @@ class UploadController {
 
 		try {
 			$validator->validate($content,
+				new IRI($object->getId()),
 				TypeChecker::getAdditionalTypes($object));
 		} catch (\Exception $e) {
 			$response = (new Response(400))->withJson([

@@ -29,7 +29,7 @@ class InterfaceDeployCommand extends AbstractObjectCommand {
 
     // Running validator
     $validator = new ClassValidator();
-    $validator->validateInterface(file_get_contents($this->fullName.'.php'));
+    $validator->validateInterface(file_get_contents($this->fullName.'.php'), $this->coid);
     $output->writeln("Validated successfully, calling cloudobjects ...");
 
     passthru("cloudobjects attachment:put ".(string)$this->coid." ".$this->fullName.".php");

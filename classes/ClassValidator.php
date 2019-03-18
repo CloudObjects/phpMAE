@@ -9,6 +9,7 @@ namespace CloudObjects\PhpMAE;
 use PHPSandbox\PHPSandbox;
 use PHPSandbox\SandboxWhitelistVisitor, PHPSandbox\ValidatorVisitor;
 use PhpParser\ParserFactory, PhpParser\NodeTraverser;
+use ML\IRI\IRI;
 use CloudObjects\SDK\COIDParser;
 use CloudObjects\PhpMAE\Exceptions\PhpMAEException;
 
@@ -98,7 +99,7 @@ class ClassValidator {
     ));
   }
 
-  public function validate($sourceCode, $interfaceCoids = []) {
+  public function validate($sourceCode, IRI $coid, array $interfaceCoids = []) {
     // Initialize parser and parse source code
     $parser = (new ParserFactory)->create(ParserFactory::PREFER_PHP7);
     $ast = $parser->parse($sourceCode);
@@ -116,6 +117,9 @@ class ClassValidator {
     // Check for class definition and implemented interfaces
     if (count($ast)==1 && get_class($ast[0])=='PhpParser\Node\Stmt\Class_'
         && isset($ast[0]->implements)) {
+
+      if ($ast[0]->name != COIDParser::getName($coid))
+        throw new PhpMAEException("The PHP classname (".$ast[0]->name.") doesn't match match the name segment of the COID (".COIDParser::getName($coid).").");
 
       $interfaces = array();
       foreach ($ast[0]->implements as $i) {
@@ -161,7 +165,7 @@ class ClassValidator {
     }
   }
 
-  public function validateInterface($sourceCode) {
+  public function validateInterface($sourceCode, IRI $coid) {
     // Initialize parser and parse source code
     $parser = (new ParserFactory)->create(ParserFactory::PREFER_PHP7);
     $ast = $parser->parse($sourceCode);
@@ -178,6 +182,9 @@ class ClassValidator {
     }
     // Check for class definition and implemented interfaces
     if (count($ast)==1 && get_class($ast[0])=='PhpParser\Node\Stmt\Interface_') {
+
+      if ($ast[0]->name != COIDParser::getName($coid))
+        throw new PhpMAEException("The PHP interface name (".$ast[0]->name.") doesn't match match the name segment of the COID (".COIDParser::getName($coid).").");
 
       // Allow self-references
       $this->whitelisted_types[] = strtolower($ast[0]->name);

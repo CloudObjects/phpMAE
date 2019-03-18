@@ -31,7 +31,7 @@ class InterfaceValidateCommand extends AbstractObjectCommand {
     // Running validator
     $validator = new ClassValidator;
     try {
-        $validator->validateInterface(file_get_contents($this->phpFileName));
+        $validator->validateInterface(file_get_contents($this->phpFileName), $this->coid);
         $output->writeln("Validated successfully.");
     } catch (\Exception $e) {
         $output->writeln('<error>'.get_class($e).'</error> '.$e->getMessage());
@@ -41,7 +41,7 @@ class InterfaceValidateCommand extends AbstractObjectCommand {
         $cmd = $this;
         $this->watchPHPFile($output, function() use ($validator, $cmd, $output) {
             try {
-              $validator->validateInterface(file_get_contents($cmd->phpFileName));
+              $validator->validateInterface(file_get_contents($cmd->phpFileName), $this->coid);
               $output->writeln("Validated successfully.");
             } catch (\Exception $e) {
               $output->writeln('<error>'.get_class($e).'</error> '.$e->getMessage());

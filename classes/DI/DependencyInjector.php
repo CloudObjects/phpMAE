@@ -143,9 +143,12 @@ class DependencyInjector {
                     throw new PhpMAEException("<".$object->getId()."> has an invalid dependency: WebAPIDependency without API!");
 
                 $keyedDependency = function() use ($apiCoid, $namespaceCoid, $object) {
-                    $apiCoid = new IRI($apiCoid);                    
-                    return APIClientFactory::createClient($this->retrieverPool->getBaseObjectRetriever()->get($apiCoid),
-                        $this->retrieverPool->getObjectRetriever($apiCoid->getHost())->get($namespaceCoid));
+                    $apiCoid = new IRI($apiCoid);
+                    $apiClientFactory = new APIClientFactory(
+                        $this->retrieverPool->getObjectRetriever($namespaceCoid->getHost()),
+                        $namespaceCoid
+                    );
+                    return $apiClientFactory->getClientWithCOID($apiCoid);
                 };
             } else
             if ($reader->hasType($d, 'phpmae:ClassDependency')) {

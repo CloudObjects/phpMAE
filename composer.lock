@@ -58,12 +58,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/CloudObjects/CloudObjects-PHP-SDK.git",
-                "reference": "a2acc7256c81e1e17f3d7980109a5e12b39304ff"
+                "reference": "95fceb4054218cc4b6159f1ce59fd04a3bab38e7"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/CloudObjects/CloudObjects-PHP-SDK/zipball/a2acc7256c81e1e17f3d7980109a5e12b39304ff",
-                "reference": "a2acc7256c81e1e17f3d7980109a5e12b39304ff",
+                "url": "https://api.github.com/repos/CloudObjects/CloudObjects-PHP-SDK/zipball/95fceb4054218cc4b6159f1ce59fd04a3bab38e7",
+                "reference": "95fceb4054218cc4b6159f1ce59fd04a3bab38e7",
                 "shasum": ""
             },
             "require": {
@@ -105,7 +105,7 @@
                 "cloudobjects",
                 "sdk"
             ],
-            "time": "2019-06-27T17:21:37+00:00"
+            "time": "2019-07-03T13:07:30+00:00"
         },
         {
             "name": "container-interop/container-interop",
@@ -2004,16 +2004,16 @@
         },
         {
             "name": "php-di/php-di",
-            "version": "6.0.8",
+            "version": "6.0.9",
             "source": {
                 "type": "git",
                 "url": "https://github.com/PHP-DI/PHP-DI.git",
-                "reference": "a634876c69b643b779a89e4b7bec1ed1df803afc"
+                "reference": "00a5eb0f0dd94deabb71acfbf44c37b80d53d0a1"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/PHP-DI/PHP-DI/zipball/a634876c69b643b779a89e4b7bec1ed1df803afc",
-                "reference": "a634876c69b643b779a89e4b7bec1ed1df803afc",
+                "url": "https://api.github.com/repos/PHP-DI/PHP-DI/zipball/00a5eb0f0dd94deabb71acfbf44c37b80d53d0a1",
+                "reference": "00a5eb0f0dd94deabb71acfbf44c37b80d53d0a1",
                 "shasum": ""
             },
             "require": {
@@ -2063,7 +2063,7 @@
                 "ioc",
                 "psr11"
             ],
-            "time": "2019-04-02T20:25:18+00:00"
+            "time": "2019-07-08T07:24:22+00:00"
         },
         {
             "name": "php-di/phpdoc-reader",
@@ -5015,6 +5015,7 @@
                 "mock",
                 "xunit"
             ],
+            "abandoned": true,
             "time": "2017-06-30T09:13:00+00:00"
         },
         {

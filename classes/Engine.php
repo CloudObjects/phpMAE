@@ -106,13 +106,14 @@ class Engine implements RequestHandlerInterface {
      * @param mixed $content Content for the body of the response.
      */
     public function generateResponse($content) {
+        $lowercaseContent = is_string($content) ? strtolower($content) : '';
         if (!isset($content))
             // Empty response
             $response = new Response(204);
-        elseif (is_string($content) && (substr($content, 0, 5) == '<html' || substr($content, 0, 14) == '<!doctype html'))
+        elseif (is_string($content) && (substr($lowercaseContent, 0, 5) == '<html' || substr($lowercaseContent, 0, 14) == '<!doctype html'))
             // HTML response
             $response = (new Response)->write($content);
-        elseif (is_string($content) && (substr($content, 0, 7) == 'http://' || substr($content, 0, 8) == 'https://'))
+        elseif (is_string($content) && (substr($lowercaseContent, 0, 7) == 'http://' || substr($lowercaseContent, 0, 8) == 'https://'))
             // Redirect response
             $response = (new Response)->withRedirect($content);
         elseif (is_string($content) || is_numeric($content))
@@ -184,13 +185,17 @@ class Engine implements RequestHandlerInterface {
     }
 
     public function handle(ServerRequestInterface $request, $args = null): ResponseInterface {
-        if (ClassValidator::isInvokableClass($this->runClass->get(self::SKEY))) {
-            // Run as invokable class
-            return $this->executeInvokableClass($request, $args);
-        } else {
-            // Run as RPC
-            // JsonRPC
-            return $this->executeJsonRPC($request);
+        try {
+            if (ClassValidator::isInvokableClass($this->runClass->get(self::SKEY))) {
+                // Run as invokable class
+                return $this->executeInvokableClass($request, $args);
+            } else {
+                // Run as RPC
+                // JsonRPC
+                return $this->executeJsonRPC($request);
+            }
+        } catch (\Exception $e) {
+            die("IN Exception ".get_class($e)." - ".$e->getMessage());
         }
     }
 

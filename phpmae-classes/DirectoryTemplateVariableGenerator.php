@@ -6,7 +6,7 @@ use ML\IRI\IRI;
 /**
  * Implementation for coid://phpmae.cloudobjects.io/DirectoryTemplateVariableGenerator
  */
-class DirectoryTemplateVariableGenerator {
+class DirectoryTemplateVariableGenerator implements DirectoryTemplateVariableGeneratorInterface {
 
     private $retriever;
     private $reader;

@@ -73,7 +73,7 @@ class ClassCreateCommand extends Command {
       
       // Run through validator
       $validator = new ClassValidator;
-      $validator->validateInterface($interfaceCode, new IRI($implements));
+      $validator->validateInterface($interfaceCode, new IRI($interface));
 
       // Find use statements
       $matches = [];

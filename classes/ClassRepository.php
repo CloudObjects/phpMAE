@@ -171,8 +171,9 @@ class ClassRepository {
 				}
 
 				// Run source code through validator to ensure sanity
+				// and convert to sandbox
 				$validator = new ClassValidator;
-				$validator->validate($sourceCode, $uri, $interfaces);
+				$sourceCode = $validator->validate($sourceCode, $uri, $interfaces);
 
 				// Add namespaces for dependencies and interfaces
 				$use = '';
@@ -184,7 +185,7 @@ class ClassRepository {
 					$use .= " use ".$this->coidToClassName($cl).";";
 
 				// Add namespace declaration
-				$sourceCode = str_replace("<?php", "<?php namespace ".$vars['php_namespace'].";".$use, $sourceCode);
+				$sourceCode = "<?php namespace ".$vars['php_namespace'].";".$use.$sourceCode;
 				$sourceCode = str_replace($vars['php_classname_local'].'::', '\\'.$vars['php_classname'].'::', $sourceCode);
 
 				// Store

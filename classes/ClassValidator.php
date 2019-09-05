@@ -6,7 +6,7 @@
  
 namespace CloudObjects\PhpMAE;
 
-use PHPSandbox\PHPSandbox;
+use CloudObjects\PhpMAE\Sandbox\CustomizedSandbox;
 use PHPSandbox\SandboxWhitelistVisitor, PHPSandbox\ValidatorVisitor;
 use PhpParser\ParserFactory, PhpParser\NodeTraverser;
 use ML\IRI\IRI;
@@ -24,7 +24,7 @@ class ClassValidator {
   private $aliases;
 
   public function __construct() {
-    $this->sandbox = new PHPSandbox();
+    $this->sandbox = new CustomizedSandbox;
     $this->sandbox->set_options(array(
       'allow_classes' => true,
       'allow_interfaces' => true,
@@ -62,6 +62,7 @@ class ClassValidator {
       'Symfony\Component\DomCrawler\Crawler',
       'CloudObjects\PhpMAE\ConfigLoader',
       'CloudObjects\PhpMAE\TwigTemplateFactory',
+      'CloudObjects\SDK\ObjectRetriever',
       'CloudObjects\SDK\NodeReader',
       'CloudObjects\SDK\AccountGateway\AccountContext',
       'CloudObjects\SDK\AccountGateway\AAUIDParser',
@@ -150,14 +151,8 @@ class ClassValidator {
       // Initialize whitelist
       $this->initializeWhitelist();
 
-      // Apply whitelist visitor
-      $traverser = new NodeTraverser;
-      $traverser->addVisitor(new CustomValidationVisitor($this->sandbox));
-      $traverser->addVisitor(new SandboxWhitelistVisitor($this->sandbox));
-      $traverser->addVisitor(new ValidatorVisitor($this->sandbox));
-      $traverser->traverse($ast);
-
-      return;
+      // Validate and prepare code in sandbox
+      return $this->sandbox->prepare($sourceCode);
 
     } else {
       // Throw exeption if conditions are not met
@@ -194,7 +189,6 @@ class ClassValidator {
 
       // Apply whitelist visitor
       $traverser = new NodeTraverser;
-      $traverser->addVisitor(new CustomValidationVisitor($this->sandbox));
       $traverser->addVisitor(new SandboxWhitelistVisitor($this->sandbox));
       $traverser->addVisitor(new ValidatorVisitor($this->sandbox));
       $traverser->traverse($ast);

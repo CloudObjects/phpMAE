@@ -7,7 +7,8 @@
 namespace CloudObjects\PhpMAE\Sandbox;
 
 use PhpParser\Node, PhpParser\NodeVisitorAbstract;
-use PHPSandbox\PHPSandbox, PHPSandbox\ValidatorVisitor;
+use PHPSandbox\PHPSandbox, PHPSandbox\ValidatorVisitor,
+    PHPSandbox\Error;
 
 class CustomizedValidatorVisitor extends ValidatorVisitor {
 

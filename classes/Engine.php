@@ -159,6 +159,10 @@ class Engine implements RequestHandlerInterface {
             return $this->container
                 ->get(UploadController::class)
                 ->handle($request);
+        } elseif ($path == '/run') {
+            return $this->container
+                ->get(InteractiveRunController::class)
+                ->handle($request, $this);
         }
 
         $coid = COIDParser::fromString(substr($path, 1));
@@ -177,11 +181,16 @@ class Engine implements RequestHandlerInterface {
             if (!isset($this->object))
                 throw new PhpMAEException("The object <" . (string)$coid . "> does not exist or this phpMAE instance is not allowed to access it.");
             $this->runClass = $this->classRepository->createInstance($this->object, $request);
-
-            $this->runClass;
         } else {
             throw new PhpMAEException("You must provide a valid, non-root COID to specify the class for execution.");
         }
+    }
+
+    /**
+     * Specifies the class for execution in the engine.
+     */
+    public function setRunClass(DI\SandboxedContainer $runClass) {
+        $this->runClass = $runClass;
     }
 
     public function handle(ServerRequestInterface $request, $args = null): ResponseInterface {

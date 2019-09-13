@@ -123,9 +123,10 @@ class ClassRepository {
 	 * @param Node $object The object describing the class.
 	 * @param RequestInterface $request The optional request, if it should be made available
 	 * @param array $additionalDefinitions Definitions to add to the DI container for this class
+	 * @param string $sourceCode Optional source code to use for the class implementation instead of retrieving.
 	 */
 	public function createInstance(Node $object, RequestInterface $request = null,
-			array $additionalDefinitions = []) {
+			array $additionalDefinitions = [], string $sourceCode = null) {
 		// Check type
 		if (!TypeChecker::isClass($object))
 			throw new PhpMAEException("<".$object->getId()."> must have a valid type.");
@@ -157,17 +158,19 @@ class ClassRepository {
 			}
 
 			if (!file_exists($filename)) {
-				// File does not exist -> check in uploads first
-				if (file_exists($vars['upload_filename'])) {
-					$sourceCode = file_get_contents($vars['upload_filename']);
-				} else {
-					// Not found in local uploads -> download source from CloudObjects
-					$sourceUrl = $object->getProperty('coid://phpmae.cloudobjects.io/hasSourceFile');
-					if (!$sourceUrl) throw new PhpMAEException("<".$object->getId()."> does not have an implementation source file.");
-					if (get_class($sourceUrl)=='ML\JsonLD\Node')
-						$sourceCode = $objectRetriever->getAttachment($uri, $sourceUrl->getId());
-					else
-						$sourceCode = $objectRetriever->getAttachment($uri, $sourceUrl->getValue());
+				if (!isset($sourceCode)) {
+					// File does not exist -> check in uploads first
+					if (file_exists($vars['upload_filename'])) {
+						$sourceCode = file_get_contents($vars['upload_filename']);
+					} else {
+						// Not found in local uploads -> download source from CloudObjects
+						$sourceUrl = $object->getProperty('coid://phpmae.cloudobjects.io/hasSourceFile');
+						if (!$sourceUrl) throw new PhpMAEException("<".$object->getId()."> does not have an implementation source file.");
+						if (get_class($sourceUrl)=='ML\JsonLD\Node')
+							$sourceCode = $objectRetriever->getAttachment($uri, $sourceUrl->getId());
+						else
+							$sourceCode = $objectRetriever->getAttachment($uri, $sourceUrl->getValue());
+					}
 				}
 
 				// Run source code through validator to ensure sanity

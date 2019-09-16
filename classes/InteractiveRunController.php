@@ -24,6 +24,11 @@ class InteractiveRunController {
 		$this->container = $container;
 	}
 
+	public function isEnabled() {
+		return ($this->container->has('interactive_run')
+			&& $this->container->get('interactive_run') === true);
+	}
+
 	private function createTemporaryClassObject() {
 		$graph = new Graph;
 		$type = new Node($graph, 'coid://phpmae.cloudobjects.io/Class');
@@ -35,8 +40,7 @@ class InteractiveRunController {
 	}
 
 	public function handle(RequestInterface $request, Engine $engine) {
-		if (!$this->container->has('interactive_run')
-				|| $this->container->get('interactive_run') !== true)
+		if (!$this->isEnabled())
 			throw new PhpMAEException("This is not an environment with interactive run enabled.");
 
 		if ($request->getMethod() != 'POST')

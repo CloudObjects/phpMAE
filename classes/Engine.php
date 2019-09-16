@@ -154,22 +154,48 @@ class Engine implements RequestHandlerInterface {
      */
     public function execute(RequestInterface $request) {
         $path = rtrim($request->getUri()->getBasePath().$request->getUri()->getPath(), '/');
+        switch ($path) {
+            case "":
+            case "/":
+                // Display homepage
+                $file = ($this->container
+                    ->get(InteractiveRunController::class)
+                    ->isEnabled()) ? 'app.html' : 'app_disabled.html';
+                
+                return $this->generateResponse(file_get_contents(__DIR__.'/../static/'.$file));
+            case "/run":
+                // Run interactive code request
+                return $this->container
+                    ->get(InteractiveRunController::class)
+                    ->handle($request, $this);
+            case "/uploadTestenv":
+                // Upload into test environment (if enabled)
+                return $this->container
+                    ->get(UploadController::class)
+                    ->handle($request);
+            default:
+                if (file_exists(__DIR__.'/../static'.$path)) {
+                    // Proxy for static files
+                    $filename = realpath(__DIR__.'/../static'.$path);
+                    $response = (new Response)->write(file_get_contents($filename));
+                    switch (pathinfo($filename, PATHINFO_EXTENSION)) {
+                        case "css":
+                            return $response->withHeader('Content-Type', 'text/css');
+                        case "js":
+                            return $response->withHeader('Content-Type', 'application/javascript');
+                        default:
+                            return $response;
+                    }
+                    
+                }
 
-        if ($path == '/uploadTestenv') {
-            return $this->container
-                ->get(UploadController::class)
-                ->handle($request);
-        } elseif ($path == '/run') {
-            return $this->container
-                ->get(InteractiveRunController::class)
-                ->handle($request, $this);
-        }
-
-        $coid = COIDParser::fromString(substr($path, 1));
-        $this->loadRunClass($coid, $request);
+                $coid = COIDParser::fromString(substr($path, 1));
+                $this->loadRunClass($coid, $request);
         
-        return $this->getAuthenticationMiddleware()
-                ->process($request, $this);
+                // Process a standard request for a phpMAE class
+                return $this->getAuthenticationMiddleware()
+                    ->process($request, $this);
+        }
     }
 
     /**

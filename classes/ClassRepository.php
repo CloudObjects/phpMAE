@@ -157,7 +157,7 @@ class ClassRepository {
 				$interfaces[] = $i;
 			}
 
-			if (!file_exists($filename)) {
+			if (!file_exists($filename) || $sourceCode != null) {
 				if (!isset($sourceCode)) {
 					// File does not exist -> check in uploads first
 					if (file_exists($vars['upload_filename'])) {

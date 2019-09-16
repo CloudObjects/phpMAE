@@ -13,7 +13,7 @@ use CloudObjects\SDK\ObjectRetriever;
 
 class Configurator {
 
-    public function getContainer(array $config) {
+    public static function getContainer(array $config) {
         // Create Dependency Injection Container
         $builder = new DI\ContainerBuilder();
         $builder->addDefinitions($config);

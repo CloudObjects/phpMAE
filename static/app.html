@@ -1,0 +1,36 @@
+<!doctype html>
+<html>
+    <head>
+        <title>phpMAE</title>
+        <link rel="stylesheet" type="text/css" href="styles.css" />
+        <link rel="stylesheet" type="text/css" href="codemirror.css" />
+    </head>
+    <body>
+        <div id="phpmae-main-grid" class="pure-g">            
+            <div class="phpmae-element pure-u-1-2">                
+                <div id="phpmae-source-editor"></div>                
+            </div>
+            <div class="phpmae-element pure-u-1-2">
+                <form class="pure-form pure-form-aligned" onsubmit="execute(this); return false;">
+                    <fieldset>
+                        <div class="pure-control-group">
+                            <label for="name">Function</label>
+                            <select name="function">
+                                <option value="hello">hello()</option>
+                            </select>
+                        </div>
+                        <div class="pure-control-group">
+                            <label for="name">$name</label>
+                            <input name="name" type="text" value="">
+                        </div>
+                        <div class="pure-controls">
+                            <button type="submit" class="pure-button pure-button-primary">Execute</button>
+                        </div>
+                    </fieldset>
+                </form>
+                <div id="phpmae-result"></div>
+            </div>
+        </div>
+        <script type="application/javascript" src="scripts.js"></script>
+    </body>
+</html>

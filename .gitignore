@@ -1,4 +1,7 @@
 vendor
+node_modules
+static/scripts.js
+static/styles.css
 cache
 uploads
 config.php

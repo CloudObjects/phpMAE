@@ -1,0 +1,28 @@
+{
+  "name": "phpmae",
+  "version": "1.0.0",
+  "description": "Static files for phpMAE interactive mode.",
+  "dependencies": {
+    "codemirror": "^5.48.4",
+    "gulp": "^4.0.2",
+    "gulp-concat": "^2.6.1",
+    "gulp-css-purge": "^3.0.9",
+    "gulp-uglify": "^3.0.2",
+    "purecss": "^1.0.1",
+    "streamqueue": "^1.1.2"
+  },
+  "devDependencies": {},
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/CloudObjects/phpMAE.git"
+  },
+  "author": "Lukas Rosenstock",
+  "license": "MPL",
+  "bugs": {
+    "url": "https://github.com/CloudObjects/phpMAE/issues"
+  },
+  "homepage": "https://github.com/CloudObjects/phpMAE#readme"
+}

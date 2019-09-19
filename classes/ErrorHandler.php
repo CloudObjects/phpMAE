@@ -13,16 +13,29 @@ use CloudObjects\SDK\ObjectRetriever;
 
 class ErrorHandler {
 
-    private $classMap;
+    private $classMap = [];
     private $slim;
+    private $responseGenerator;
 
     public function __construct(App $slim) {
         $this->slim = $slim;
         ini_set("display_errors", 0);
+        $this->setResponseGenerator(function($error, $object) {
+            $message = substr($error['message'], 0,  strpos($error['message'], ' in /'));
+            return (new Response(500))
+                ->withHeader('Content-Type', 'text/plain')
+                ->write("Error in implementation of <".$object->getId()."> at revision "
+                . $object->getProperty(ObjectRetriever::REVISION_PROPERTY)->getValue()
+                . ":\n".$message);
+        });
     }
 
     public function addMapping($filename, Node $object) {
         $this->classMap[realpath($filename)] = $object;
+    }
+
+    public function setResponseGenerator(callable $responseGenerator) {
+        $this->responseGenerator = $responseGenerator;
     }
 
     public function getErrorResponse() {
@@ -30,14 +43,7 @@ class ErrorHandler {
         if ($error !== null && in_array($error['type'], [ E_ERROR, E_COMPILE_ERROR ])
                 && isset($this->classMap[$error['file']])) {
             
-            $message = preg_replace("/CloudObjects\\\PhpMAE\\\Class_\w{32}\\\/", "", $error['message']);
-            $object = $this->classMap[$error['file']];
-            $response = (new Response(500))
-                ->withHeader('Content-Type', 'text/plain')
-                ->write("Error in implementation of <".$object->getId()."> at revision "
-                . $object->getProperty(ObjectRetriever::REVISION_PROPERTY)->getValue()
-                . ":\n"
-                . "- [line ".$error['line']."] ".$message);
+            $response = call_user_func($this->responseGenerator, $error, $this->classMap[$error['file']]);
             $this->slim->respond($response);
         }
     }

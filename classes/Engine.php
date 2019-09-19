@@ -230,7 +230,7 @@ class Engine implements RequestHandlerInterface {
                 return $this->executeJsonRPC($request);
             }
         } catch (\Exception $e) {
-            die("IN Exception ".get_class($e)." - ".$e->getMessage());
+            throw new PhpMAEException(get_class($e).": ".$e->getMessage());
         }
     }
 

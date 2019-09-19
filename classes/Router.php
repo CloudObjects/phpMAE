@@ -78,7 +78,7 @@ class Router {
                                 return $engine->generateResponse($rpcResponse['result']);
                             } else {
                                 return (new Response(500))->withJson($rpcResponse);
-                            }                            
+                            }
                         } else {
                             // Generic class execution (invokable)
                             return $engine->handle($request, (is_array($args) && count($args) > 0) ? $args : null);

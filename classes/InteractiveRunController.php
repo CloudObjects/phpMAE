@@ -21,7 +21,7 @@ class InteractiveRunController {
 			ContainerInterface $container) {
 
 		$this->classRepository = $classRepository;
-		$this->container = $container;
+		$this->container = $container;		
 	}
 
 	public function isEnabled() {
@@ -73,23 +73,42 @@ class InteractiveRunController {
 			'id' => 'PG'
 		]);
 
-		$innerRequest = new ServerRequest('POST', $request->getUri(),
-			$request->getHeaders(), $rpcBody);
-		$innerResponse = $engine->handle($innerRequest);
-        $rpcResponse = json_decode($innerResponse->getBody(), true);
+		// Update error handler for response format required by client
+		$this->container->get(ErrorHandler::class)
+			->setResponseGenerator(function($error, $object) use ($engine) {
+				$message = substr($error['message'], 0,  strpos($error['message'], ' in /'));
+				return $engine->generateResponse([
+					'status' => 'error',
+					'content' => $message,
+					'session' => $this->session
+				]);
+			});
 
-        if (isset($rpcResponse['result']))
-            return $engine->generateResponse([
-				'status' => 'success',
-				'content' => $rpcResponse['result'],
-				'session' => $this->session
-			]);
-		else
+		try {
+			$innerRequest = new ServerRequest('POST', $request->getUri(),
+				$request->getHeaders(), $rpcBody);
+			$innerResponse = $engine->handle($innerRequest);
+			$rpcResponse = json_decode($innerResponse->getBody(), true);
+
+        	if (isset($rpcResponse['result']))
+            	return $engine->generateResponse([
+					'status' => 'success',
+					'content' => $rpcResponse['result'],
+					'session' => $this->session
+				]);
+			else
+				return $engine->generateResponse([
+					'status' => 'error',
+					'content' => $rpcResponse['error']['message'],
+					'session' => $this->session
+				]);
+		} catch (PhpMAEException $e) {
 			return $engine->generateResponse([
 				'status' => 'error',
-				'content' => $rpcResponse['error']['message'],
+				'content' => $e->getMessage(),
 				'session' => $this->session
 			]);
+		}
 	}
 
 }

@@ -27,20 +27,31 @@ class ObjectRetrieverPool {
         return $this->baseObjectRetriever;
     }
 
-    public function getObjectRetriever($hostname) {
+    public function getObjectRetriever($hostname) {			
         if (!isset($this->baseHostname))
             // Never create a new retriever when using developer credentials
             return $this->baseObjectRetriever;
 
         if (!isset($this->objectRetrievers[$hostname])) {
-			$config = $this->baseObjectRetriever->getClient()->getConfig();
-			$config['headers']['C-Act-As'] = $hostname;
+            if (substr($hostname, -7) == '.phpmae') {
+                // Get an anonymous retriever
+                $retriever = new ObjectRetriever(array_merge($this->options, [
+                    'auth_ns' => '',
+                    'auth_secret' => '',
+                    'cache_prefix' => 'clobj:'.$hostname.':',
+                    'logger' => $this->options['logger']->withName('CO-'.$hostname)
+                ]));
+            } else {
+                // Get a retriever with namespace impersonation
+                $config = $this->baseObjectRetriever->getClient()->getConfig();
+                $config['headers']['C-Act-As'] = $hostname;
 
-			$retriever = new ObjectRetriever(array_merge($this->options, [
-                'cache_prefix' => 'clobj:'.$hostname.':',
-                'logger' => $this->options['logger']->withName('CO-'.$hostname)
-            ]));
-			$retriever->setClient(new Client($config));
+		    	$retriever = new ObjectRetriever(array_merge($this->options, [
+                    'cache_prefix' => 'clobj:'.$hostname.':',
+                    'logger' => $this->options['logger']->withName('CO-'.$hostname)
+                ]));
+                $retriever->setClient(new Client($config));
+            }
 			$this->objectRetrievers[$hostname] = $retriever;
         }
 

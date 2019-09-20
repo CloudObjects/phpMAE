@@ -29,11 +29,11 @@ class InteractiveRunController {
 			&& $this->container->get('interactive_run') === true);
 	}
 
-	private function createTemporaryClassObject() {
+	private function createTemporaryClassObject($className) {
 		$graph = new Graph;
 		$type = new Node($graph, 'coid://phpmae.cloudobjects.io/Class');
 		
-		$object = new Node($graph, 'coid://'.$this->session.'.phpmae/MyPhpMAEClass');
+		$object = new Node($graph, 'coid://'.$this->session.'.phpmae/' . $className);
 		$object->setType($type);
 
 		return $object;
@@ -53,7 +53,7 @@ class InteractiveRunController {
 			: uniqid();
 
 		try {
-			$object = $this->createTemporaryClassObject();
+			$object = $this->createTemporaryClassObject($runData['class']);
 			$engine->setRunClass($this->classRepository
 				->createInstance($object, $request, [], $runData['sourceCode'])
 			);

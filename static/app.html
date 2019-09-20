@@ -14,14 +14,20 @@
                 <form class="pure-form pure-form-aligned" onsubmit="execute(this); return false;">
                     <fieldset>
                         <div class="pure-control-group">
+                            <label for="name">Class</label>
+                            <input name="class" type="text" readonly="readonly" value="MyPhpMAEClass" />    
+                        </div>
+                        <div class="pure-control-group">
                             <label for="name">Function</label>
-                            <select name="function">
+                            <select name="function" onchange="updateParameters(this.value)">
                                 <option value="hello">hello()</option>
                             </select>
                         </div>
-                        <div class="pure-control-group">
-                            <label for="name">$name</label>
-                            <input name="name" type="text" value="">
+                        <div id="phpmae-parameter-container">
+                            <div class="pure-control-group">
+                                <label for="name">$name</label>
+                                <input name="name" type="text" value="">
+                            </div>
                         </div>
                         <div class="pure-controls">
                             <button type="submit" class="pure-button pure-button-primary">Execute</button>

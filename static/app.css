@@ -1,1 +1,14 @@
-#phpmae-main-grid{margin:15px;padding:5px;border:solid #555 1px}#phpmae-main-grid .pure-form{background-color:#eee}
+#phpmae-main-grid {
+    margin:15px;
+    padding:5px;
+    border:solid #555 1px;
+}
+
+#phpmae-main-grid .pure-form {
+    background-color:#eee;
+}
+
+#phpmae-result {
+    padding: 10px;
+    font-family: monospace;
+}

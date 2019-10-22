@@ -24,6 +24,7 @@ class ClassCreateCommand extends Command {
             ->addArgument('coid', InputArgument::REQUIRED, 'The COID of the object.')
             ->addOption('http-invokable', 'hi', InputOption::VALUE_NONE, 'Makes the class HTTP-invokable.')
             ->addOption('force', 'f', InputOption::VALUE_NONE, 'Forces new object creation and replaces existing files.')
+            ->addOption('public', null, InputOption::VALUE_NONE, 'Marks new object as public.')
             ->addOption('confjob', null, InputOption::VALUE_NONE, 'Calls "cloudobjects" to create a configuration job for the new class.')
             ->addOption('autowire', null, InputOption::VALUE_REQUIRED, 'Creates a constructor that autowires a PHP dependency.', null)
             ->addOption('implements', null, InputOption::VALUE_REQUIRED, 'Make this class an implementation of the phpMAE interface with the specified COID.', null);
@@ -139,8 +140,15 @@ class ClassCreateCommand extends Command {
                 . "   xmlns:co=\"coid://cloudobjects.io/\"\n"
                 . "   xmlns:phpmae=\"coid://phpmae.cloudobjects.io/\">\n"
                 . "\n"
-                . " <phpmae:".($invokable ? "HTTPInvokable" : "")."Class rdf:about=\"".(string)$coid."\">\n"
-                . "  <co:isVisibleTo rdf:resource=\"coid://cloudobjects.io/Vendor\" />\n";
+                . " <phpmae:".($invokable ? "HTTPInvokable" : "")."Class rdf:about=\"".(string)$coid."\">\n";
+
+            // Mark as public if option was defined
+            if ($input->getOption('public'))
+                $content .= "  <co:isVisibleTo rdf:resource=\"coid://cloudobjects.io/Public\" />\n"
+                . "  <co:permitsUsageTo rdf:resource=\"coid://cloudobjects.io/Public\" />\n";
+            else
+                $content .= "  <co:isVisibleTo rdf:resource=\"coid://cloudobjects.io/Vendor\" />\n";
+                
             if (isset($implements))
                 $content .= "  <rdf:type rdf:resource=\"".$implements."\" />\n";
             $content .=" </phpmae:".($invokable ? "HTTPInvokable" : "")."Class>\n"

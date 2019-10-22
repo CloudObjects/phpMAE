@@ -14,44 +14,44 @@ use CloudObjects\PhpMAE\ClassValidator;
 
 class ClassValidateCommand extends AbstractObjectCommand {
 
-  protected function configure() {
-    $this->setName('class:validate')
-      ->setAliases([ 'validate', 'v' ])
-      ->setDescription('Validates a class for the phpMAE.')
-      ->addArgument('coid', InputArgument::REQUIRED, 'The COID of the object.')
-      ->addOption('watch', null, InputOption::VALUE_OPTIONAL, 'Keep watching for changes of the file and revalidate automatically.', null);
-  }
-
-  protected function execute(InputInterface $input, OutputInterface $output) {
-    $this->parse($input->getArgument('coid'));
-    $this->assertRDF();
-    if (!in_array('coid://phpmae.cloudobjects.io/Class', $this->rdfTypes)
-        && !in_array('coid://phpmae.cloudobjects.io/HTTPInvokableClass', $this->rdfTypes))
-      throw new \Exception("Object does not have a valid class type.");
-    $this->assertPHPExists();
-
-    // Running validator
-    $validator = new ClassValidator;
-    try {
-        $validator->validate(file_get_contents($this->phpFileName),
-          $this->coid, $this->getAdditionalTypes());
-        $output->writeln("Validated successfully.");
-    } catch (\Exception $e) {
-        $output->writeln('<error>'.get_class($e).'</error> '.$e->getMessage());
+    protected function configure() {
+        $this->setName('class:validate')
+            ->setAliases([ 'validate', 'v' ])
+            ->setDescription('Validates a class for the phpMAE.')
+            ->addArgument('coid', InputArgument::REQUIRED, 'The COID of the object.')
+            ->addOption('watch', null, InputOption::VALUE_NONE, 'Keep watching for changes of the file and revalidate automatically.');
     }
 
-    if ($input->getOption('watch') !== null) {
-        $cmd = $this;
-        $this->watchPHPFile($output, function() use ($validator, $cmd, $output) {
-            try {
-              $validator->validate(file_get_contents($cmd->phpFileName),
+    protected function execute(InputInterface $input, OutputInterface $output) {
+        $this->parse($input->getArgument('coid'));
+        $this->assertRDF();
+        if (!in_array('coid://phpmae.cloudobjects.io/Class', $this->rdfTypes)
+                && !in_array('coid://phpmae.cloudobjects.io/HTTPInvokableClass', $this->rdfTypes))
+            throw new \Exception("Object does not have a valid class type.");
+        $this->assertPHPExists();
+
+        // Running validator
+        $validator = new ClassValidator;
+        try {
+            $validator->validate(file_get_contents($this->phpFileName),
                 $this->coid, $this->getAdditionalTypes());
-              $output->writeln("Validated successfully.");
-            } catch (\Exception $e) {
-              $output->writeln('<error>'.get_class($e).'</error> '.$e->getMessage());
-            }
-        });
+            $output->writeln("Validated successfully.");
+        } catch (\Exception $e) {
+            $output->writeln('<error>'.get_class($e).'</error> '.$e->getMessage());
+        }
+
+        if ($input->getOption('watch')) {
+            $cmd = $this;
+            $this->watchPHPFile($output, function() use ($validator, $cmd, $output) {
+                try {
+                    $validator->validate(file_get_contents($cmd->phpFileName),
+                        $this->coid, $this->getAdditionalTypes());
+                    $output->writeln("Validated successfully.");
+                } catch (\Exception $e) {
+                    $output->writeln('<error>'.get_class($e).'</error> '.$e->getMessage());
+                }
+            });
+        }
     }
-  }
 
 }

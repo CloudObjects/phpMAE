@@ -17,7 +17,8 @@ use ML\IRI\IRI;
 use ML\JsonLD\Node;
 use Tuupola\Middleware\HttpBasicAuthentication;
 use Dflydev\FigCookies\SetCookie, Dflydev\FigCookies\FigResponseCookies;
-use CloudObjects\SDK\COIDParser, CloudObjects\SDK\NodeReader, CloudObjects\SDK\ObjectRetriever;
+use CloudObjects\SDK\COIDParser, CloudObjects\SDK\NodeReader,
+    CloudObjects\SDK\ObjectRetriever;
 use CloudObjects\SDK\Helpers\SharedSecretAuthentication;
 use CloudObjects\PhpMAE\DI\SandboxedContainer;
 use CloudObjects\PhpMAE\Exceptions\PhpMAEException;
@@ -25,6 +26,8 @@ use CloudObjects\PhpMAE\Exceptions\PhpMAEException;
 class Engine implements RequestHandlerInterface {
 
     const SKEY = '__self';
+
+    const CO_PUBLIC = 'coid://cloudobjects.io/Public';
 
     private $objectRetriever;
     private $classRepository;
@@ -48,17 +51,30 @@ class Engine implements RequestHandlerInterface {
 		}, $errorHandler); // see: http://stackoverflow.com/questions/4410632/handle-fatal-errors-in-php-using-register-shutdown-function
     }
 
+    private function isObjectPublic() {
+        $reader = new NodeReader([ 'prefixes' => [ 'co' => 'coid://cloudobjects.io/' ]]);
+        return ($reader->hasProperty($this->object, 'co:isVisibleTo')
+            && $reader->getFirstValueIRI($this->object, 'co:isVisibleTo')
+                ->equals(self::CO_PUBLIC)
+            && $reader->hasProperty($this->object, 'co:permitsUsageTo')
+            && $reader->getFirstValueIRI($this->object, 'co:permitsUsageTo')
+                ->equals(self::CO_PUBLIC));
+    }
+
     private function getAuthenticationMiddleware() {
-        $auth = $this->container->get('client_authentication');
-        if ($auth == 'none')
+        $authSchemes = explode('|', $this->container->get('client_authentication'));
+        if (in_array('none', $authSchemes))
+            return new EmptyMiddleware; // no authentication required
+
+        if (in_array('none:public_only', $authSchemes)
+                && $this->isObjectPublic())
             return new EmptyMiddleware; // no authentication required
 
         $object = $this->object;
         return new HttpBasicAuthentication([
             'secure' => $this->container->get('client_authentication_must_be_secure'),
             'realm' => 'phpMAE',
-            'authenticator' => function($args) use ($object, $auth) {
-                $authSchemes = explode('|', $auth);
+            'authenticator' => function($args) use ($object, $authSchemes) {
                 $authenticated = false;
                 foreach ($authSchemes as $as) {
                     if (substr($as, 0, 14) == 'shared_secret:') {
@@ -72,7 +88,7 @@ class Engine implements RequestHandlerInterface {
                             $authenticated = (substr($object->getId(), 7, strlen($args['user']) +1) == $args['user'].'/');
                         else
                             $authenticated = (substr($as, 14) == 'coid://'.$args['user']);
-                    } else
+                    } elseif (substr($as, 0, 4) != 'none')
                         throw new PhpMAEException("Unsupported authentication scheme!");
                     
                     if ($authenticated == true)

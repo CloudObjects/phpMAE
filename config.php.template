@@ -11,6 +11,9 @@ return [
 	/**
 	 * Client authentication requires all requests to have HTTP Basic Authentication.
 	 * - none: Authentication is disabled.
+	 * - none:public_only: Authentication is disabled for all classes that have co:isVisibleTo
+	 *   and co:permitsUsageTo both set to co:Public. All other classes will be treated
+	 *   by other authentication schemes.
 	 * - shared_secret:runclass: Client must authenticate with the shared secret between
 	 *   the identity of this phpMAE instance (auth_ns) and the namespace of the class
 	 *   that is requested to run

@@ -33,6 +33,10 @@ class DependenciesAddWebAPICommand extends AbstractAddDependenciesCommand {
                 && COIDParser::getType($coidWebAPI) != COIDParser::COID_UNVERSIONED)
             throw new \Exception("Invalid COID: ".$coid);
 
+        // Checking type
+        $output->writeln("Fetching configuration for ".(string)$coidWebAPI." ...");
+        $this->getObjectAndAssertType((string)$coidWebAPI, 'coid://webapi.cloudobjects.io/HTTPEndpoint');
+
         // Add dependency
         $this->addDependency(
             $input->getArgument('key'),
@@ -43,7 +47,23 @@ class DependenciesAddWebAPICommand extends AbstractAddDependenciesCommand {
                 ]
             ],
             $input, $output
-        ); 
+        );
+
+        $key = $input->getArgument('key');
+        $output->writeln("");
+        $output->writeln("<info>Use your WebAPI dependency:</info>");
+        $output->writeln("");
+        $output->writeln("1) Make sure you have access to the dependency injection container by adding the container to your class constructor.");
+        $output->writeln("2) Request an API client from the container using the key \"".$key."\".");
+        $output->writeln("");
+        $output->writeln("   private \$".$key."Api;");
+        $output->writeln("");
+        $output->writeln("   public function __construct(\Psr\Container\ContainerInterface \$container) {");
+        $output->writeln("      \$this->".$key."Api = \$container->get('".$key."');");
+        $output->writeln("   }");
+        $output->writeln("");
+        $output->writeln("3) Make API requests in your class by calling methods on \$this->".$key."Api.");
+        $output->writeln("");
     }
 
 }

@@ -21,6 +21,28 @@ class AbstractAddDependenciesCommand extends AbstractObjectCommand {
         $this->assertPHPExists();
     }
 
+    protected function getObjectAndAssertType(string $coid, string $type) {
+        // Retrieve configuration
+        $config = shell_exec("cloudobjects get ".$coid);
+        if (!isset($config))
+            throw new \Exception("Could not retrieve <".$coid.">.");
+
+        // Parse and validate configuration
+        $parser = \ARC2::getRDFXMLParser();
+        $parser->parse('', $config);
+        $index = $parser->getSimpleIndex(false);
+        if (!isset($index) || !isset($index[$coid])
+                || !isset($index[$coid]['http://www.w3.org/1999/02/22-rdf-syntax-ns#type']))
+            throw new \Exception("<".$coid."> is not a valid CloudObjects object.");
+      
+        foreach ($index[$coid]['http://www.w3.org/1999/02/22-rdf-syntax-ns#type'] as $property => $values) {
+            if ($values['value'] == $type)
+                return true;
+        }
+
+        return false;
+    }
+
     protected function addDependency(string $key, string $type, array $valuesToMerge,
             InputInterface $input, OutputInterface $output) {
 

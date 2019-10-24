@@ -8,13 +8,18 @@ use ML\IRI\IRI;
  */
 class DirectoryTemplateVariableGenerator implements DirectoryTemplateVariableGeneratorInterface {
 
+    const CO_PUBLIC = 'coid://cloudobjects.io/Public';
+
     private $retriever;
     private $reader;
 
     public function __construct(ObjectRetriever $retriever) {
         $this->retriever = $retriever;
         $this->reader = new NodeReader([
-            'prefixes' => [ 'phpmae' => 'coid://phpmae.cloudobjects.io/' ]
+            'prefixes' => [
+                'co' => 'coid://cloudobjects.io/',
+                'phpmae' => 'coid://phpmae.cloudobjects.io/'
+            ]
         ]);
     }
 
@@ -24,8 +29,10 @@ class DirectoryTemplateVariableGenerator implements DirectoryTemplateVariableGen
         if (!isset($object))
             return false;
         
+        $isInterface = $this->reader->hasType($object, 'phpmae:Interface');
+        
         // Retrieve source code
-        $sourceUrl = $this->reader->hasType($object, 'phpmae:Interface')
+        $sourceUrl = $isInterface
             ? $this->reader->getFirstValueString($object, 'phpmae:hasDefinitionFile')
             : $this->reader->getFirstValueString($object, 'phpmae:hasSourceFile');
         if (!$sourceUrl)
@@ -60,7 +67,19 @@ class DirectoryTemplateVariableGenerator implements DirectoryTemplateVariableGen
             ];
         }
 
-        return [ 'methods' => $methods ];
+        $result = [ 'methods' => $methods ];
+
+        // Check if public, in that case include source code
+        if (!$isInterface
+                && $this->reader->hasProperty($object, 'co:isVisibleTo')
+                && $this->reader->getFirstValueIRI($object, 'co:isVisibleTo')
+                    ->equals(self::CO_PUBLIC)
+                && $this->reader->hasProperty($object, 'co:permitsUsageTo')
+                && $this->reader->getFirstValueIRI($object, 'co:permitsUsageTo')
+                    ->equals(self::CO_PUBLIC))            
+            $result['public_source_code'] = $sourceCode;
+
+        return $result;
     }
 
 }

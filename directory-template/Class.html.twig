@@ -19,3 +19,7 @@
 {% else %} 
 <p>This class has no public methods yet or a problem occurred while retrieving them.</p>
 {% endif %}
+{% if custom.public_source_code is defined %}
+<h5>Source Code</h5>
+<pre class="co-console">{{ custom.public_source_code }}</pre>
+{% endif %}

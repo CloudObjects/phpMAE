@@ -1,6 +1,8 @@
 <?php
 
 use Symfony\Component\Finder\Finder;
+use CloudObjects\SDK\COIDParser, CloudObjects\SDK\ObjectRetriever;
+use Webmozart\Assert\Assert;
 
 /**
  * This is project's console commands configuration for Robo task runner.
@@ -123,6 +125,45 @@ class RoboFile extends \Robo\Tasks {
             file_put_contents('data/function.whitelist.json', json_encode($whitelisted));
             file_put_contents('data/function.blacklist.json', json_encode($blacklisted));
         }
+    }
+
+    public function installStack($stack) {
+        require_once "vendor/autoload.php";
+
+        // Fetch stack definition from CloudObjects Core
+        $stackCoid = COIDParser::fromString($stack);
+        $retriever = new ObjectRetriever([
+            'auth_ns' => 'phpmae.cloudobjects.io',
+            'auth_secret' => getenv('PHPMAE_SHARED_SECRET')
+        ]);
+        $stackObject = $retriever->getObject($stackCoid);
+        
+        $composerFileContent = $retriever->getAttachment($stackCoid,
+            $stackObject->getProperty('coid://phpmae.cloudobjects.io/hasAttachedComposerFile')
+            ->getId());
+        Assert::startsWith($composerFileContent, '{');
+        
+        $lockFileContent = $retriever->getAttachment($stackCoid,
+            $stackObject->getProperty('coid://phpmae.cloudobjects.io/hasAttachedLockFile')
+            ->getId());
+        Assert::startsWith($lockFileContent, '{');
+
+        $stackDir = __DIR__.'/stacks/'.md5($stack.'@'.
+            $stackObject->getProperty('coid://cloudobjects.io/isAtRevision')->getValue());
+
+        // Install stack
+        $this->taskFilesystemStack()
+            ->mkdir($stackDir)
+            ->run();
+        $this->taskWriteToFile($stackDir.'/composer.json')
+            ->text($composerFileContent)
+            ->run();
+        $this->taskWriteToFile($stackDir.'/composer.lock')
+            ->text($lockFileContent)
+            ->run();
+        $this->taskComposerInstall()
+            ->dir($stackDir)
+            ->run();
     }
 
 }

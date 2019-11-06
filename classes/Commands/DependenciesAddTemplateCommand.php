@@ -63,7 +63,7 @@ class DependenciesAddTemplateCommand extends AbstractAddDependenciesCommand {
         $output->writeln("    private \$".$key."Template;");
         $output->writeln("");
         $output->writeln("    public function __construct(\Psr\Container\ContainerInterface \$container) {");
-        $output->writeln("         \$this->".$key."Template = \$container->get('".$key."');");
+        $output->writeln("        \$this->".$key."Template = \$container->get('".$key."');");
         $output->writeln("    }");
         $output->writeln("");
         $output->writeln("3) Render your template by calling \$this->".$key."Template->render(\$context).");

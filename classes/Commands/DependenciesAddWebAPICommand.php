@@ -60,7 +60,7 @@ class DependenciesAddWebAPICommand extends AbstractAddDependenciesCommand {
         $output->writeln("    private \$".$key."Api;");
         $output->writeln("");
         $output->writeln("    public function __construct(\Psr\Container\ContainerInterface \$container) {");
-        $output->writeln("         \$this->".$key."Api = \$container->get('".$key."');");
+        $output->writeln("        \$this->".$key."Api = \$container->get('".$key."');");
         $output->writeln("    }");
         $output->writeln("");
         $output->writeln("3) Make API requests in your class by calling methods on \$this->".$key."Api.");

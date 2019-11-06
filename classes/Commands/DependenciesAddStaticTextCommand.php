@@ -51,7 +51,7 @@ class DependenciesAddStaticTextCommand extends AbstractAddDependenciesCommand {
         $output->writeln("    private \$".$key.";");
         $output->writeln("");
         $output->writeln("    public function __construct(\Psr\Container\ContainerInterface \$container) {");
-        $output->writeln("         \$this->".$key." = \$container->get('".$key."');");
+        $output->writeln("        \$this->".$key." = \$container->get('".$key."');");
         $output->writeln("    }");
         $output->writeln("");
         $output->writeln("3) Use \$this->".$key." wherever required.");

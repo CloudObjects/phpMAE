@@ -6,6 +6,7 @@
   <phpmae:Class rdf:about="coid://phpmae.cloudobjects.io/DirectoryTemplateVariableGenerator">
     <rdf:type rdf:resource="coid://cloudobjects.io/DirectoryTemplateVariableGeneratorInterface" />
     <co:isVisibleTo rdf:resource="coid://cloudobjects.io/Public"/>
+    <co:permitsUsageTo rdf:resource="coid://cloudobjects.io/Public"/>
     <phpmae:hasSourceFile rdf:resource="file:///DirectoryTemplateVariableGenerator.php"/>
   </phpmae:Class>
 

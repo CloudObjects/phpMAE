@@ -5,7 +5,8 @@
 
   <phpmae:Class rdf:about="coid://phpmae.cloudobjects.io/StackTemplateVariableGenerator">
     <rdf:type rdf:resource="coid://cloudobjects.io/DirectoryTemplateVariableGeneratorInterface"/>
-    <co:isVisibleTo rdf:resource="coid://cloudobjects.io/Vendor"/>
+    <co:isVisibleTo rdf:resource="coid://cloudobjects.io/Public"/>
+    <co:permitsUsageTo rdf:resource="coid://cloudobjects.io/Public"/>
     <phpmae:hasSourceFile rdf:resource="file:///StackTemplateVariableGenerator.php"/>
   </phpmae:Class>
 

@@ -11,14 +11,18 @@ use ML\IRI\IRI, ML\JsonLD\Node;
 use DI\Container, DI\FactoryInterface, Invoker\InvokerInterface;
 use DI\Definition\Source\DefinitionArray, DI\Definition\Source\SourceChain;
 use Psr\Http\Message\RequestInterface;
-use CloudObjects\SDK\ObjectRetriever, CloudObjects\SDK\COIDParser;
+use CloudObjects\SDK\ObjectRetriever, CloudObjects\SDK\COIDParser,
+	CloudObjects\SDK\NodeReader;
 use CloudObjects\PhpMAE\Exceptions\PhpMAEException;
 
 class ClassRepository {
 
+	const DEFAULT_STACK = 'coid://phpmae.cloudobjects.io/DefaultStack';
+
 	private $options;
 	private $classMap = [];
 	private $container;
+	private $reader;
 
 	private function loader($classname) {
 		if (isset($this->classMap[$classname])) {
@@ -34,6 +38,12 @@ class ClassRepository {
 		];
 
 		$this->container = $container;
+
+		$this->reader = new NodeReader([
+			'prefixes' => [
+				'phpmae' => 'coid://phpmae.cloudobjects.io/'
+			]
+		]);
 
 		// Initialize autoloader
 		spl_autoload_register(array($this, 'loader'));
@@ -157,6 +167,18 @@ class ClassRepository {
 				$interfaces[] = $i;
 			}
 
+			// Load the stack that the class requires
+			$stack = $objectRetriever->get(
+				$this->reader->getFirstValueString($object, 'phpmae:usesStack', self::DEFAULT_STACK)
+			);
+			
+			$stackDir = __DIR__.'/../stacks/'.md5($stack->getId().'@'.
+            	$stack->getProperty(ObjectRetriever::REVISION_PROPERTY)->getValue());
+
+			if (!is_dir($stackDir)) throw new PhpMAEException("The stack <".$stack->getId()."> is not installed on this phpMAE instance.");
+
+			require_once $stackDir.'/vendor/autoload.php';
+
 			if (!file_exists($filename) || $sourceCode != null) {
 				if (!isset($sourceCode)) {
 					// File does not exist -> check in uploads first
@@ -203,6 +225,7 @@ class ClassRepository {
 			$additionalDefinitions['request'] = $request;
 			$additionalDefinitions[RequestInterface::class] = $request;
 		}
+
 		return $this->buildContainer($vars['php_classname'], $object, $additionalDefinitions);
 	}
 

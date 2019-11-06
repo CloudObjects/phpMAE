@@ -149,7 +149,7 @@ class RoboFile extends \Robo\Tasks {
         Assert::startsWith($lockFileContent, '{');
 
         $stackDir = __DIR__.'/stacks/'.md5($stack.'@'.
-            $stackObject->getProperty('coid://cloudobjects.io/isAtRevision')->getValue());
+            $stackObject->getProperty(ObjectRetriever::REVISION_PROPERTY)->getValue());
 
         // Install stack
         $this->taskFilesystemStack()

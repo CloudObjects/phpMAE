@@ -153,8 +153,7 @@ class RoboFile extends \Robo\Tasks {
             ->getId());
         Assert::startsWith($lockFileContent, '{');
 
-        $stackDir = __DIR__.'/stacks/'.md5($stack.'@'.
-            $stackObject->getProperty(ObjectRetriever::REVISION_PROPERTY)->getValue());
+        $stackDir = __DIR__.'/stacks/'.md5($stack);
 
         // Install stack
         $this->taskFilesystemStack()
@@ -166,6 +165,13 @@ class RoboFile extends \Robo\Tasks {
         $this->taskWriteToFile($stackDir.'/composer.lock')
             ->text($lockFileContent)
             ->run();
+        $this->taskWriteToFile($stackDir.'/meta.json')
+            ->text(json_encode([
+                'rev' => $stackObject->getProperty(ObjectRetriever::REVISION_PROPERTY)->getValue(),
+                'whitelisted_classes' => [] // TODO: implement this
+            ]))
+            ->run();
+            
         $this->taskComposerInstall()
             ->dir($stackDir)
             ->run();

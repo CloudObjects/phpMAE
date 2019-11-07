@@ -43,7 +43,6 @@ class ClassValidator {
       'GuzzleHttp\Subscriber\Oauth\Oauth1',
       'GuzzleHttp\Promise',
       'Dflydev\FigCookies\SetCookie',
-      'Symfony\Component\DomCrawler\Crawler',
       'CloudObjects\PhpMAE\ConfigLoader',
       'CloudObjects\PhpMAE\TwigTemplateFactory',
       'CloudObjects\SDK\ObjectRetriever',
@@ -51,10 +50,6 @@ class ClassValidator {
       'CloudObjects\SDK\AccountGateway\AccountContext',
       'CloudObjects\SDK\AccountGateway\AAUIDParser',
       'CloudObjects\SDK\COIDParser',
-      'Defuse\Crypto\Crypto', 'Defuse\Crypto\Key',
-      'Firebase\JWT\JWT',
-      'Jenssegers\Agent\Agent',
-      'Ramsey\Uuid\Uuid',
       'Webmozart\Assert\Assert'
     );
   }
@@ -64,10 +59,10 @@ class ClassValidator {
       || in_array($name, $this->whitelisted_interfaces);
   }
 
-  private function initializeWhitelist() {
+  private function initializeWhitelist($stack = ClassRepository::DEFAULT_STACK) {    
     // Generate whitelist based on alias names
-    $interfaces = array();
-    $types = array();
+    $interfaces = [];
+    $types = [];
     foreach ($this->whitelisted_interfaces as $i) {
       $interfaces[] = (isset($this->aliases[$i]))
         ? strtolower($this->aliases[$i]) : strtolower($i);
@@ -76,6 +71,19 @@ class ClassValidator {
       $types[] = (isset($this->aliases[$t]))
         ? strtolower($this->aliases[$t]) : strtolower($t);
     }
+
+    // Load and apply stack
+    $filename = __DIR__.'/../stacks/'.md5($stack).'/meta.json';
+    if (!file_exists($filename))
+      throw new PhpMAEException("The specified stack <".$stack."> is not installed.");
+    $stackMeta = json_decode(file_get_contents($filename), true);
+    if (isset($stackMeta['whitelisted_classes'])) {
+      foreach ($stackMeta['whitelisted_classes'] as $t) {
+        $types[] = (isset($this->aliases[$t]))
+          ? strtolower($this->aliases[$t]) : strtolower($t);
+      }
+    }
+
     // Apply to sandbox
     $this->sandbox->whitelist(array(
       'interfaces' => $interfaces,
@@ -84,7 +92,9 @@ class ClassValidator {
     ));
   }
 
-  public function validate($sourceCode, IRI $coid, array $interfaceCoids = []) {
+  public function validate($sourceCode, IRI $coid, array $interfaceCoids = [],
+      $stack = ClassRepository::DEFAULT_STACK) {
+    
     // Initialize parser and parse source code
     $parser = (new ParserFactory)->create(ParserFactory::PREFER_PHP7);
     $ast = $parser->parse($sourceCode);
@@ -133,7 +143,7 @@ class ClassValidator {
       $this->whitelisted_types[] = strtolower($ast[0]->name);
 
       // Initialize whitelist
-      $this->initializeWhitelist();
+      $this->initializeWhitelist($stack);
 
       // Validate and prepare code in sandbox
       return $this->sandbox->prepare($sourceCode);

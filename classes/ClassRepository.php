@@ -168,14 +168,12 @@ class ClassRepository {
 			}
 
 			// Load the stack that the class requires
-			$stack = $objectRetriever->get(
-				$this->reader->getFirstValueString($object, 'phpmae:usesStack', self::DEFAULT_STACK)
-			);
+			$stack = $this->reader->getFirstValueString($object, 'phpmae:usesStack',
+				self::DEFAULT_STACK);
 			
-			$stackDir = __DIR__.'/../stacks/'.md5($stack->getId().'@'.
-            	$stack->getProperty(ObjectRetriever::REVISION_PROPERTY)->getValue());
-
-			if (!is_dir($stackDir)) throw new PhpMAEException("The stack <".$stack->getId()."> is not installed on this phpMAE instance.");
+			$stackDir = __DIR__.'/../stacks/'.md5($stack);
+			if (!is_dir($stackDir))
+				throw new PhpMAEException("The stack <".$stack."> is not installed on this phpMAE instance.");
 
 			require_once $stackDir.'/vendor/autoload.php';
 

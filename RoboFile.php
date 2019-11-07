@@ -42,18 +42,23 @@ class RoboFile extends \Robo\Tasks {
         $code = $this->_exec('php phpmae.phar');
     }
 
-    public function sanitizeDependencies() {
+    public function sanitizeDependencies($directory) {
+        require_once "vendor/autoload.php";
+
         $finder = Finder::create()->files()
             ->name('*.php')
-            ->in('vendor');
-        
-        $parser = (new \PhpParser\ParserFactory)->create(\PhpParser\ParserFactory::PREFER_PHP7);
-        $traverser = new \PhpParser\NodeTraverser;
-        $printer = new \PhpParser\PrettyPrinter\Standard;        
-        $traverser->addVisitor(new \CloudObjects\PhpMAE\Validation\FunctionWhitelistOnlyVisitor);
+            ->in($directory)
+            ->notPath('composer');
 
         foreach ($finder as $file) {
             try {
+                // Reinitialize sandbox for every file to prevent memory leaks
+                $sandbox = new \CloudObjects\PhpMAE\Sandbox\CustomizedSandbox;
+                $parser = (new \PhpParser\ParserFactory)->create(\PhpParser\ParserFactory::PREFER_PHP7);
+                $traverser = new \PhpParser\NodeTraverser;
+                $printer = new \PhpParser\PrettyPrinter\Standard;        
+                $traverser->addVisitor(new \CloudObjects\PhpMAE\Sandbox\FunctionExecutorWrapperVisitor($sandbox));
+
                 $ast = $parser->parse(file_get_contents($file));
                 $traverser->traverse($ast);
                 file_put_contents($file, $printer->prettyPrintFile($ast));
@@ -164,6 +169,9 @@ class RoboFile extends \Robo\Tasks {
         $this->taskComposerInstall()
             ->dir($stackDir)
             ->run();
+
+        // Sanitize stack
+        $this->sanitizeDependencies($stackDir);
     }
 
 }

@@ -64,9 +64,16 @@ class AbstractAddDependenciesCommand extends AbstractObjectCommand {
         if (isset($object['coid://phpmae.cloudobjects.io/hasDependency'])) {
             foreach ($object['coid://phpmae.cloudobjects.io/hasDependency'] as $o) {
                 if ($o['type'] != 'bnode') continue;
-                    $bnode = $this->index[$o['value']];
-                    if (isset($bnode['coid://phpmae.cloudobjects.io/hasKey']) && $bnode['coid://phpmae.cloudobjects.io/hasKey'][0]['value'] == $key)
-                throw new \Exception("A dependency with the key '".$key."' already exists.");
+                $bnode = $this->index[$o['value']];
+                if (isset($bnode['coid://phpmae.cloudobjects.io/hasKey']) && $bnode['coid://phpmae.cloudobjects.io/hasKey'][0]['value'] == $key)
+                    throw new \Exception("A dependency with the key '".$key."' already exists.");
+
+                foreach ($valuesToMerge as $k => $values)
+                    if (isset($bnode[$k]))
+                        foreach ($bnode[$k] as $a)
+                            foreach ($valuesToMerge[$k] as $b)
+                                if ($a['type'] == $b['type'] && $a['value'] == $b['value'])
+                                    throw new \Exception("This dependency was already added.");
             }
             $object['coid://phpmae.cloudobjects.io/hasDependency'][] = [ 'type' => 'bnode', 'value' => '_:dep-'.$key ];
         } else

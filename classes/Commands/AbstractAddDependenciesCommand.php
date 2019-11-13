@@ -35,12 +35,16 @@ class AbstractAddDependenciesCommand extends AbstractObjectCommand {
                 || !isset($index[$coid]['http://www.w3.org/1999/02/22-rdf-syntax-ns#type']))
             throw new \Exception("<".$coid."> is not a valid CloudObjects object.");
       
+        $hasType = false;
         foreach ($index[$coid]['http://www.w3.org/1999/02/22-rdf-syntax-ns#type'] as $property => $values) {
-            if ($values['value'] == $type)
-                return true;
+            if ($values['value'] == $type) {
+                $hasType = true;
+                break;
+            }
         }
 
-        return false;
+        if (!$hasType)
+            throw new \Exception("<".$coid."> must have the type <".$type.">.");
     }
 
     protected function addDependency(string $key, string $type, array $valuesToMerge,

@@ -55,7 +55,7 @@ class DependenciesAddStaticTextCommand extends AbstractAddDependenciesCommand {
         $output->writeln("    }");
         $output->writeln("");
         $output->writeln("3) Use \$this->".$key." wherever required.");
-        $output->writeln("");    
+        $output->writeln("");
   	}
 
 }

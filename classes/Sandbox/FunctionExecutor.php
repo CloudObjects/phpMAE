@@ -12,7 +12,7 @@ class FunctionExecutor {
 
     private static $trusted = false;
     private static $packageWhitelist = [ 'function_exists', 'extension_loaded',
-        'ini_get', 'is_callable', 'class_exists' ];
+        'defined', 'ini_get', 'is_callable', 'class_exists' ];
 
     public static function setTrusted(bool $trusted) {
         self::$trusted = $trusted;

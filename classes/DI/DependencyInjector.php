@@ -16,6 +16,7 @@ use Psr\Http\Message\RequestInterface;
 use CloudObjects\SDK\ObjectRetriever, CloudObjects\SDK\NodeReader, CloudObjects\SDK\COIDParser;
 use CloudObjects\SDK\AccountGateway\AccountContext;
 use CloudObjects\SDK\WebAPI\APIClientFactory;
+use CloudObjects\SDK\Common\CryptoHelper;
 use CloudObjects\PhpMAE\ObjectRetrieverPool, CloudObjects\PhpMAE\ClassRepository,
     CloudObjects\PhpMAE\ErrorHandler, CloudObjects\PhpMAE\Engine,
     CloudObjects\PhpMAE\ConfigLoader, CloudObjects\PhpMAE\TwigTemplate,
@@ -113,6 +114,9 @@ class DependencyInjector {
             TwigTemplateFactory::class => function() use ($object) {
                 return new TwigTemplateFactory($this->classRepository
                     ->getCustomFilesCachePath($object));
+            },
+            CryptoHelper::class => function(ContainerInterface $c) use ($namespaceCoid) {
+                return new CryptoHelper($c->get(ObjectRetriever::class), $namespaceCoid);
             }
         ];
 

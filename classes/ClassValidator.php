@@ -50,6 +50,7 @@ class ClassValidator {
       'CloudObjects\SDK\AccountGateway\AccountContext',
       'CloudObjects\SDK\AccountGateway\AAUIDParser',
       'CloudObjects\SDK\COIDParser',
+      'CloudObjects\SDK\Common\CryptoHelper',
       'Webmozart\Assert\Assert'
     );
   }

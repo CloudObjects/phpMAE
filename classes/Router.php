@@ -6,21 +6,25 @@
 
 namespace CloudObjects\PhpMAE;
 
+use InvalidArgumentException;
 use Psr\Http\Message\RequestInterface, Psr\Http\Message\ResponseInterface;
 use Psr\Container\ContainerInterface;
 use Slim\App;
 use Slim\Http\Environment, Slim\Http\Uri, Slim\Http\Response, Slim\Http\Request;
 use GuzzleHttp\Psr7\ServerRequest;
+use ML\IRI\IRI;
 use ML\JsonLD\Node, ML\JsonLD\JsonLD;
 use CloudObjects\Utilities\RDF\Arc2JsonLdConverter;
 use CloudObjects\SDK\NodeReader, CloudObjects\SDK\ObjectRetriever;
+use CloudObjects\SDK\JSON\SchemaValidator;
 use CloudObjects\PhpMAE\Exceptions\PhpMAEException;
+use CloudObjects\PhpMAE\ObjectRetrieverPool;
 
 class Router {
 
     private $engine;
     private $objectRetriever;
-    private $cotnainer;
+    private $container;
 
     public function __construct(Engine $engine, ObjectRetriever $objectRetriever,
             ContainerInterface $container) {
@@ -49,23 +53,47 @@ class Router {
                 throw new PhpMAEException("Incomplete route configuration! Routes must have wa:hasVerb and wa:hasPath.");
 
             $engine = $this->engine;
+            $retriever = $this->getObjectRetriever(new IRI($object->getId()));
             $app->map([ $reader->getFirstValueString($r, 'wa:hasVerb') ],
                 $reader->getFirstValueString($r, 'wa:hasPath'),
-                function(RequestInterface $request, ResponseInterface $response, $args) use ($r, $reader, $engine) {
+                function(RequestInterface $request, ResponseInterface $response, $args) use ($r, $reader, $engine, $retriever) {
                     if ($reader->hasProperty($r, 'phpmae:runsClass')) {
                         // Route is mapped to a class
                         $engine->loadRunClass($reader->getFirstValueIRI($r, 'phpmae:runsClass'), $request);
+
+                        try {
+                            $params = [];
+                            if ($reader->hasProperty($r, 'wa:hasJSONBodyWithSchema')) {
+                                // Validate request against schema
+                                $schemaValidator = new SchemaValidator($retriever);
+                                $schemaValidator->validateAgainstCOID($request->getParsedBody(),
+                                    $reader->getFirstValueIRI($r, 'wa:hasJSONBodyWithSchema'));
+                                // Then, map to single argument
+                                $params = [ $request->getParsedBody() ];
+                            } elseif (is_array($args) && count($args) > 0)  {
+                                // Use path arguments as params
+                                $params = $args;
+                            } elseif (is_array($request->getParsedBody())) {
+                                // Use body as params
+                                $params = $request->getParsedBody();
+                            } elseif (is_array($request->getQueryParams())) {
+                                // Use query as params
+                                $params = $request->getQueryParams();
+                            }
+                        } catch (InvalidArgumentException $e) {
+                            return (new Response(400))->withJson([
+                                'error' => 'InputValidationFailed',
+                                'message' => $e->getMessage()
+                            ]);
+                        }
+
                         if ($reader->hasProperty($r, 'phpmae:runsMethod')) {
                             // Calls to specific methods must be rewritten
                             // Path, request and query parameters are merged and used as method input
                             $rpcBody = json_encode([
                                 'jsonrpc' => '2.0',
                                 'method' => $reader->getFirstValueString($r, 'phpmae:runsMethod'),
-                                'params' => (is_array($args) && count($args) > 0) ? $args
-                                    : ($request->getMethod() == 'POST'
-                                        ? (is_array($request->getParsedBody()) ? $request->getParsedBody() : [])
-                                        : (is_array($request->getQueryParams()) ? $request->getQueryParams() : [])
-                                ),
+                                'params' => $params,
                                 'id' => 'R'
                             ]);
                             $innerRequest = new ServerRequest('POST', $request->getUri(),
@@ -81,7 +109,7 @@ class Router {
                             }
                         } else {
                             // Generic class execution (invokable)
-                            return $engine->handle($request, (is_array($args) && count($args) > 0) ? $args : null);
+                            return $engine->handle($request, $params);
                         }
                     } elseif ($reader->hasProperty($r, 'phpmae:redirectsToURL')) {
                         return (new Response)->withRedirect($reader->getFirstValueString($r, 'phpmae:redirectsToURL'));
@@ -91,6 +119,16 @@ class Router {
                     }
                 });
         }
+    }
+
+    private function getObjectRetriever(IRI $coid) {
+        return $this->container->get(ObjectRetrieverPool::class)
+            ->getObjectRetriever($coid->getHost());
+    }
+
+    private function getRouter(IRI $coid) {
+        return $this->getObjectRetriever($coid)
+            ->get($coid);
     }
 
     /**
@@ -121,14 +159,14 @@ class Router {
 
                             $namespace = $this->objectRetriever->get('coid://'.$uri->getHost());
                             if (isset($namespace) && $routerCoid = $namespace->getProperty('coid://phpmae.cloudobjects.io/hasRouter'))
-                                $router = $this->objectRetriever->get($routerCoid->getId());
+                                $router = $this->getRouter(new IRI($routerCoid->getId()));
                         }
                         break;
                     case 'router:header':
                         if ($router == null) {
                             $request = Request::createFromEnvironment($env);
                             if ($request->hasHeader('C-PhpMae-Router-COID'))
-                                $router = $this->objectRetriever->get($request->getHeaderLine('C-PhpMae-Router-COID'));
+                                $router = $this->getRouter(new IRI($request->getHeaderLine('C-PhpMae-Router-COID')));
                         }
                         break;
                     case 'default':
@@ -136,7 +174,7 @@ class Router {
                         break;
                     default:
                         if (substr($m, 0, 14) == 'router:coid://')
-                            $router = $this->objectRetriever->get(substr($m, 7));
+                            $router = $this->getRouter(new IRI(substr($m, 7)));
                         else
                             throw new PhpMAEException("Unsupported mode!");
                 }

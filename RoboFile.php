@@ -165,10 +165,17 @@ class RoboFile extends \Robo\Tasks {
         $this->taskWriteToFile($stackDir.'/composer.lock')
             ->text($lockFileContent)
             ->run();
+
+        // Find whitelisted classes
+        $whitelistedClasses = [];
+        foreach ($stackObject->getProperty('coid://phpmae.cloudobjects.io/whitelistsClassname')
+                as $whitelistedClass)
+            $whitelistedClasses[] = $whitelistedClass->getValue();
+            
         $this->taskWriteToFile($stackDir.'/meta.json')
             ->text(json_encode([
                 'rev' => $stackObject->getProperty(ObjectRetriever::REVISION_PROPERTY)->getValue(),
-                'whitelisted_classes' => [] // TODO: implement this
+                'whitelisted_classes' => $whitelistedClasses
             ]))
             ->run();
             

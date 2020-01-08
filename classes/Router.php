@@ -115,7 +115,7 @@ class Router {
                         return (new Response)->withRedirect($reader->getFirstValueString($r, 'phpmae:redirectsToURL'));
                     } else {
                         // Route has no implementation
-                        return new Response(500);
+                        return (new Response(501))->write("Route implementation not available or no access granted.");
                     }
                 });
         }

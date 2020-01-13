@@ -36,6 +36,16 @@ class RoboFile extends \Robo\Tasks {
         foreach ($finder as $file) {
             $pharTask->addStripped('vendor/'.$file->getRelativePathname(), $file->getRealPath());
         }
+
+        $finder = Finder::create()->files()
+            ->name('*.php')
+            ->name('*.json')
+            ->in('stacks');
+
+        foreach ($finder as $file) {
+            $pharTask->addStripped('stacks/'.$file->getRelativePathname(),$file->getRealPath());
+        }
+
         $pharTask->run();
 
         // Verify Phar is packed correctly

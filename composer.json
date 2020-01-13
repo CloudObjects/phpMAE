@@ -33,6 +33,6 @@
 	},
 	"require-dev" : {
 		"phpunit/phpunit": "~5.7",
-		"consolidation/Robo": "~1"
+		"consolidation/robo": "~1"
 	}
 }

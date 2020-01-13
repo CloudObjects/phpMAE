@@ -7,12 +7,13 @@
 namespace CloudObjects\PhpMAE\Commands;
 
 require_once __DIR__."/vendor/autoload.php";
-$app = new \Symfony\Component\Console\Application('phpMAE', '0.2.0');
+$app = new \Symfony\Component\Console\Application('phpMAE', '1.0.0');
 
 $app->add(new ClassCreateCommand);
 $app->add(new ClassDeployCommand);
 $app->add(new ClassValidateCommand);
 $app->add(new ClassTestEnvCommand);
+$app->add(new ClassTestEnvRPCCommand);
 
 $app->add(new DependenciesAddClassCommand);
 $app->add(new DependenciesAddWebAPICommand);

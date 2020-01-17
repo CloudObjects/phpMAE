@@ -71,9 +71,9 @@ Like all objects, phpMAE classes are uniquely identified with COIDs (*C*loud *O*
 
 To create a new class, choose a COID and then run the following command:
 
-    phpmae class:create --confjob=true coid://NAMESPACE/NAME/VERSION
+    phpmae class:create --confjob coid://NAMESPACE/NAME/VERSION
 
-If you want to create an HTTP-invokable class, add the option `--http-invokable=true`.
+If you want to create an HTTP-invokable class, add the option `--http-invokable`.
 
 This command writes two files into the current directory, namely `NAME.VERSION.xml` and `NAME.VERSION.php`. The `.xml` file contains the basic object description for CloudObjects in RDF/XML format and the `.php` file contains the skeleton code for the PHP class. It also creates a configuration job to register the COID.
 
@@ -85,7 +85,7 @@ To check whether your code is valid PHP and also respects the constraints of php
 
     phpmae class:validate coid://NAMESPACE/NAME/VERSION
 
-You can add `--watch=true` to continuously watch for changes in the file and automatically revalidate.
+You can add `--watch` to continuously watch for changes in the file and automatically revalidate.
 
 To run your class, you can launch a local web server. Open a second terminal window or tab and run the following command:
 
@@ -95,7 +95,7 @@ The web server runs in the foreground and can be stopped with _Ctrl + C_ (or _Cm
 
     phpmae class:testenv coid://NAMESPACE/NAME/VERSION
 
-Apart from deploying your code to the local web server this command also prints out the base URL of your Micro API which you can then open in a browser or query from a tool such as `curl`. The `--watch=true` option is supported for continuous redeployment.
+Apart from deploying your code to the local web server this command also prints out the base URL of your Micro API which you can then open in a browser or query from a tool such as `curl`. The `--watch` option is supported for continuous redeployment.
 
 ### Deploy your class
 

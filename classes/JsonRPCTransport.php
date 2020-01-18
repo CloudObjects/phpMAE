@@ -21,6 +21,10 @@ class JsonRPCTransport {
             ->write($data);
     }
 
+    public function receive() {
+        return "";
+    }
+
     /**
      * Get the response
      */ 

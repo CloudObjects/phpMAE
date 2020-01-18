@@ -67,7 +67,7 @@ class CustomizedSandbox extends PHPSandbox {
         return $this;
     }
 
-    public function getGlobalSandbox() {
+    public static function getGlobalSandbox() {
         if (!isset(static::$globalSandbox))
             static::$globalSandbox = new self;
 

@@ -14,6 +14,29 @@ use CloudObjects\SDK\ObjectRetriever;
 class Configurator {
 
     public static function getContainer(array $config) {
+        // Object Retriever Definition
+        $objectRetrieverDefinition = DI\autowire();
+        $orConstructorParameters = [
+            'cache_provider' => 'file',
+            'cache_provider.file.directory' => $config['cache_dir'] . '/config',
+            'static_config_path' => $config['uploads_dir'] . '/config',
+            'logger' => DI\get(Logger::class)
+        ];
+
+        if (!isset($config['co.auth_ns']) && CredentialManager::isConfigured()) {
+			// Access Object API via Account Gateway using local developer account
+            $objectRetrieverDefinition->constructor($orConstructorParameters)
+                ->method('setClient', function() {
+                    return CredentialManager::getAccountContext()->getClient();
+                }, '/ws/');
+        } else {
+            // Access Object API with specified namespace credentials
+            $objectRetrieverDefinition->constructor(array_merge([
+                'auth_ns' => $config['co.auth_ns'],
+                'auth_secret' => $config['co.auth_secret'],
+            ], $orConstructorParameters));
+        }   
+
         // Create Dependency Injection Container
         $builder = new DI\ContainerBuilder();
         $builder->addDefinitions($config);
@@ -32,18 +55,10 @@ class Configurator {
                 }                
                 return $logger;
             },
+            ObjectRetriever::class => $objectRetrieverDefinition,
             ObjectRetrieverPool::class => DI\autowire()
-                ->constructorParameter('baseHostname', $config['co.auth_ns'])
+                ->constructorParameter('baseHostname', @$config['co.auth_ns'])
                 ->constructorParameter('options', [
-                    'cache_provider' => 'file',
-                    'cache_provider.file.directory' => $config['cache_dir'] . '/config',
-                    'static_config_path' => $config['uploads_dir'] . '/config',
-                    'logger' => DI\get(Logger::class)
-                ]),
-            ObjectRetriever::class => DI\autowire()
-                ->constructor([
-                    'auth_ns' => $config['co.auth_ns'],
-                    'auth_secret' => $config['co.auth_secret'],
                     'cache_provider' => 'file',
                     'cache_provider.file.directory' => $config['cache_dir'] . '/config',
                     'static_config_path' => $config['uploads_dir'] . '/config',

@@ -1,15 +1,12 @@
 <?php
 
-return array(
-	'enable_vhost_controllers' => false,
-	'exclude_vhosts' => [],
-	'debug' => false,
-	'account_data_cache' => 'none',
-	'object_cache' => 'file',
-	'redis' => [],
-	'classes' => [
-		'cache_dir' => '/tmp/cache',
-		'uploads_dir' => '/tmp/uploads'
-	],
-	'accountgateways.base_url_template' => ''
-);
+return [
+	'uploads' => true,
+	'client_authentication' => 'none',
+	'mode' => 'default',
+	'agws.data_cache' => 'file',
+	'log.target' => 'errorlog',
+	'log.level' => Monolog\Logger::DEBUG,
+	'cache_dir' => sys_get_temp_dir() . '/phpMAE/cache',
+	'uploads_dir' => sys_get_temp_dir() . '/phpMAE/uploads',
+];

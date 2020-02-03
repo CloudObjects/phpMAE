@@ -61,7 +61,9 @@ class ClassTestEnvRPCCommand extends AbstractObjectCommand {
         // Make RPC Call
         if ($client->call($input->getArgument('method'), $parameters)
                 && isset($client->result))
-            $output->writeln($client->result);
+            $output->writeln(is_string($client->result) 
+                ? $client->result
+                : json_encode($client->result, JSON_PRETTY_PRINT));
         else
             $output->writeln("<error>RPC has failed!</error>");
     }

@@ -1,0 +1,8 @@
+cache
+data
+directory-template
+node_modules
+uploads
+tests
+config.php
+.git

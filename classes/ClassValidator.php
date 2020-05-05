@@ -30,7 +30,8 @@ class ClassValidator {
       'Symfony\Component\EventDispatcher\EventSubscriberInterface',
       'Psr\Http\Message\RequestInterface',
       'Psr\Container\ContainerInterface',
-      'Psr\SimpleCache\CacheInterface'
+      'Psr\SimpleCache\CacheInterface',
+      'Psr\Http\Message\ResponseInterface'
     );
     $this->whitelisted_types = array(
       'ArrayObject', 'DateInterval', 'DateTime', 'DateTimeImmutable', 'DateTimeZone',

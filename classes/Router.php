@@ -47,7 +47,7 @@ class Router {
             $reader->getAllValuesNode($object, 'phpmae:hasRoute'),
             $reader->getAllValuesNode($object, 'agws:hasMethod')
         );
-        
+
         foreach ($routes as $r) {
             if (!$reader->hasProperty($r, 'wa:hasVerb') || !$reader->hasProperty($r, 'wa:hasPath'))
                 throw new PhpMAEException("Incomplete route configuration! Routes must have wa:hasVerb and wa:hasPath.");
@@ -100,6 +100,9 @@ class Router {
                                 $request->getHeaders(), $rpcBody);
 
                             $innerResponse = $engine->handle($innerRequest);
+                            if ($innerResponse->hasHeader('C-PhpMae-Passthru'))
+                                return $innerResponse;
+
                             $rpcResponse = json_decode($innerResponse->getBody(), true);
 
                             if (isset($rpcResponse['result'])) {

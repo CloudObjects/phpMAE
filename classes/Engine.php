@@ -12,7 +12,6 @@ use Psr\Container\ContainerInterface;
 use Psr\Http\Server\RequestHandlerInterface;
 use Slim\App;
 use Slim\Http\Headers, Slim\Http\Request, Slim\Http\Response, Slim\Http\Environment;
-use JsonRpc\Server as JsonRPC;
 use ML\IRI\IRI;
 use ML\JsonLD\Node;
 use Tuupola\Middleware\HttpBasicAuthentication;
@@ -160,7 +159,7 @@ class Engine implements RequestHandlerInterface {
      */
     private function executeJsonRPC(RequestInterface $request) {
         $transport = new JsonRPCTransport;
-        $server = new JsonRPC($this->runClass->get(self::SKEY), $transport);
+        $server = new JsonRPCServer($this->runClass->get(self::SKEY), $transport);
         $server->receive((string)$request->getBody());
         return $this->generateResponse($transport->getResponse());
     }

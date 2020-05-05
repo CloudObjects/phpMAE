@@ -16,9 +16,12 @@ class JsonRPCTransport {
     private $response;
 
     public function reply($data) {
-        $this->response = (new Response(200))
-            ->withHeader('Content-Type', 'application/json')
-            ->write($data);
+        if (is_a($data, Response::class))
+            $this->response = $data->withHeader('C-PhpMae-Passthru', '1');
+        else
+            $this->response = (new Response(200))
+                ->withHeader('Content-Type', 'application/json')
+                ->write($data);
     }
 
     public function receive() {

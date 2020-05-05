@@ -9,6 +9,7 @@ namespace CloudObjects\PhpMAE\DI;
 use ML\JsonLD\Node;
 use ML\IRI\IRI;
 use Psr\Container\ContainerInterface;
+use Psr\SimpleCache\CacheInterface;
 use DI\ContainerBuilder;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Cache\FilesystemCache;
@@ -22,6 +23,7 @@ use CloudObjects\PhpMAE\ObjectRetrieverPool, CloudObjects\PhpMAE\ClassRepository
     CloudObjects\PhpMAE\ConfigLoader, CloudObjects\PhpMAE\TwigTemplate,
     CloudObjects\PhpMAE\TwigTemplateFactory;
 use CloudObjects\PhpMAE\Exceptions\PhpMAEException;
+use CloudObjects\PhpMAE\Injectables\CacheBridge;
 
 /**
  * The DependencyInjector returns all the dependencies specified for a PHP class.
@@ -117,6 +119,13 @@ class DependencyInjector {
             },
             CryptoHelper::class => function(ContainerInterface $c) use ($namespaceCoid) {
                 return new CryptoHelper($c->get(ObjectRetriever::class), $namespaceCoid);
+            },
+            CacheInterface::class => function(ContainerInterface $c) use ($namespaceCoid) {
+                // Enable filesystem cache for custom data
+                return new CacheBridge(
+                    new FilesystemCache($this->container->get('cache_dir') . '/custom'),
+                    $namespaceCoid->getHost()
+                );
             }
         ];
 

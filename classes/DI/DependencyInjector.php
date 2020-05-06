@@ -10,10 +10,11 @@ use ML\JsonLD\Node;
 use ML\IRI\IRI;
 use Psr\Container\ContainerInterface;
 use Psr\SimpleCache\CacheInterface;
+use Psr\Http\Message\RequestInterface, Psr\Http\Message\ResponseInterface;
 use DI\ContainerBuilder;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Cache\FilesystemCache;
-use Psr\Http\Message\RequestInterface;
+use Slim\Http\Response;
 use CloudObjects\SDK\ObjectRetriever, CloudObjects\SDK\NodeReader, CloudObjects\SDK\COIDParser;
 use CloudObjects\SDK\AccountGateway\AccountContext;
 use CloudObjects\SDK\WebAPI\APIClientFactory;
@@ -126,7 +127,8 @@ class DependencyInjector {
                     new FilesystemCache($this->container->get('cache_dir') . '/custom'),
                     $namespaceCoid->getHost()
                 );
-            }
+            },
+            ResponseInterface::class => \DI\autowire(Response::class)
         ];
 
         $definitions = array_merge($definitions, $additionalDefinitions);

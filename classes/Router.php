@@ -101,7 +101,7 @@ class Router {
 
                             $innerResponse = $engine->handle($innerRequest);
                             if ($innerResponse->hasHeader('C-PhpMae-Passthru'))
-                                return $innerResponse;
+                                return $innerResponse->withoutHeader('C-PhpMae-Passthru');
 
                             $rpcResponse = json_decode($innerResponse->getBody(), true);
 

@@ -6,6 +6,7 @@
  
 namespace CloudObjects\PhpMAE;
 
+use Psr\Http\Message\ResponseInterface;
 use Slim\Http\Response;
 
 /**
@@ -16,7 +17,7 @@ class JsonRPCTransport {
     private $response;
 
     public function reply($data) {
-        if (is_a($data, Response::class))
+        if (is_a($data, ResponseInterface::class))
             $this->response = $data->withHeader('C-PhpMae-Passthru', '1');
         else
             $this->response = (new Response(200))

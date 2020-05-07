@@ -7,7 +7,9 @@
 namespace CloudObjects\PhpMAE\Injectables;
 
 use Psr\SimpleCache\CacheInterface, Psr\SimpleCache\CacheException;
+use Psr\Http\Message\MessageInterface;
 use Doctrine\Common\Cache\Cache;
+use GuzzleHttp\Psr7;
 
 class CacheBridge implements CacheInterface {
 
@@ -21,10 +23,27 @@ class CacheBridge implements CacheInterface {
 
     public function get($key, $default = null) {
         $value = $this->cache->fetch($this->prefix.$key);
+        if (is_array($value) && isset($value['container']) && isset($value['body'])
+                && is_object($value['container']) && is_a($value['container'], MessageInterface::class)
+                && is_string($value['body'])) {
+            // Convert message interface back
+            $stream = Psr7\stream_for($value['body']);
+            $value = $value['container']
+                ->withBody($stream);
+        }
         return ($value === false ? $default : $value);
     }
 
     public function set($key, $value, $ttl = null) {
+        if (is_object($value) && is_a($value, MessageInterface::class)) {
+            // Read full stream for caching
+            $stream = $value->getBody();
+            $value = [
+                'container' => $value,
+                'body' => $stream->getContents()
+            ];
+            $stream->rewind();
+        }
         return $this->cache->save($this->prefix.$key, $value, $ttl);
     }
 

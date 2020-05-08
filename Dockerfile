@@ -1,5 +1,4 @@
-FROM cloudobjects/php-app-base:7.1
-MAINTAINER "Lukas Rosenstock"
+FROM cloudobjects/php-app-base:latest
 
 # Add application code
 ADD / /var/www/app/

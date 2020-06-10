@@ -38,7 +38,7 @@ class ClassValidator {
       'DOMElement', 'Exception',
       'SimpleXMLElement',
       'ML\IRI\IRI',
-      'ML\JsonLD\JsonLD', 'ML\JsonLD\Node',
+      'ML\JsonLD\JsonLD', 'ML\JsonLD\Node', 'ML\JsonLD\Graph',
       'GuzzleHttp\Client',
       'GuzzleHttp\HandlerStack', 'GuzzleHttp\Middleware',
       'GuzzleHttp\Handler\CurlHandler',

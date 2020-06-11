@@ -47,6 +47,7 @@ class ClassValidator {
       'Dflydev\FigCookies\SetCookie',
       'CloudObjects\PhpMAE\ConfigLoader',
       'CloudObjects\PhpMAE\TwigTemplateFactory',
+      'CloudObjects\PhpMAE\DI\DynamicLoader',
       'CloudObjects\SDK\ObjectRetriever',
       'CloudObjects\SDK\NodeReader',
       'CloudObjects\SDK\AccountGateway\AccountContext',

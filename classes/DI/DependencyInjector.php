@@ -16,7 +16,8 @@ use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Cache\FilesystemCache;
 use Slim\Http\Response;
 use CloudObjects\SDK\ObjectRetriever, CloudObjects\SDK\NodeReader, CloudObjects\SDK\COIDParser;
-use CloudObjects\SDK\AccountGateway\AccountContext;
+use CloudObjects\SDK\AccountGateway\AAUIDParser,
+    CloudObjects\SDK\AccountGateway\AccountContext;
 use CloudObjects\SDK\WebAPI\APIClientFactory;
 use CloudObjects\SDK\Common\CryptoHelper;
 use CloudObjects\PhpMAE\ObjectRetrieverPool, CloudObjects\PhpMAE\ClassRepository,
@@ -198,6 +199,21 @@ class DependencyInjector {
                 throw new PhpMAEException("<".$object->getId()."> has an invalid dependency: unknown type!");
 
             $definitions[$reader->getFirstValueString($d, 'phpmae:hasKey')] = $keyedDependency;
+        }
+
+        if ($reader->hasProperty($object, 'phpmae:usesStaticAccountContext')) {
+            $accountDefinition = $reader->getFirstValueNode($object, 'phpmae:usesStaticAccountContext');
+            if (!$reader->hasProperty($accountDefinition, 'phpmae:hasAAUID')
+                    || !$reader->hasProperty($accountDefinition, 'phpmae:hasAccessToken'))
+                throw new PhpMAEException("Incomplete AccountContext definition.");
+            
+            $definitions[AccountContext::class] = function() use ($accountDefinition, $reader) {
+                return new AccountContext(
+                    AAUIDParser::fromString($reader->getFirstValueString($accountDefinition,
+                        'phpmae:hasAAUID')),
+                    $reader->getFirstValueString($accountDefinition, 'phpmae:hasAccessToken')
+                );
+            };
         }
 
         return $definitions;

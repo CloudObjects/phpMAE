@@ -8,8 +8,10 @@ before_script: make all
 script: vendor/bin/phpunit
 deploy:
   - provider: script
+    skip_cleanup: true
     script: sh ./deploy.sh
   - provider: releases
+    skip_cleanup: true
     token:
       secure: a+ivJ7bwK+00g2twjsRGQD7ibFJT/zYLBEx7GPeGsruyV2Wr1j7sWo4OJ66zwinusVeMSG3YU1T8zy/9xkKjDHP8vqJQbuo6NK24TpFFjmhen5zrSHyCO2eHSoRjTEiiY3+39csJ+rS1r3gGAdAhSGZbTmPHSTP3LGAfzb9ldKyiS8CF8hdEy0TvhIOo1S7zwRdiD8076LpC8IgvuWbabGw/ru//7DHmuoisx7EE+18Vc8yOZiUKByNSGjYlMNI7ZZ4esxO+MFNbmYR0fbQqz9isPMC7Ry30QwV28IpyRvO31I0rjndrFo5IezlOHBTC8SwlrTiMSHKMrdpJxF12ctZ7mm0TSIP1VQSrEU4DpQRGOkI22ngnOw6ABDWJZYW+dVPBQCIeFTzUs727itzxZa+F51KjmhiHAcUXtpCsNJdmKWy9ZuI4mkYhAn9FJx6qop2VmZHs72D65MRVnphHBL6ovNlfK6suS0rFHsmQ27qk7SbF1lR1Z9QrcetnGF7/8lgL+vnwDYcdffMyLK6hYEC5t4T0gpZZpO3M5j2Fdx+MMzXU4DMZj3SPDhM2qcrQDjuarh8lubDw67Ubl/lFthbxtuu6hJf0raG7Bg3iaUF9KkFgma/9SQ8KzWKhur7Ct440AjOOb0JhnvCf1LEoL9bI4p3S5s4/pEQyH7dlZlw=
     file: phpmae.phar

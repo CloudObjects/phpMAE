@@ -55,7 +55,9 @@ class ClassTestEnvCommand extends AbstractObjectCommand {
         }
     }
 
-    protected function execute(InputInterface $input, OutputInterface $output) {      
+    protected function execute(InputInterface $input, OutputInterface $output) {
+        $this->requireCloudObjectsCLI();
+
         $container = $this->getContainer();
         if (!$container->has('testenv.client'))
             throw new \Exception("No test environment configured.");

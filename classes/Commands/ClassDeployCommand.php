@@ -21,6 +21,8 @@ class ClassDeployCommand extends AbstractObjectCommand {
     }
 
     protected function execute(InputInterface $input, OutputInterface $output) {
+        $this->requireCloudObjectsCLI();
+        
         $this->parse($input->getArgument('coid'));
         $this->assertRDF();
         if (!in_array('coid://phpmae.cloudobjects.io/Class', $this->rdfTypes)

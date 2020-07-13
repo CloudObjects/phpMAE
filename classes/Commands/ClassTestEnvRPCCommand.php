@@ -33,7 +33,9 @@ class ClassTestEnvRPCCommand extends AbstractObjectCommand {
             ->addArgument('parameters', InputArgument::IS_ARRAY, 'The parameters for the method.');
     }
 
-    protected function execute(InputInterface $input, OutputInterface $output) {      
+    protected function execute(InputInterface $input, OutputInterface $output) {
+        $this->requireCloudObjectsCLI();
+
         $container = $this->getContainer();
         if (!$container->has('testenv.client'))
             throw new \Exception("No test environment configured.");

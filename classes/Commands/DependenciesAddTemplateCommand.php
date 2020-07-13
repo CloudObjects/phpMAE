@@ -26,6 +26,8 @@ class DependenciesAddTemplateCommand extends AbstractAddDependenciesCommand {
     }
 
     protected function execute(InputInterface $input, OutputInterface $output) {
+        $this->requireCloudObjectsCLI();
+
         $this->parse($input->getArgument('coid-target'));
         $this->dependencyPrecheck();
 

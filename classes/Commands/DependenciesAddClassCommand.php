@@ -25,6 +25,8 @@ class DependenciesAddClassCommand extends AbstractAddDependenciesCommand {
     }
 
     protected function execute(InputInterface $input, OutputInterface $output) {
+        $this->requireCloudObjectsCLI();
+
         $this->parse($input->getArgument('coid-target'));
         $this->dependencyPrecheck();
 
@@ -67,7 +69,8 @@ class DependenciesAddClassCommand extends AbstractAddDependenciesCommand {
         $output->writeln("    }");
         $output->writeln("");
         $output->writeln("3) Use \$this->".$key." wherever required.");
-        $output->writeln("   You can find the documentation for the available class methods on this page:");
+        $output->writeln("");
+        $output->writeln("You can find the documentation for the available class methods on this page:");
         $output->writeln("➡️  https://cloudobjects.io/".$coidClass->getHost().$coidClass->getPath());
         $output->writeln("");
     }

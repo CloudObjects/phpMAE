@@ -14,7 +14,14 @@ class TwigTemplateFactory {
         $this->cachePath = $cachePath;        
     }
 
-    public function fromString($string, $id = null) {
+    /**
+     * Creates a Twig template.
+     *
+     * @param string $string The template content.
+     * @param string $id An identifier that is used to cache the compiled template.
+     *                   If not provided, a hash of the template content is used instead.
+     */
+    public function fromString(string $string, string $id = null) {
         if ($id == null) $id = md5($string);
         return new TwigTemplate($id, $string, $this->cachePath);
     }

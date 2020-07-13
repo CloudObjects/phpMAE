@@ -6,3 +6,5 @@ uploads
 tests
 config.php
 .git
+phpmae-classes
+*.phar

@@ -201,6 +201,20 @@ class DependencyInjector {
             $definitions[$reader->getFirstValueString($d, 'phpmae:hasKey')] = $keyedDependency;
         }
 
+        $attachments = $reader->getAllValuesString($object, 'phpmae:usesAttachedFile');
+        foreach ($attachments as $a) {
+            $filename = basename($a);
+            $definitions[$filename] = function() use ($objectCoid, $filename) {
+                $content = $this->retrieverPool->getBaseObjectRetriever()
+                    ->getAttachment($objectCoid, $filename);
+                
+                if (substr($filename, -5) == '.json')
+                    $content = json_decode($content, true);
+
+                return $content;
+            };
+        }
+
         if ($reader->hasProperty($object, 'phpmae:usesStaticAccountContext')) {
             $accountDefinition = $reader->getFirstValueNode($object, 'phpmae:usesStaticAccountContext');
             if (!$reader->hasProperty($accountDefinition, 'phpmae:hasAAUID')

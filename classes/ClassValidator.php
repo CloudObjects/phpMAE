@@ -70,6 +70,9 @@ class ClassValidator {
     foreach ($this->whitelisted_interfaces as $i) {
       $interfaces[] = (isset($this->aliases[$i]))
         ? strtolower($this->aliases[$i]) : strtolower($i);
+      // Validation of some elements relies on interfaces also being added as types
+      $types[] = (isset($this->aliases[$i]))
+        ? strtolower($this->aliases[$i]) : strtolower($i);
     }
     foreach ($this->whitelisted_types as $t) {
       $types[] = (isset($this->aliases[$t]))

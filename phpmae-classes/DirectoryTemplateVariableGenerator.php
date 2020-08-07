@@ -59,10 +59,44 @@ class DirectoryTemplateVariableGenerator implements DirectoryTemplateVariableGen
             if (substr($matches[2][$i], 0, 2) == '__' && $matches[2][$i] != '__invoke')
                 continue;
 
+            // Get parameters and decode for test client
+            $paramString = trim($matches[3][$i]);
+            $paramsDecoded = [];
+            $canRun = true;
+            foreach (explode(',', $paramString) as $p) {
+                $p = trim($p);
+                if ($p[0] == '$') {
+                    // Parameter without type hint
+                    $paramsDecoded[] = [
+                        'type' => 'text',
+                        'name' => substr($p, 1)
+                    ];
+                } else {
+                    // Parameter with type hint
+                    $p = explode(' ', $p);
+                    $type = null;
+                    switch ($p[0]) {
+                        case "string":
+                            $type = 'text';
+                    }
+                    if (isset($type))
+                        $paramsDecoded[] = [
+                            'type' => $type,
+                            'name' => substr($p[1], 1)
+                        ];
+                    else
+                        // Type hint points to an object which we cannot provide via JSON-RPC
+                        $canRun = false;
+                }
+            }
+
+
             // List methods with parameters and comment
             $methods[] = [
                 'name' => $matches[2][$i],
-                'params' => trim($matches[3][$i]),
+                'params' => $paramString,
+                'fields' => $paramsDecoded,
+                'can_run' => $canRun,
                 'comment' => $commentString
             ];
         }

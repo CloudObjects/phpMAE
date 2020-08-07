@@ -14,7 +14,9 @@ use Slim\App;
 use Slim\Http\Headers, Slim\Http\Request, Slim\Http\Response, Slim\Http\Environment;
 use ML\IRI\IRI;
 use ML\JsonLD\Node;
-use Tuupola\Middleware\HttpBasicAuthentication;
+use Tuupola\Middleware\HttpBasicAuthentication,
+    Tuupola\Middleware\CorsMiddleware;
+use Relay\Relay;
 use Dflydev\FigCookies\SetCookie, Dflydev\FigCookies\FigResponseCookies;
 use CloudObjects\SDK\COIDParser, CloudObjects\SDK\NodeReader,
     CloudObjects\SDK\ObjectRetriever;
@@ -60,18 +62,39 @@ class Engine implements RequestHandlerInterface {
                 ->equals(self::CO_PUBLIC));
     }
 
+    private function getCORSMiddleware() {
+        $defaultConfig = [
+            'headers.allow' => [ 'Content-Type' ]
+        ];
+
+        if ($this->container->has('global_cors_origins')
+                && $this->container->get('global_cors_origins') == '*')
+            return new CorsMiddleware($defaultConfig); // every origin is allowed
+
+        $origins = $this->container->has('global_cors_origins')
+            ? explode('|', $this->container->get('global_cors_origins')) : [];
+
+        if (count($origins) == 0 || trim($origins[1]) == '')
+            return null; // no CORS enabled
+        
+        return new CorsMiddleware(array_merge($defaultConfig, [
+            'origin' => $origins
+        ])); // configured CORS middleware
+    }
+
     private function getAuthenticationMiddleware() {
         $authSchemes = explode('|', $this->container->get('client_authentication'));
         if (in_array('none', $authSchemes))
-            return new EmptyMiddleware; // no authentication required
+            return null; // no authentication required
 
         if (in_array('none:public_only', $authSchemes)
                 && $this->isObjectPublic())
-            return new EmptyMiddleware; // no authentication required
+            return null; // no authentication required
 
         $object = $this->object;
         return new HttpBasicAuthentication([
-            'secure' => $this->container->get('client_authentication_must_be_secure'),
+            'secure' => !$this->container->has('client_authentication_must_be_secure')
+                || $this->container->get('client_authentication_must_be_secure'),
             'realm' => 'phpMAE',
             'authenticator' => function($args) use ($object, $authSchemes) {
                 $authenticated = false;
@@ -208,8 +231,17 @@ class Engine implements RequestHandlerInterface {
                 $this->loadRunClass($coid, $request);
         
                 // Process a standard request for a phpMAE class
-                return $this->getAuthenticationMiddleware()
-                    ->process($request, $this);
+                $queue = [
+                    $this->getCORSMiddleware(),
+                    $this->getAuthenticationMiddleware(),
+                    $this
+                ];
+                $relay = new Relay(
+                    array_filter($queue, function ($q) {
+                        return $q !== null; 
+                    })
+                );
+                return $relay->handle($request);
         }
     }
 

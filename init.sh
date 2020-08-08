@@ -11,7 +11,7 @@ echo "<?php return array(" \
 	" 'mode' => '$MODE', " \
 	" 'client_authentication' => '$CLIENT_AUTH', " \
 	" 'client_authentication_must_be_secure' => false, " \
-	" 'global_cors_origins' => 'https://cloudobjects.io', "
+	" 'global_cors_origins' => 'https://cloudobjects.io', " \
 	" 'co.auth_ns' => '$CO_AUTH_NS', " \
 	" 'co.auth_secret' => '$CO_AUTH_SECRET', " \
 	" 'agws.data_cache' => 'file', " \

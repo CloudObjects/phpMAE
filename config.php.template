@@ -26,6 +26,21 @@ return [
 	'client_authentication' => 'none',
 
 	/**
+	 * Choose whether authentication is only accepted over TLS (HTTPS) connections:
+	 * - true: Credentials are accepted only over HTTPS; this is the default value.
+	 * - false: Credentials are also accepted over insecure connections. This should only
+	 *   be used for staging environments or local network deployments.
+	 */
+	'client_authentication_must_be_secure' => false,
+
+	/**
+	 * Choose whether CORS requests are possible and the origins that are allowed:
+	 * - empty string / array: No CORS
+	 * - '*': All origins allowed.
+	 * - Multiple origins can be separated with the pipe (|).
+	'global_cors_origins' => '',
+
+	/**
 	 * Choose an operation mode of this phpMAE instance.
 	 * - default: Runs classes as specified in the request URI. Routing functionality is disabled.
 	 * - router:<COID>: Mounts the router specified by the COID. No other classes can be run.

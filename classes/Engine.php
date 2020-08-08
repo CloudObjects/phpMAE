@@ -74,7 +74,7 @@ class Engine implements RequestHandlerInterface {
         $origins = $this->container->has('global_cors_origins')
             ? explode('|', $this->container->get('global_cors_origins')) : [];
 
-        if (count($origins) == 0 || trim($origins[1]) == '')
+        if (count($origins) == 0 || trim($origins[0]) == '')
             return null; // no CORS enabled
         
         return new CorsMiddleware(array_merge($defaultConfig, [

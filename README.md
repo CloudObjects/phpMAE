@@ -1,6 +1,6 @@
 # phpMAE
 
-[![Build Status](https://travis-ci.org/CloudObjects/phpMAE.svg?branch=master)](https://travis-ci.org/CloudObjects/phpMAE) [![Join the chat at https://gitter.im/CloudObjects/phpMAE](https://badges.gitter.im/CloudObjects/phpMAE.svg)](https://gitter.im/CloudObjects/phpMAE?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
+[![Build Status](https://travis-ci.org/CloudObjects/phpMAE.svg?branch=main)](https://travis-ci.org/CloudObjects/phpMAE) [![Join the chat at https://gitter.im/CloudObjects/phpMAE](https://badges.gitter.im/CloudObjects/phpMAE.svg)](https://gitter.im/CloudObjects/phpMAE?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
 
 phpMAE, the *PHP* *M*icro *A*PI *E*ngine, is an opinionated serverless framework for the development, execution, and deployment of small-sized stateless Web APIs, so-called "Micro APIs".
 

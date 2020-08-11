@@ -37,6 +37,6 @@ jobs:
         task: 'install:stack coid://phpmae.cloudobjects.io/DefaultStack'
 
     - name: Deploy with fly
-    - uses: superfly/flyctl-actions@1.1
+      uses: superfly/flyctl-actions@1.1
       with:
         args: deploy

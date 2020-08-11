@@ -164,7 +164,7 @@ class DependencyInjector {
                         $this->retrieverPool->getObjectRetriever($namespaceCoid->getHost()),
                         $namespaceCoid
                     );
-                    return $apiClientFactory->getClientWithCOID($apiCoid);
+                    return $apiClientFactory->getClientWithCOID($apiCoid, true);
                 };
             } else
             if ($reader->hasType($d, 'phpmae:ClassDependency')) {

@@ -189,7 +189,7 @@ class RoboFile extends \Robo\Tasks {
             ]))
             ->run();
             
-        $this->taskComposerInstall()
+        $this->taskComposerInstall(__DIR__.'/composer.phar')
             ->dir($stackDir)
             ->run();
 

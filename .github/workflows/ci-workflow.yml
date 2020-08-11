@@ -30,6 +30,9 @@ jobs:
 
     - name: Create stacks directory
       run: mkdir stacks
+
+    - name: Make composer available to robo
+      run: cp `which composer` ./composer.phar
       
     - name: Install dependencies in default stack
       uses: Accelys/action-robo@master

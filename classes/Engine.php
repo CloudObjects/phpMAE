@@ -27,6 +27,9 @@ use CloudObjects\PhpMAE\Exceptions\PhpMAEException;
 class Engine implements RequestHandlerInterface {
 
     const SKEY = '__self';
+    
+    const PREPARE_TIME_LIMIT = 2;
+    const CLASS_TIME_LIMIT = 5;
 
     const CO_PUBLIC = 'coid://cloudobjects.io/Public';
 
@@ -134,6 +137,8 @@ class Engine implements RequestHandlerInterface {
                 $input = [];    
         }
 
+        set_time_limit($this->container->has('execution_time_limit')
+            ? $this->container->get('execution_time_limit') : self::CLASS_TIME_LIMIT);
         $result = $this->runClass->get(self::SKEY)->__invoke($input);
 
         return $this->generateResponse($result);
@@ -183,6 +188,8 @@ class Engine implements RequestHandlerInterface {
     private function executeJsonRPC(RequestInterface $request) {
         $transport = new JsonRPCTransport;
         $server = new JsonRPCServer($this->runClass->get(self::SKEY), $transport);
+        set_time_limit($this->container->has('execution_time_limit')
+            ? $this->container->get('execution_time_limit') : self::CLASS_TIME_LIMIT);
         $server->receive((string)$request->getBody());
         return $this->generateResponse($transport->getResponse());
     }
@@ -285,6 +292,8 @@ class Engine implements RequestHandlerInterface {
      * Create main request and execute.
      */
     public function run() {
+        set_time_limit(self::PREPARE_TIME_LIMIT);
+
         $env = new Environment($_SERVER);
         $request = Request::createFromEnvironment($env);
     

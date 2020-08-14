@@ -76,6 +76,12 @@ return [
 	'log.target' => 'errorlog',
 	'log.level' => Monolog\Logger::DEBUG,
 
+	/**
+	 * Specifies a maximum time for script execution. Time limit starts
+	 * from the running class.
+	 */
+	'execution_time_limit' => 10
+
 	'cache_dir' => __DIR__.'/cache',
 	'uploads_dir' => __DIR__.'/uploads',
 ];

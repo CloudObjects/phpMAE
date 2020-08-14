@@ -193,8 +193,8 @@ class RoboFile extends \Robo\Tasks {
             ->dir($stackDir)
             ->run();
 
-        // Sanitize stack
-        $this->sanitizeDependencies($stackDir);
+        // Sanitize stack - temporarily disabled due to issues!
+        //$this->sanitizeDependencies($stackDir);
     }
 
 }

@@ -4,20 +4,20 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "a824ae3c9c84c75f2392d65f91603bbf",
+    "content-hash": "70440caef53a392ae8a872d66a49bc90",
     "packages": [
         {
             "name": "cloudobjects/rdfutilities",
-            "version": "dev-master",
+            "version": "dev-main",
             "source": {
                 "type": "git",
                 "url": "https://github.com/CloudObjects/RDFUtilities.git",
-                "reference": "fad7e832a225b89828468f7869d4412f90caddb5"
+                "reference": "01a0f861acc9651ac0f3f88004dbc3ee5e35c865"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/CloudObjects/RDFUtilities/zipball/fad7e832a225b89828468f7869d4412f90caddb5",
-                "reference": "fad7e832a225b89828468f7869d4412f90caddb5",
+                "url": "https://api.github.com/repos/CloudObjects/RDFUtilities/zipball/01a0f861acc9651ac0f3f88004dbc3ee5e35c865",
+                "reference": "01a0f861acc9651ac0f3f88004dbc3ee5e35c865",
                 "shasum": ""
             },
             "require": {
@@ -50,20 +50,20 @@
                 "arc2",
                 "cloudobjects"
             ],
-            "time": "2019-08-13T13:33:11+00:00"
+            "time": "2020-08-11T15:11:46+00:00"
         },
         {
             "name": "cloudobjects/sdk",
-            "version": "dev-master",
+            "version": "dev-main",
             "source": {
                 "type": "git",
                 "url": "https://github.com/CloudObjects/CloudObjects-PHP-SDK.git",
-                "reference": "5350afae543cc3a42fd53616474de47cb287e428"
+                "reference": "42b82724a9bcbd93e2170764b98fce02c8c809f4"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/CloudObjects/CloudObjects-PHP-SDK/zipball/5350afae543cc3a42fd53616474de47cb287e428",
-                "reference": "5350afae543cc3a42fd53616474de47cb287e428",
+                "url": "https://api.github.com/repos/CloudObjects/CloudObjects-PHP-SDK/zipball/42b82724a9bcbd93e2170764b98fce02c8c809f4",
+                "reference": "42b82724a9bcbd93e2170764b98fce02c8c809f4",
                 "shasum": ""
             },
             "require": {
@@ -108,7 +108,7 @@
                 "cloudobjects",
                 "sdk"
             ],
-            "time": "2020-08-11T14:52:38+00:00"
+            "time": "2020-08-14T19:48:53+00:00"
         },
         {
             "name": "corveda/php-sandbox",
@@ -4824,6 +4824,7 @@
             "keywords": [
                 "tokenizer"
             ],
+            "abandoned": true,
             "time": "2017-11-27T05:48:46+00:00"
         },
         {

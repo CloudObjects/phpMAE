@@ -11,6 +11,8 @@ use Psr\Http\Message\RequestInterface, Psr\Http\Message\ResponseInterface;
 use Psr\Container\ContainerInterface;
 use Slim\App;
 use Slim\Http\Environment, Slim\Http\Uri, Slim\Http\Response, Slim\Http\Request;
+use GuzzleHttp\Client;
+use GuzzleHttp\Exception\BadResponseException;
 use GuzzleHttp\Psr7\ServerRequest;
 use ML\IRI\IRI;
 use ML\JsonLD\Node, ML\JsonLD\JsonLD;
@@ -116,7 +118,21 @@ class Router {
                         }
                     } elseif ($reader->hasProperty($r, 'phpmae:redirectsToURL')) {
                         return (new Response)->withRedirect($reader->getFirstValueString($r, 'phpmae:redirectsToURL'));
-                    } else {
+                    } elseif ($reader->hasProperty($r, 'phpmae:proxiesRequestsToBaseURL')) {
+                        $client = new Client([
+                            'base_uri' => $reader->getFirstValueString($r, 'phpmae:proxiesRequestsToBaseURL')
+                        ]);
+                        $uri = $request->getUri();
+                        try {
+                            return $client->request($request->getMethod(),
+                                $uri->getPath() . ($uri->getQuery() != '' ? '?'.$uri->getQuery() : ''), [
+                                    'headers' => $request->getHeaders(),
+                                    'body' => $request->getBody()
+                                ]);
+                        } catch (BadResponseException $e) {
+                            return $e->getResponse();
+                        }
+                     }else {
                         // Route has no implementation
                         return (new Response(501))->write("Route implementation not available or no access granted.");
                     }

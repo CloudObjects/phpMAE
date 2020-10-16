@@ -58,7 +58,7 @@ class Router {
             $retriever = $this->getObjectRetriever(new IRI($object->getId()));
             $app->map([ $reader->getFirstValueString($r, 'wa:hasVerb') ],
                 $reader->getFirstValueString($r, 'wa:hasPath'),
-                function(RequestInterface $request, ResponseInterface $response, $args) use ($r, $reader, $engine, $retriever) {
+                function(RequestInterface $request, ResponseInterface $response, $args) use ($r, $reader, $engine, $retriever, $object) {
                     if ($reader->hasProperty($r, 'phpmae:runsClass')) {
                         // Route is mapped to a class
                         $engine->loadRunClass($reader->getFirstValueIRI($r, 'phpmae:runsClass'), $request);
@@ -116,9 +116,13 @@ class Router {
                             // Generic class execution (invokable)
                             return $engine->handle($request, $params);
                         }
+
                     } elseif ($reader->hasProperty($r, 'phpmae:redirectsToURL')) {
+                        // Route to redirect to an external URL
                         return (new Response)->withRedirect($reader->getFirstValueString($r, 'phpmae:redirectsToURL'));
+
                     } elseif ($reader->hasProperty($r, 'phpmae:proxiesRequestsToBaseURL')) {
+                        // Route to proxy requests to an external URL
                         $client = new Client([
                             'base_uri' => $reader->getFirstValueString($r, 'phpmae:proxiesRequestsToBaseURL')
                         ]);
@@ -132,7 +136,17 @@ class Router {
                         } catch (BadResponseException $e) {
                             return $e->getResponse();
                         }
-                     }else {
+
+                    } elseif ($reader->hasProperty($r, 'phpmae:servesStaticFileAttachment')) {
+                        // Rule to serve an attached file
+                        $attachmentContent = $retriever->getAttachment(new IRI($object->getId()),
+                            $reader->getFirstValueString($r, 'phpmae:servesStaticFileAttachment'));
+                        if (!isset($attachmentContent))
+                            return (new Response(501))->write("Requested static file attachment cannot be found.");
+
+                        return $engine->generateResponse($attachmentContent);
+
+                    } else {
                         // Route has no implementation
                         return (new Response(501))->write("Route implementation not available or no access granted.");
                     }

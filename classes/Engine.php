@@ -37,6 +37,7 @@ class Engine implements RequestHandlerInterface {
     private $classRepository;
     private $slim;
     private $container;
+    private $reader;
 
     private $object;
     private $runClass;
@@ -49,19 +50,24 @@ class Engine implements RequestHandlerInterface {
         $this->classRepository = $classRepository;
         $this->slim = $slim;
         $this->container = $container;
+        $this->reader = new NodeReader([
+            'prefixes' => [
+                'co' => 'coid://cloudobjects.io/',
+                'phpmae' => 'coid://phpmae.cloudobjects.io/'
+            ]
+        ]);
 
         register_shutdown_function(function(ErrorHandler $handler) {
             $handler->getErrorResponse();
 		}, $errorHandler); // see: http://stackoverflow.com/questions/4410632/handle-fatal-errors-in-php-using-register-shutdown-function
     }
 
-    private function isObjectPublic() {
-        $reader = new NodeReader([ 'prefixes' => [ 'co' => 'coid://cloudobjects.io/' ]]);
-        return ($reader->hasProperty($this->object, 'co:isVisibleTo')
-            && $reader->getFirstValueIRI($this->object, 'co:isVisibleTo')
+    private function isObjectPublic() {        
+        return ($this->reader->hasProperty($this->object, 'co:isVisibleTo')
+            && $this->reader->getFirstValueIRI($this->object, 'co:isVisibleTo')
                 ->equals(self::CO_PUBLIC)
-            && $reader->hasProperty($this->object, 'co:permitsUsageTo')
-            && $reader->getFirstValueIRI($this->object, 'co:permitsUsageTo')
+            && $this->reader->hasProperty($this->object, 'co:permitsUsageTo')
+            && $this->reader->getFirstValueIRI($this->object, 'co:permitsUsageTo')
                 ->equals(self::CO_PUBLIC));
     }
 
@@ -72,11 +78,16 @@ class Engine implements RequestHandlerInterface {
 
         if ($this->container->has('global_cors_origins')
                 && $this->container->get('global_cors_origins') == '*')
-            return new CorsMiddleware($defaultConfig); // every origin is allowed
+            return new CorsMiddleware($defaultConfig); // every origin is allowed, globally
 
-        $origins = $this->container->has('global_cors_origins')
-            ? explode('|', $this->container->get('global_cors_origins')) : [];
+        if ($this->reader->getFirstValueString($this->object, 'phpmae:allowsCORSOrigin') == '*')
+            return new CorsMiddleware($defaultConfig); // every origin is allowed, by class
 
+        $origins = $this->reader->getAllValuesString($this->object, 'phpmae:allowsCORSOrigin');
+            
+        if ($this->container->has('global_cors_origins'))
+            $origins = array_merge($origins, explode('|', $this->container->get('global_cors_origins')));
+        
         if (count($origins) == 0 || trim($origins[0]) == '')
             return null; // no CORS enabled
         

@@ -1,0 +1,1 @@
+cp patch/Node.php vendor/ml/json-ld/Node.php

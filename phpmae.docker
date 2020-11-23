@@ -1,0 +1,3 @@
+#!/usr/bin/php
+<?php
+include("/var/www/app/phpmae.php");

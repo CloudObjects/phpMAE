@@ -27,4 +27,8 @@ class FunctionExecutor {
             throw new PhpMAEException("A package attempted to call the non-whitelisted PHP function ".$call[0]."()!");
     }
 
+    public static function returnNull() {
+        return null;
+    }
+
 }

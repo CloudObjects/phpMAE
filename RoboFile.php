@@ -60,18 +60,16 @@ class RoboFile extends \Robo\Tasks {
             ->in($directory)
             ->notPath('composer');
 
+        $forbiddenFunctions = [ 'file_get_contents', 'file_put_contents', 'fopen' ];
+
         foreach ($finder as $file) {
             try {
-                // Reinitialize sandbox for every file to prevent memory leaks
-                $sandbox = new \CloudObjects\PhpMAE\Sandbox\CustomizedSandbox;
-                $parser = (new \PhpParser\ParserFactory)->create(\PhpParser\ParserFactory::PREFER_PHP7);
-                $traverser = new \PhpParser\NodeTraverser;
-                $printer = new \PhpParser\PrettyPrinter\Standard;        
-                $traverser->addVisitor(new \CloudObjects\PhpMAE\Sandbox\FunctionExecutorWrapperVisitor($sandbox));
-
-                $ast = $parser->parse(file_get_contents($file));
-                $traverser->traverse($ast);
-                file_put_contents($file, $printer->prettyPrintFile($ast));
+                $content = file_get_contents($file);
+                foreach ($forbiddenFunctions as $func) {
+                    $content = preg_replace('/\b(?<!\>)'.$func.'\(/', '\CloudObjects\PhpMAE\Sandbox\FunctionExecutor::returnNull(', $content);
+                    $content = str_replace('\\\CloudObjects', '\CloudObjects', $content);
+                }
+                file_put_contents($file, $content);
             } catch (\Exception $e) {
                 $this->say($file.': '.get_class($e).' '.$e->getMessage());
             }
@@ -193,8 +191,8 @@ class RoboFile extends \Robo\Tasks {
             ->dir($stackDir)
             ->run();
 
-        // Sanitize stack - temporarily disabled due to issues!
-        //$this->sanitizeDependencies($stackDir);
+        // Sanitize stack
+        $this->sanitizeDependencies($stackDir);
     }
 
 }

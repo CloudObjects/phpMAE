@@ -8,6 +8,8 @@ const cssPurge = require('gulp-css-purge');
 gulp.task('scripts', function() {
     // inspired by https://stackoverflow.com/a/23507836
     return streamqueue({ objectMode: true },
+        gulp.src('./node_modules/jquery/dist/jquery.min.js'),
+        gulp.src('./node_modules/materialize-css/dist/js/materialize.js'),
         gulp.src('./node_modules/codemirror/lib/codemirror.js'),
         gulp.src('./node_modules/codemirror/mode/clike/clike.js'),
         gulp.src('./node_modules/codemirror/addon/edit/matchbrackets.js'),
@@ -26,7 +28,7 @@ gulp.task('scripts', function() {
 // Concatenate and minify stylesheets
 gulp.task('styles', function() {
     return streamqueue({ objectMode: true },
-        gulp.src('./node_modules/purecss/build/pure.css'),
+        gulp.src('./node_modules/materialize-css/dist/css/materialize.css'),
         gulp.src('./static/app.css'),
         //gulp.src('./node_modules/codemirror/lib/codemirror.css'),
     )

@@ -3,14 +3,15 @@
   "version": "1.0.0",
   "description": "Static files for phpMAE interactive mode.",
   "dependencies": {
-    "codemirror": "^5.50.2",
+    "codemirror": "^5.60.0",
     "gulp": "^4.0.2",
     "gulp-concat": "^2.6.1",
     "gulp-css-purge": "^3.0.9",
     "gulp-uglify": "^3.0.2",
     "lodash.template": ">=4.5.0",
-    "purecss": "^1.0.1",
-    "streamqueue": "^1.1.2"
+    "materialize-css": "^1.0.0",
+    "streamqueue": "^1.1.2",
+    "jquery": "^3.4.1"
   },
   "devDependencies": {},
   "scripts": {

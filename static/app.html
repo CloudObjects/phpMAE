@@ -6,6 +6,14 @@
         <link rel="stylesheet" type="text/css" href="codemirror.css" />
     </head>
     <body>
+        <nav>
+            <div class="nav-wrapper">
+                <div class="brand-logo right">phpMAE</div>
+                <ul>
+                    <li><a href="javascript:phpMAE.signin()">Sign in with CloudObjects</a></li>
+                </ul>
+            </div>
+        </nav>
         <div id="phpmae-main-grid" class="row">
             <div class="phpmae-element col s8">
                 <ul class="tabs">
@@ -16,32 +24,31 @@
                 <div id="phpmae-config-editor"></div>
             </div>
             <div class="phpmae-element col s4">
-                <form class="pure-form pure-form-aligned" onsubmit="execute(this); return false;">
-                    <fieldset>
-                        <div class="pure-control-group">
-                            <label for="name">Class</label>
-                            <input name="class" type="text" readonly="readonly" value="MyPhpMAEClass" />    
+                <form onsubmit="phpMAE.execute(this); return false;" class="row">
+                    <div class="input-field col s12">
+                        <label>Class</label>
+                        <input name="class" type="text" readonly="readonly" value="MyPhpMAEClass" />    
+                    </div>
+                    <div class="input-field col s12">                        
+                        <select name="function">
+                            <option value="hello">hello()</option>
+                        </select>
+                        <label>Function</label>
+                    </div>
+                    <div id="phpmae-parameter-container">
+                        <div class="input-field col s12">
+                            <label for="name">$name</label>
+                            <input name="name" type="text" value="">
                         </div>
-                        <div class="pure-control-group">
-                            <label for="name">Function</label>
-                            <select name="function" onchange="updateParameters(this.value)">
-                                <option value="hello">hello()</option>
-                            </select>
-                        </div>
-                        <div id="phpmae-parameter-container">
-                            <div class="pure-control-group">
-                                <label for="name">$name</label>
-                                <input name="name" type="text" value="">
-                            </div>
-                        </div>
-                        <div class="pure-controls">
-                            <button type="submit" class="pure-button pure-button-primary">Execute</button>
-                        </div>
-                    </fieldset>
+                    </div>
+                    <div class="input-field col s12">
+                        <button type="submit" class="waves-effect waves-light btn">Execute</button>
+                    </div>
                 </form>
                 <div id="phpmae-result"></div>
             </div>
         </div>
         <script type="application/javascript" src="scripts.js"></script>
+        </main>
     </body>
 </html>

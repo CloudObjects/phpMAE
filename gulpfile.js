@@ -3,6 +3,7 @@ const concat = require('gulp-concat');
 const streamqueue = require('streamqueue');
 const uglify = require('gulp-uglify');
 const cssPurge = require('gulp-css-purge');
+const sass = require('gulp-sass');
 
 // Concatenate and minify scripts
 gulp.task('scripts', function() {
@@ -28,7 +29,8 @@ gulp.task('scripts', function() {
 // Concatenate and minify stylesheets
 gulp.task('styles', function() {
     return streamqueue({ objectMode: true },
-        gulp.src('./node_modules/materialize-css/dist/css/materialize.css'),
+        gulp.src('./scss/materialize-customized.scss')
+            .pipe(sass().on('error', sass.logError)),
         gulp.src('./static/app.css'),
         //gulp.src('./node_modules/codemirror/lib/codemirror.css'),
     )

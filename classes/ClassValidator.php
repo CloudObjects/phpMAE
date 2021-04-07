@@ -121,7 +121,7 @@ class ClassValidator {
         && isset($ast[0]->implements)) {
 
       if ($ast[0]->name != COIDParser::getName($coid))
-        throw new PhpMAEException("The PHP classname (".$ast[0]->name.") doesn't match match the name segment of the COID (".COIDParser::getName($coid).").");
+        throw new PhpMAEException("The PHP classname (".$ast[0]->name.") doesn't match the name segment of the COID (".COIDParser::getName($coid).").");
 
       $interfaces = array();
       foreach ($ast[0]->implements as $i) {
@@ -180,7 +180,7 @@ class ClassValidator {
     if (count($ast)==1 && get_class($ast[0])=='PhpParser\Node\Stmt\Interface_') {
 
       if ($ast[0]->name != COIDParser::getName($coid))
-        throw new PhpMAEException("The PHP interface name (".$ast[0]->name.") doesn't match match the name segment of the COID (".COIDParser::getName($coid).").");
+        throw new PhpMAEException("The PHP interface name (".$ast[0]->name.") doesn't match the name segment of the COID (".COIDParser::getName($coid).").");
 
       // Allow self-references
       $this->whitelisted_types[] = strtolower($ast[0]->name);

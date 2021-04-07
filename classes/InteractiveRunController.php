@@ -6,9 +6,12 @@
  
 namespace CloudObjects\PhpMAE;
 
+use Exception;
 use Psr\Container\ContainerInterface;
 use Psr\Http\Message\RequestInterface;
-use ML\JsonLD\Node, ML\JsonLD\Graph;
+use ML\JsonLD\JsonLD;
+use CloudObjects\SDK\COIDParser;
+use CloudObjects\Utilities\RDF\Arc2JsonLdConverter;
 use GuzzleHttp\Psr7\ServerRequest;
 use CloudObjects\PhpMAE\Exceptions\PhpMAEException;
 
@@ -29,14 +32,39 @@ class InteractiveRunController {
 			&& $this->container->get('interactive_run') === true);
 	}
 
-	private function createTemporaryClassObject($className) {
-		$graph = new Graph;
-		$type = new Node($graph, 'coid://phpmae.cloudobjects.io/Class');
-		
-		$object = new Node($graph, 'coid://'.$this->session.'.phpmae/' . $className);
-		$object->setType($type);
+	private function createTemporaryClassObject($className, $config) {
+		// Parse RDF/XML config
+		$parser = \ARC2::getRDFXMLParser();
+		$parser->parse('', $config);
+		$index = $parser->getSimpleIndex(false);
 
-		return $object;
+		$rewrittenIndex = [];
+		$targetName = '';
+		foreach ($index as $subject => $data) {
+			$coid = COIDParser::fromString($subject);
+			if (COIDParser::getName($coid) == $className) {
+				// Rewrite namespace to not interfere with production classes
+				$targetName = 'coid://'.$this->session.'.phpmae'.$coid->getPath();
+				$rewrittenIndex[$targetName] = $data;
+			} else
+				$rewrittenIndex[$subject] = $data;
+		}
+
+		if (empty($targetName))
+			throw new Exception("Could not find configuration for <".$className.">.");
+
+		// Convert to JsonLD as required by the CloudObjects SDK
+		$document = JsonLD::getDocument(
+			JsonLD::fromRdf(Arc2JsonLdConverter::indexToQuads($rewrittenIndex))
+		);
+
+		// Find object
+		$node = $document->getGraph()->getNode($targetName);
+
+		if (!isset($node))
+			throw new Exception("Invalid object configuration.");
+
+		return $node;		
 	}
 
 	public function handle(RequestInterface $request, Engine $engine) {
@@ -53,11 +81,11 @@ class InteractiveRunController {
 			: uniqid();
 
 		try {
-			$object = $this->createTemporaryClassObject($runData['class']);
+			$object = $this->createTemporaryClassObject($runData['class'], $runData['config']);
 			$engine->setRunClass($this->classRepository
 				->createInstance($object, $request, [], $runData['sourceCode'])
 			);
-		} catch (\Exception $e)	 {
+		} catch (Exception $e)	 {
 			// Catch validation errors
 			return $engine->generateResponse([
 				'status' => 'error',

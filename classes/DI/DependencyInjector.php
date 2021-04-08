@@ -23,7 +23,7 @@ use CloudObjects\SDK\Common\CryptoHelper;
 use CloudObjects\PhpMAE\ObjectRetrieverPool, CloudObjects\PhpMAE\ClassRepository,
     CloudObjects\PhpMAE\ErrorHandler, CloudObjects\PhpMAE\Engine,
     CloudObjects\PhpMAE\ConfigLoader, CloudObjects\PhpMAE\TwigTemplate,
-    CloudObjects\PhpMAE\TwigTemplateFactory;
+    CloudObjects\PhpMAE\TwigTemplateFactory, CloudObjects\PhpMAE\InteractiveRunController;
 use CloudObjects\PhpMAE\Exceptions\PhpMAEException;
 use CloudObjects\PhpMAE\Injectables\CacheBridge;
 
@@ -84,7 +84,13 @@ class DependencyInjector {
         $dependencies = $reader->getAllValuesNode($object, 'phpmae:hasDependency');
         
         $objectCoid = new IRI($object->getId());
-        $namespaceCoid = COIDParser::getNamespaceCOID($objectCoid);        
+        $namespaceCoid = COIDParser::getNamespaceCOID($objectCoid);
+        if (substr($namespaceCoid->getHost(), -7) == '.phpmae') {
+            $originalHostname = $this->container->get(InteractiveRunController::class)
+                ->getOriginalHostname($namespaceCoid->getHost());
+            $realNamespaceCoid = isset($originalHostname) ? new IRI('coid://'.$originalHostname) : $namespaceCoid;
+        } else
+            $realNamespaceCoid = $namespaceCoid;
 
         $definitions = [
             'cookies' => \DI\create(ArrayCollection::class),
@@ -158,11 +164,11 @@ class DependencyInjector {
                 if (!isset($apiCoid))
                     throw new PhpMAEException("<".$object->getId()."> has an invalid dependency: WebAPIDependency without API!");
 
-                $keyedDependency = function() use ($apiCoid, $namespaceCoid, $object) {
+                $keyedDependency = function() use ($apiCoid, $realNamespaceCoid, $object) {
                     $apiCoid = new IRI($apiCoid);
                     $apiClientFactory = new APIClientFactory(
-                        $this->retrieverPool->getObjectRetriever($namespaceCoid->getHost()),
-                        $namespaceCoid
+                        $this->retrieverPool->getObjectRetriever($realNamespaceCoid->getHost()),
+                        $realNamespaceCoid
                     );
                     return $apiClientFactory->getClientWithCOID($apiCoid, true);
                 };

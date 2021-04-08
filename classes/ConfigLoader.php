@@ -17,6 +17,7 @@ use CloudObjects\SDK\ObjectRetriever, CloudObjects\SDK\COIDParser,
 class ConfigLoader {
 
     private $validSources;
+    private $retriever;
     private $reader;
 
     public function __construct(array $validSources, ObjectRetriever $retriever) {

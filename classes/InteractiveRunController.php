@@ -11,6 +11,7 @@ use Psr\Container\ContainerInterface;
 use Psr\Http\Message\RequestInterface;
 use ML\JsonLD\JsonLD;
 use CloudObjects\SDK\COIDParser;
+use CloudObjects\SDK\AccountGateway\AccountContext, CloudObjects\SDK\AccountGateway\AAUIDParser;
 use CloudObjects\Utilities\RDF\Arc2JsonLdConverter;
 use GuzzleHttp\Psr7\ServerRequest;
 use CloudObjects\PhpMAE\Exceptions\PhpMAEException;
@@ -19,6 +20,9 @@ class InteractiveRunController {
 
 	private $classRepository;
 	private $session;
+	private $mapBack = [];
+	private $accountContext;
+	private $domains;
 
 	public function __construct(ClassRepository $classRepository,
 			ContainerInterface $container) {
@@ -30,6 +34,24 @@ class InteractiveRunController {
 	public function isEnabled() {
 		return ($this->container->has('interactive_run')
 			&& $this->container->get('interactive_run') === true);
+	}
+
+	public function getOriginalHostname($sessionHostname) {
+		if (!isset($this->accountContext)) {
+			// We cannot access original hostnames for anonymous users
+			return null;
+		}
+
+		if (!isset($this->domains)) {
+			// Get domains that the user has access to
+			$apiResponse = json_decode($this->accountContext->getClient()->get('dr/')
+				->getBody(), true);
+			$this->domains = isset($apiResponse['domains']) ? $apiResponse['domains'] : [];
+		}
+		
+		$hostname = @$this->mapBack[$sessionHostname];
+		return (isset($hostname) && in_array($hostname, $this->domains))
+			? $hostname : null;
 	}
 
 	private function createTemporaryClassObject($className, $config) {
@@ -45,6 +67,7 @@ class InteractiveRunController {
 			if (COIDParser::getName($coid) == $className) {
 				// Rewrite namespace to not interfere with production classes
 				$targetName = 'coid://'.$this->session.'.phpmae'.$coid->getPath();
+				$this->mapBack[$this->session.'.phpmae'] = $coid->getHost();
 				$rewrittenIndex[$targetName] = $data;
 			} else
 				$rewrittenIndex[$subject] = $data;
@@ -79,6 +102,13 @@ class InteractiveRunController {
 		$this->session = isset($runData['session'])
 			? $runData['session']
 			: uniqid();
+
+		if (isset($runData['aauid']) && isset($runData['access_token'])) {
+			// We have user credentials
+			$this->accountContext = new AccountContext(
+				AAUIDParser::fromString($runData['aauid']), $runData['access_token']
+			);
+		}
 
 		try {
 			$object = $this->createTemporaryClassObject($runData['class'], $runData['config']);

@@ -40,6 +40,8 @@ $(function() {
 
     window.phpMAE = {
         execute : function(form) {
+            $(form).find('button').addClass('disabled');
+
             var request = {
                 config : configEditor.getValue(),
                 sourceCode : codeEditor.getValue(),
@@ -48,7 +50,7 @@ $(function() {
                 params : {}
             };
             if (sessionId != null) request.session = sessionId;
-            var parameters = form.querySelectorAll('input');
+            var parameters = $(form).find('input');
             for (var p in parameters)
                 request.params[parameters[p].name] = parameters[p].value;
         
@@ -56,12 +58,15 @@ $(function() {
                 method : 'POST',
                 headers : { 'Content-Type' : 'application/json' },
                 body : JSON.stringify(request)
-            }).then(function(response) {
+            }).then(function(response) {                
                 response.json().then(function(data) {
                     sessionId = data.session;
                     $('#phpmae-result')
-                        .text(data.content)
+                        .text((typeof(data.content) == "object")
+                            ? JSON.stringify(data.content, null, 2)
+                            : data.content)
                         .css('color', (data.status == "error") ? "#ff0000" : "#000000");
+                    $(form).find('button').removeClass('disabled');
                 });
             });
         }        

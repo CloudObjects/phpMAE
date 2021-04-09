@@ -1,5 +1,5 @@
 $(function() {
-    var sessionId = null;
+    var sessionId = sessionStorage.getItem('phpMaeSessionId');
     var functionMatcher = /(?:\/\*\*((?:[\s\S](?!\/\*))*?)\*\/+\s*)?public\s+function\s+(\w+)\s*\((.*)\)/g;
     var codeEditor = CodeMirror(document.getElementById('phpmae-source-editor'), {
         value: "<?php\n\nclass MyPhpMAEClass {\n\n    public function hello($name) {\n        return \"Hello \".$name.\"!\";\n    }\n\n}",
@@ -22,7 +22,7 @@ $(function() {
         var sourceCode = codeEditor.getValue();
         var container = $('#phpmae-parameter-container');
         var parametersHtml = "";
-        do {
+            do {
             functionMatch = functionMatcher.exec(sourceCode);
             if (functionMatch && functionMatch[2] == functionName) {
                 var parameters = functionMatch[3].split(",");
@@ -66,7 +66,10 @@ $(function() {
                 body : JSON.stringify(request)
             }).then(function(response) {                
                 response.json().then(function(data) {
-                    sessionId = data.session;
+                    if (data.session != sessionId) {
+                        sessionId = data.session;
+                        sessionStorage.setItem('phpMaeSessionId', sessionId);
+                    }
                     $('#phpmae-result')
                         .text((typeof(data.content) == "object")
                             ? JSON.stringify(data.content, null, 2)
@@ -75,7 +78,10 @@ $(function() {
                     form.find('button').removeClass('disabled');
                 });
             });
-        }        
+        },
+        signin : function() {
+            alert("Coming soon!")
+        }
     };
 
     codeEditor.on("change", function(instance, change) {

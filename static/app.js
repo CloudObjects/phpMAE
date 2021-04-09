@@ -20,6 +20,7 @@ $(function() {
 
     function updateParameters(functionName) {
         var sourceCode = codeEditor.getValue();
+        var container = $('#phpmae-parameter-container');
         var parametersHtml = "";
         do {
             functionMatch = functionMatcher.exec(sourceCode);
@@ -27,30 +28,35 @@ $(function() {
                 var parameters = functionMatch[3].split(",");
                 for (var p in parameters) {
                     var parameter = parameters[p].trim();
-                    if (parameter[0] != "$") continue;
+                    if (parameter[0] != "$" || parameter.length < 2) continue;
+                    var noPrefix = parameter.substr(1);
+                    var oldValue = container.find('[name=' + noPrefix + ']').val();
                     parametersHtml += '<div class="input-field col s12">'
-                        + '<label for="' + parameter.substr(1) + '">' + parameter + '</label>'
-                        + '<input name="' + parameter.substr(1) + '" type="text" value="" />'
+                        + '<label for="' + noPrefix + '">' + parameter + '</label>'
+                        + '<input name="' + noPrefix+ '" type="text" value="'
+                        + (typeof(oldValue) != 'undefined' ? oldValue : '') + '" />'
                         + '</div>';
                 }
             }        
         } while (functionMatch);
-        $('#phpmae-parameter-container').html(parametersHtml);
+        container.html(parametersHtml);
+        M.updateTextFields();
     }
 
     window.phpMAE = {
         execute : function(form) {
-            $(form).find('button').addClass('disabled');
+            form = $(form);
+            form.find('button').addClass('disabled');
 
             var request = {
                 config : configEditor.getValue(),
                 sourceCode : codeEditor.getValue(),
-                class : $(form).find('[name=class]').val(),
-                method : $(form).find('[name=function]').val(),
+                class : form.find('[name=class]').val(),
+                method : form.find('[name=function]').val(),
                 params : {}
             };
             if (sessionId != null) request.session = sessionId;
-            var parameters = $(form).find('input');
+            var parameters = form.find('input');
             for (var p in parameters)
                 request.params[parameters[p].name] = parameters[p].value;
         
@@ -66,7 +72,7 @@ $(function() {
                             ? JSON.stringify(data.content, null, 2)
                             : data.content)
                         .css('color', (data.status == "error") ? "#ff0000" : "#000000");
-                    $(form).find('button').removeClass('disabled');
+                    form.find('button').removeClass('disabled');
                 });
             });
         }        
@@ -81,15 +87,21 @@ $(function() {
         } else
         if (line.indexOf("function") > -1) {
             var sourceCode = instance.getValue();
+            var selector = $('select[name=function]');
+            var currentlySelected = selector.val();
+            var previousExists = false;
             var functionOptionsHtml = "";
             do {
                 functionMatch = functionMatcher.exec(sourceCode);
-                if (functionMatch)
-                    functionOptionsHtml += '<option value="' + functionMatch[2] + '">'
-                        + functionMatch[2] + '()</option>';
+                if (functionMatch && functionMatch[2] != "__construct") {
+                    previousExists = previousExists || (functionMatch[2] == currentlySelected);
+                    functionOptionsHtml += '<option value="' + functionMatch[2] + '"'
+                        + (functionMatch[2] == currentlySelected ? ' selected="selected"' : '')
+                        + '>' + functionMatch[2] + '()</option>';
+                }
             } while (functionMatch);
-            $('select[name=function]').html(functionOptionsHtml).formSelect();
-            updateParameters($('select[name=function]').val());
+            selector.html(functionOptionsHtml).formSelect();
+            updateParameters(selector.val());
         }
     });
 

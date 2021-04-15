@@ -71,8 +71,8 @@ abstract class AbstractObjectCommand extends Command {
     }
 
     protected function ensureFilenameInConfig(OutputInterface $output, $interface = false) {
-        $property = ($interface ? 'coid://phpmae.cloudobjects.io/hasDefinitionFile'
-            : 'coid://phpmae.cloudobjects.io/hasSourceFile');
+        $property = ($interface ? 'coid://phpmae.dev/hasDefinitionFile'
+            : 'coid://phpmae.dev/hasSourceFile');
         $object = $this->index[(string)$this->coid];
         if (!isset($object[$property])) {
             $object[$property] = [[
@@ -96,7 +96,7 @@ abstract class AbstractObjectCommand extends Command {
             'serializer_type_nodes' => true,
             'ns' => array(
                 'co' => 'coid://cloudobjects.io/',
-                'phpmae' => 'coid://phpmae.cloudobjects.io/'
+                'phpmae' => 'coid://phpmae.dev/'
             )
         ));
     }
@@ -121,9 +121,9 @@ abstract class AbstractObjectCommand extends Command {
     protected function getAdditionalTypes() {
         $coids = [];
         foreach ($this->rdfTypes as $t) {
-            if (in_array($t, [ 'coid://phpmae.cloudobjects.io/Class',
-                'coid://phpmae.cloudobjects.io/HTTPInvokableClass',
-                'coid://phpmae.cloudobjects.io/Interface' ]))
+            if (in_array($t, [ 'coid://phpmae.dev/Class',
+                'coid://phpmae.dev/HTTPInvokableClass',
+                'coid://phpmae.dev/Interface' ]))
                     continue;
             $coids[] = new IRI($t);
         }

@@ -38,14 +38,14 @@ class DependenciesAddClassCommand extends AbstractAddDependenciesCommand {
 
         // Checking type
         $output->writeln("Fetching configuration for ".(string)$coidClass." ...");
-        $this->getObjectAndAssertType((string)$coidClass, 'coid://phpmae.cloudobjects.io/Class');
+        $this->getObjectAndAssertType((string)$coidClass, 'coid://phpmae.dev/Class');
 
         // Add dependency
         $this->addDependency(
             $input->getOption('key') ? $input->getOption('key') : uniqid('class-'),
-            'coid://phpmae.cloudobjects.io/ClassDependency',
+            'coid://phpmae.dev/ClassDependency',
             [
-                'coid://phpmae.cloudobjects.io/hasClass' => [
+                'coid://phpmae.dev/hasClass' => [
                     [ 'type' => 'uri', 'value' => (string)$coidClass ]
                 ]
             ],

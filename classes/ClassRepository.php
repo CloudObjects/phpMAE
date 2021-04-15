@@ -17,7 +17,7 @@ use CloudObjects\PhpMAE\Exceptions\PhpMAEException;
 
 class ClassRepository {
 
-	const DEFAULT_STACK = 'coid://phpmae.cloudobjects.io/DefaultStack';
+	const DEFAULT_STACK = 'coid://phpmae.dev/DefaultStack';
 
 	private $options;
 	private $classMap = [];
@@ -41,7 +41,7 @@ class ClassRepository {
 
 		$this->reader = new NodeReader([
 			'prefixes' => [
-				'phpmae' => 'coid://phpmae.cloudobjects.io/'
+				'phpmae' => 'coid://phpmae.dev/'
 			]
 		]);
 
@@ -184,7 +184,7 @@ class ClassRepository {
 						$sourceCode = file_get_contents($vars['upload_filename']);
 					} else {
 						// Not found in local uploads -> download source from CloudObjects
-						$sourceUrl = $object->getProperty('coid://phpmae.cloudobjects.io/hasSourceFile');
+						$sourceUrl = $object->getProperty('coid://phpmae.dev/hasSourceFile');
 						if (!$sourceUrl) throw new PhpMAEException("<".$object->getId()."> does not have an implementation source file.");
 						if (get_class($sourceUrl)=='ML\JsonLD\Node')
 							$sourceCode = $objectRetriever->getAttachment($uri, $sourceUrl->getId());
@@ -258,7 +258,7 @@ class ClassRepository {
 					$sourceCode = file_get_contents($vars['upload_filename']);
 				} else {
 					// Not found in local uploads -> download source from CloudObjects
-					$sourceUrl = $object->getProperty('coid://phpmae.cloudobjects.io/hasDefinitionFile');
+					$sourceUrl = $object->getProperty('coid://phpmae.dev/hasDefinitionFile');
 					if (!$sourceUrl) throw new PhpMAEException("<".$object->getId()."> does not have a definition file.");
 					if (get_class($sourceUrl)=='ML\JsonLD\Node')
 						$sourceCode = $objectRetriever->getAttachment($uri, $sourceUrl->getId());

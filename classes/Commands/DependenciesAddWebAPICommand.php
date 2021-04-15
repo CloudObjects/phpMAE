@@ -42,9 +42,9 @@ class DependenciesAddWebAPICommand extends AbstractAddDependenciesCommand {
         // Add dependency
         $this->addDependency(
             $input->getArgument('key'),
-            'coid://phpmae.cloudobjects.io/WebAPIDependency',
+            'coid://phpmae.dev/WebAPIDependency',
             [
-                'coid://phpmae.cloudobjects.io/hasAPI' => [
+                'coid://phpmae.dev/hasAPI' => [
                     [ 'type' => 'uri', 'value' => (string)$coidWebAPI ]
                 ]
             ],

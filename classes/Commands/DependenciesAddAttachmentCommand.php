@@ -38,15 +38,15 @@ class DependenciesAddAttachmentCommand extends AbstractObjectCommand {
         // Edit configuration
         $found = false;
         $object = $this->index[(string)$this->coid];
-        if (isset($object['coid://phpmae.cloudobjects.io/usesAttachedFile'])) {
-            foreach ($object['coid://phpmae.cloudobjects.io/usesAttachedFile'] as $o) {
+        if (isset($object['coid://phpmae.dev/usesAttachedFile'])) {
+            foreach ($object['coid://phpmae.dev/usesAttachedFile'] as $o) {
                 if ($o['type'] != 'uri') continue;
                 if ($o['value'] == $fileUri) $found = true;
             }
             if (!$found)
-                $object['coid://phpmae.cloudobjects.io/usesAttachedFile'][] = [ 'type' => 'uri', 'value' => $fileUri ];
+                $object['coid://phpmae.dev/usesAttachedFile'][] = [ 'type' => 'uri', 'value' => $fileUri ];
         } else
-            $object['coid://phpmae.cloudobjects.io/usesAttachedFile'] = [[ 'type' => 'uri', 'value' => $fileUri ]];
+            $object['coid://phpmae.dev/usesAttachedFile'] = [[ 'type' => 'uri', 'value' => $fileUri ]];
 
         // Persist configuration
         if (!$found) {

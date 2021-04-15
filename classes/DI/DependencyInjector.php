@@ -78,7 +78,7 @@ class DependencyInjector {
      */
     public function getDependencies(Node $object, array $additionalDefinitions = []) {
         $reader = new NodeReader([
-            'prefixes' => [ 'phpmae' => 'coid://phpmae.cloudobjects.io/' ]
+            'prefixes' => [ 'phpmae' => 'coid://phpmae.dev/' ]
         ]);
 
         $dependencies = $reader->getAllValuesNode($object, 'phpmae:hasDependency');
@@ -147,7 +147,7 @@ class DependencyInjector {
         foreach ($dependencies as $d) {
             $keyedDependency = null;
 
-            if (!$d->getProperty('coid://phpmae.cloudobjects.io/hasKey'))
+            if (!$d->getProperty('coid://phpmae.dev/hasKey'))
                 throw new PhpMAEException("<".$object->getId()."> has an invalid dependency: no key!");
 
             if ($reader->hasType($d, 'phpmae:StaticTextDependency')) {
@@ -246,7 +246,7 @@ class DependencyInjector {
      */
     public function getClassDependencyList(Node $object) {
         $reader = new NodeReader([
-            'prefixes' => [ 'phpmae' => 'coid://phpmae.cloudobjects.io/' ]
+            'prefixes' => [ 'phpmae' => 'coid://phpmae.dev/' ]
         ]);
 
         $dependencies = $reader->getAllValuesNode($object, 'phpmae:hasDependency');

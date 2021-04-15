@@ -10,7 +10,7 @@ $(function() {
         indentWithTabs: false
     });
     var configEditor = CodeMirror(document.getElementById('phpmae-config-editor'), {
-        value: "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<rdf:RDF xmlns:rdf=\"http://www.w3.org/1999/02/22-rdf-syntax-ns#\"\n     xmlns:phpmae=\"coid://phpmae.cloudobjects.io/\">\n\n    <phpmae:Class rdf:about=\"coid://playground.phpmae/MyPhpMAEClass\">\n    </phpmae:Class>\n\n</rdf:RDF>",
+        value: "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<rdf:RDF xmlns:rdf=\"http://www.w3.org/1999/02/22-rdf-syntax-ns#\"\n     xmlns:phpmae=\"coid://phpmae.dev/\">\n\n    <phpmae:Class rdf:about=\"coid://playground.phpmae/MyPhpMAEClass\">\n    </phpmae:Class>\n\n</rdf:RDF>",
         lineNumbers: false,
         matchBrackets: true,
         mode: "application/x-httpd-php",

@@ -53,16 +53,16 @@ class ClassCreateCommand extends Command {
       
         $isInterface = false;
         foreach ($index[$implements]['http://www.w3.org/1999/02/22-rdf-syntax-ns#type'] as $property => $values) {
-            if ($values['value'] == 'coid://phpmae.cloudobjects.io/Interface')
+            if ($values['value'] == 'coid://phpmae.dev/Interface')
                 $isInterface = true;
         }
 
-        if (!$isInterface || !isset($index[$implements]['coid://phpmae.cloudobjects.io/hasDefinitionFile']))
+        if (!$isInterface || !isset($index[$implements]['coid://phpmae.dev/hasDefinitionFile']))
             throw new \Exception("<".$implements."> is not a valid phpMAE interface.");
             
         return [
             'classname' => COIDParser::getName($interfaceCoid),
-            'filename' => basename($index[$implements]['coid://phpmae.cloudobjects.io/hasDefinitionFile'][0]['value'])
+            'filename' => basename($index[$implements]['coid://phpmae.dev/hasDefinitionFile'][0]['value'])
         ];
     }
 
@@ -138,7 +138,7 @@ class ClassCreateCommand extends Command {
             $content = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n"
                 . "<rdf:RDF xmlns:rdf=\"http://www.w3.org/1999/02/22-rdf-syntax-ns#\"\n"
                 . "   xmlns:co=\"coid://cloudobjects.io/\"\n"
-                . "   xmlns:phpmae=\"coid://phpmae.cloudobjects.io/\">\n"
+                . "   xmlns:phpmae=\"coid://phpmae.dev/\">\n"
                 . "\n"
                 . " <phpmae:".($invokable ? "HTTPInvokable" : "")."Class rdf:about=\"".(string)$coid."\">\n";
 

@@ -17,7 +17,7 @@ class TypeChecker {
   public static function isType(Node $object, $typeString) {
     if (!isset(self::$reader))
       self::$reader = new NodeReader([ 'prefixes' => [
-        'phpmae' => 'coid://phpmae.cloudobjects.io/'
+        'phpmae' => 'coid://phpmae.dev/'
       ]]);
     
     return self::$reader->hasType($object, $typeString);
@@ -39,9 +39,9 @@ class TypeChecker {
 
 		$coids = [];
 		foreach ($types as $t) {
-      if (in_array($t->getId(), [ 'coid://phpmae.cloudobjects.io/Class',  
-        'coid://phpmae.cloudobjects.io/HTTPInvokableClass',
-        'coid://phpmae.cloudobjects.io/Interface',
+      if (in_array($t->getId(), [ 'coid://phpmae.dev/Class',  
+        'coid://phpmae.dev/HTTPInvokableClass',
+        'coid://phpmae.dev/Interface',
         ])) continue;
 			$coids[] = new IRI($t->getId());
 		}

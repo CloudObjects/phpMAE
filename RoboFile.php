@@ -146,18 +146,18 @@ class RoboFile extends \Robo\Tasks {
         // Fetch stack definition from CloudObjects Core
         $stackCoid = COIDParser::fromString($stack);
         $retriever = new ObjectRetriever([
-            'auth_ns' => 'phpmae.cloudobjects.io',
+            'auth_ns' => 'phpmae.dev',
             'auth_secret' => getenv('PHPMAE_SHARED_SECRET')
         ]);
         $stackObject = $retriever->getObject($stackCoid);
         
         $composerFileContent = $retriever->getAttachment($stackCoid,
-            $stackObject->getProperty('coid://phpmae.cloudobjects.io/hasAttachedComposerFile')
+            $stackObject->getProperty('coid://phpmae.dev/hasAttachedComposerFile')
             ->getId());
         Assert::startsWith($composerFileContent, '{');
         
         $lockFileContent = $retriever->getAttachment($stackCoid,
-            $stackObject->getProperty('coid://phpmae.cloudobjects.io/hasAttachedLockFile')
+            $stackObject->getProperty('coid://phpmae.dev/hasAttachedLockFile')
             ->getId());
         Assert::startsWith($lockFileContent, '{');
 
@@ -176,7 +176,7 @@ class RoboFile extends \Robo\Tasks {
 
         // Find whitelisted classes
         $whitelistedClasses = [];
-        foreach ($stackObject->getProperty('coid://phpmae.cloudobjects.io/whitelistsClassname')
+        foreach ($stackObject->getProperty('coid://phpmae.dev/whitelistsClassname')
                 as $whitelistedClass)
             $whitelistedClasses[] = $whitelistedClass->getValue();
             

@@ -39,7 +39,7 @@ class Router {
     private function configure(App $app, Node $object) {
         $reader = new NodeReader([
             'prefixes' => [
-                'phpmae' => 'coid://phpmae.cloudobjects.io/',
+                'phpmae' => 'coid://phpmae.dev/',
                 'wa' => 'coid://webapi.cloudobjects.io/',
                 'agws' => 'coid://accountgateways.cloudobjects.io/',
             ]
@@ -191,7 +191,7 @@ class Router {
                             if ($uri->getHost() == 'localhost' || filter_var($uri->getHost(), FILTER_VALIDATE_IP) !== false) continue;
 
                             $namespace = $this->objectRetriever->get('coid://'.$uri->getHost());
-                            if (isset($namespace) && $routerCoid = $namespace->getProperty('coid://phpmae.cloudobjects.io/hasRouter'))
+                            if (isset($namespace) && $routerCoid = $namespace->getProperty('coid://phpmae.dev/hasRouter'))
                                 $router = $this->getRouter(new IRI($routerCoid->getId()));
                         }
                         break;

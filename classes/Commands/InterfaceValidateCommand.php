@@ -24,7 +24,7 @@ class InterfaceValidateCommand extends AbstractObjectCommand {
   protected function execute(InputInterface $input, OutputInterface $output) {
     $this->parse($input->getArgument('coid'));
     $this->assertRDF();
-    if (!in_array('coid://phpmae.cloudobjects.io/Interface', $this->rdfTypes))
+    if (!in_array('coid://phpmae.dev/Interface', $this->rdfTypes))
       throw new \Exception("Object does not have the valid interface type.");
     $this->assertPHPExists();
 

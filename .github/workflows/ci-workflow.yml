@@ -47,7 +47,7 @@ jobs:
       env:
         PHPMAE_SHARED_SECRET: ${{ secrets.PHPMAE_SHARED_SECRET }}
       with:
-        task: 'install:stack coid://phpmae.cloudobjects.io/DefaultStack'
+        task: 'install:stack coid://phpmae.dev/DefaultStack'
 
     - name: Deploy with fly
       uses: superfly/flyctl-actions@1.1

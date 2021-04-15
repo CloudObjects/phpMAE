@@ -25,8 +25,8 @@ class ClassDeployCommand extends AbstractObjectCommand {
         
         $this->parse($input->getArgument('coid'));
         $this->assertRDF();
-        if (!in_array('coid://phpmae.cloudobjects.io/Class', $this->rdfTypes)
-                && !in_array('coid://phpmae.cloudobjects.io/HTTPInvokableClass', $this->rdfTypes))
+        if (!in_array('coid://phpmae.dev/Class', $this->rdfTypes)
+                && !in_array('coid://phpmae.dev/HTTPInvokableClass', $this->rdfTypes))
           throw new \Exception("Object does not have a valid class type.");
         $this->assertPHPExists();
 
@@ -56,14 +56,14 @@ class ClassDeployCommand extends AbstractObjectCommand {
                 break;
             case "coid://cloudobjects.io/Public":
                 $output->writeln("<info>Public URL for Class Execution:</info>");
-                $output->writeln("➡️  https://phpmae.cloudobjects.io/".$path);
+                $output->writeln("➡️  https://phpmae.dev/".$path);
                 break;
             case "coid://cloudobjects.io/Vendor":
                 $output->writeln("<info>Authenticated URL for Class Execution:</info>");
-                $output->writeln("➡️  https://".$this->coid->getHost().":SECRET@phpmae.cloudobjects.io/".$path);
+                $output->writeln("➡️  https://".$this->coid->getHost().":SECRET@phpmae.dev/".$path);
                 $output->writeln("");
                 $output->writeln("To get value for SECRET:");
-                $output->writeln("➡️  cloudobjects domain-providers:secret ".$this->coid->getHost()." phpmae.cloudobjects.io");
+                $output->writeln("➡️  cloudobjects domain-providers:secret ".$this->coid->getHost()." phpmae.dev");
                 break;
         }
         $output->writeln("");

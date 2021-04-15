@@ -53,7 +53,7 @@ class Engine implements RequestHandlerInterface {
         $this->reader = new NodeReader([
             'prefixes' => [
                 'co' => 'coid://cloudobjects.io/',
-                'phpmae' => 'coid://phpmae.cloudobjects.io/'
+                'phpmae' => 'coid://phpmae.dev/'
             ]
         ]);
 

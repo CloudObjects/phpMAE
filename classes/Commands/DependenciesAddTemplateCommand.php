@@ -45,9 +45,9 @@ class DependenciesAddTemplateCommand extends AbstractAddDependenciesCommand {
         // Add dependency
         $this->addDependency(
             $input->getArgument('key'),
-            'coid://phpmae.cloudobjects.io/TwigTemplateDependency',
+            'coid://phpmae.dev/TwigTemplateDependency',
             [
-                'coid://phpmae.cloudobjects.io/usesAttachedTwigFile' => [
+                'coid://phpmae.dev/usesAttachedTwigFile' => [
                     [ 'type' => 'uri', 'value' => "file:///".basename($filename) ]
                 ]
             ],

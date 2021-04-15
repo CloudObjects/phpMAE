@@ -4,7 +4,7 @@ use CloudObjects\SDK\NodeReader, CloudObjects\SDK\ObjectRetriever;
 use ML\IRI\IRI;
 
 /**
- * Implementation for coid://phpmae.cloudobjects.io/DirectoryTemplateVariableGenerator
+ * Implementation for coid://phpmae.dev/DirectoryTemplateVariableGenerator
  */
 class DirectoryTemplateVariableGenerator implements DirectoryTemplateVariableGeneratorInterface {
 
@@ -18,7 +18,7 @@ class DirectoryTemplateVariableGenerator implements DirectoryTemplateVariableGen
         $this->reader = new NodeReader([
             'prefixes' => [
                 'co' => 'coid://cloudobjects.io/',
-                'phpmae' => 'coid://phpmae.cloudobjects.io/'
+                'phpmae' => 'coid://phpmae.dev/'
             ]
         ]);
     }

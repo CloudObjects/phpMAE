@@ -4,7 +4,7 @@ use CloudObjects\SDK\NodeReader, CloudObjects\SDK\ObjectRetriever;
 use ML\IRI\IRI;
 
 /**
- * Implementation for coid://phpmae.cloudobjects.io/StackTemplateVariableGenerator
+ * Implementation for coid://phpmae.dev/StackTemplateVariableGenerator
  * Using interface coid://cloudobjects.io/DirectoryTemplateVariableGeneratorInterface
  */
 class StackTemplateVariableGenerator implements DirectoryTemplateVariableGeneratorInterface {
@@ -17,7 +17,7 @@ class StackTemplateVariableGenerator implements DirectoryTemplateVariableGenerat
         $this->reader = new NodeReader([
             'prefixes' => [
                 'co' => 'coid://cloudobjects.io/',
-                'phpmae' => 'coid://phpmae.cloudobjects.io/'
+                'phpmae' => 'coid://phpmae.dev/'
             ]
         ]);
     }

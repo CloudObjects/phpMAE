@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <rdf:RDF xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
-  xmlns:phpmae="coid://phpmae.cloudobjects.io/"
+  xmlns:phpmae="coid://phpmae.dev/"
   xmlns:co="coid://cloudobjects.io/">
 
-  <phpmae:Class rdf:about="coid://phpmae.cloudobjects.io/DirectoryTemplateVariableGenerator">
+  <phpmae:Class rdf:about="coid://phpmae.dev/DirectoryTemplateVariableGenerator">
     <rdf:type rdf:resource="coid://cloudobjects.io/DirectoryTemplateVariableGeneratorInterface" />
     <co:isVisibleTo rdf:resource="coid://cloudobjects.io/Public"/>
     <co:permitsUsageTo rdf:resource="coid://cloudobjects.io/Public"/>

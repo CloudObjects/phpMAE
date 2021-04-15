@@ -44,7 +44,7 @@ class InterfaceCreateCommand extends Command {
         $content = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n"
           . "<rdf:RDF xmlns:rdf=\"http://www.w3.org/1999/02/22-rdf-syntax-ns#\"\n"
           . "   xmlns:co=\"coid://cloudobjects.io/\"\n"
-          . "   xmlns:phpmae=\"coid://phpmae.cloudobjects.io/\">\n"
+          . "   xmlns:phpmae=\"coid://phpmae.dev/\">\n"
           . "\n"
           . " <phpmae:Interface rdf:about=\"".(string)$coid."\">\n"
           . "  <co:isVisibleTo rdf:resource=\"coid://cloudobjects.io/Vendor\" />\n"

@@ -54,18 +54,18 @@ class AbstractAddDependenciesCommand extends AbstractObjectCommand {
             'http://www.w3.org/1999/02/22-rdf-syntax-ns#type' => [
                 [ 'type' => 'uri', 'value' => $type ]
             ],
-            'coid://phpmae.cloudobjects.io/hasKey' => [
+            'coid://phpmae.dev/hasKey' => [
                 [ 'type' => 'literal', 'value' => $key ]
             ]            
         ], $valuesToMerge);
     
         // Edit configuration
         $object = $this->index[(string)$this->coid];
-        if (isset($object['coid://phpmae.cloudobjects.io/hasDependency'])) {
-            foreach ($object['coid://phpmae.cloudobjects.io/hasDependency'] as $o) {
+        if (isset($object['coid://phpmae.dev/hasDependency'])) {
+            foreach ($object['coid://phpmae.dev/hasDependency'] as $o) {
                 if ($o['type'] != 'bnode') continue;
                 $bnode = $this->index[$o['value']];
-                if (isset($bnode['coid://phpmae.cloudobjects.io/hasKey']) && $bnode['coid://phpmae.cloudobjects.io/hasKey'][0]['value'] == $key)
+                if (isset($bnode['coid://phpmae.dev/hasKey']) && $bnode['coid://phpmae.dev/hasKey'][0]['value'] == $key)
                     throw new \Exception("A dependency with the key '".$key."' already exists.");
 
                 foreach ($valuesToMerge as $k => $values)
@@ -75,9 +75,9 @@ class AbstractAddDependenciesCommand extends AbstractObjectCommand {
                                 if ($a['type'] == $b['type'] && $a['value'] == $b['value'])
                                     throw new \Exception("This dependency was already added.");
             }
-            $object['coid://phpmae.cloudobjects.io/hasDependency'][] = [ 'type' => 'bnode', 'value' => '_:dep-'.$key ];
+            $object['coid://phpmae.dev/hasDependency'][] = [ 'type' => 'bnode', 'value' => '_:dep-'.$key ];
         } else
-            $object['coid://phpmae.cloudobjects.io/hasDependency'] = [['type' => 'bnode', 'value' => '_:dep-'.$key ]];
+            $object['coid://phpmae.dev/hasDependency'] = [['type' => 'bnode', 'value' => '_:dep-'.$key ]];
 
         // Persist configuration
         $this->index[(string)$this->coid] = $object;    

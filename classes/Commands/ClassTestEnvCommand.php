@@ -64,8 +64,8 @@ class ClassTestEnvCommand extends AbstractObjectCommand {
 
         $this->parse($input->getArgument('coid'));
         $this->assertRDF();
-        if (!in_array('coid://phpmae.cloudobjects.io/Class', $this->rdfTypes)
-                && !in_array('coid://phpmae.cloudobjects.io/HTTPInvokableClass', $this->rdfTypes))
+        if (!in_array('coid://phpmae.dev/Class', $this->rdfTypes)
+                && !in_array('coid://phpmae.dev/HTTPInvokableClass', $this->rdfTypes))
             throw new \Exception("Object does not have a valid class type.");
         $this->assertPHPExists();
 

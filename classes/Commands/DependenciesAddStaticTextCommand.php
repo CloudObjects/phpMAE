@@ -33,9 +33,9 @@ class DependenciesAddStaticTextCommand extends AbstractAddDependenciesCommand {
     	// Add dependency
         $this->addDependency(
             $input->getArgument('key'),
-            'coid://phpmae.cloudobjects.io/StaticTextDependency',
+            'coid://phpmae.dev/StaticTextDependency',
             [
-                'coid://phpmae.cloudobjects.io/hasValue' => [
+                'coid://phpmae.dev/hasValue' => [
                     [ 'type' => 'literal', 'value' => $input->getArgument('value') ]
                 ]
             ],

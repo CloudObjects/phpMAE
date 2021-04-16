@@ -65,7 +65,7 @@ phpMAE comes with unit tests. You can run them after installing the source to va
 
 ### Create a class
 
-Micro APIs compatible with phpMAE are implemented as PHP classes. They are represented as objects on CloudObjects with the type [phpmae:Class](https://cloudobjects.io/phpmae.cloudobjects.io/Class). All public methods on these classes are made accessible via RPC protocols (currently [JSON-RPC](https://www.jsonrpc.org/specification)) and other classes that add your class as a dependency. If you want your class to expose a single entry point you can add [PHP's magic __invoke()](https://secure.php.net/manual/en/language.oop5.magic.php#object.invoke) to it and make its object an instance of the type [phpmae:HTTPInvokableClass](https://cloudobjects.io/phpmae.cloudobjects.io/HTTPInvokableClass).
+Micro APIs compatible with phpMAE are implemented as PHP classes. They are represented as objects on CloudObjects with the type [phpmae:Class](https://cloudobjects.io/phpmae.dev/Class). All public methods on these classes are made accessible via RPC protocols (currently [JSON-RPC](https://www.jsonrpc.org/specification)) and other classes that add your class as a dependency. If you want your class to expose a single entry point you can add [PHP's magic __invoke()](https://secure.php.net/manual/en/language.oop5.magic.php#object.invoke) to it and make its object an instance of the type [phpmae:HTTPInvokableClass](https://cloudobjects.io/phpmae.dev/HTTPInvokableClass).
 
 Like all objects, phpMAE classes are uniquely identified with COIDs (*C*loud *O*bject *ID*entifiers). COIDs are namespaced into domains, and you can create objects with COIDs only for domains that you have created or been assigned to in CloudObjects. You can see those domains in the [CloudObjects Dashboard](https://cloudobjects.io/dashboard).
 
@@ -105,11 +105,11 @@ Use the following command to deploy your class:
 
 Internally, this command first validates the class, then calls the CloudObjects CLI to upload the `.php` source file as an attachment to CloudObjects Core and, if necessary, update the `.xml` file with a configuration job. Deployed classes are available for phpMAE instances within moments.
 
-The output of the deploy command shows you the base URL of your Micro API on the public phpMAE instances. These instances require you to use HTTP Basic authentication to access your class. You have to use the namespace as the username, and the CloudObjects shared secret between that domain and _phpmae.cloudobjects.io_ as the password. The command for retrieving this secret is shown to you as well.
+The output of the deploy command shows you the base URL of your Micro API on the public phpMAE instances. These instances require you to use HTTP Basic authentication to access your class. You have to use the namespace as the username, and the CloudObjects shared secret between that domain and _phpmae.dev_ as the password. The command for retrieving this secret is shown to you as well.
 
 ### Use your class on custom instances
 
-You can use your class on your own private instances as well. Start an instance,e.g., using Docker as described above, and replace _phpmae.cloudobjects.io_ in the URL with our own instance's URL.
+You can use your class on your own private instances as well. Start an instance,e.g., using Docker as described above, and replace _phpmae.dev_ in the URL with our own instance's URL.
 
 ## Help&Support
 

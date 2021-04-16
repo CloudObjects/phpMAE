@@ -27,7 +27,7 @@ stacks: robo.phar vendor
 	# Create stack directory
 	mkdir stacks
 	# Install default stack
-	php robo.phar install:stack coid://phpmae.cloudobjects.io/DefaultStack
+	php robo.phar install:stack coid://phpmae.dev/DefaultStack
 
 phpmae.phar: phpmae.php config.php vendor RoboFile.php robo.phar
 	# Building archive with robo

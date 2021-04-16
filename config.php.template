@@ -55,7 +55,7 @@ return [
 	/**
 	 * Specify the identity and CloudObjects Core authentication credential for this phpMAE instance.
 	 */
-	'co.auth_ns' => 'phpmae.cloudobjects.io',
+	'co.auth_ns' => 'phpmae.dev',
 	'co.auth_secret' => 'YOUR_SECRET_HERE',
 
 	/**

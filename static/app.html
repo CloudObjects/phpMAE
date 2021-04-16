@@ -4,13 +4,24 @@
         <title>phpMAE</title>
         <link rel="stylesheet" type="text/css" href="styles.css" />
         <link rel="stylesheet" type="text/css" href="codemirror.css" />
+        <script type="application/javascript" src="https://webcdn.cloudobjects.net/phpmae.cloudobjects.io/InteractiveRunController/wtm.js"></script>
     </head>
     <body>
         <nav>
+            <ul id="phpmae-templates-menu" class="dropdown-content">
+                <li><a href="javascript:phpMAE.loadTemplate('helloworld');">Hello World<i class="material-icons right">article</i></a></li>
+                <li><a href="javascript:phpMAE.loadTemplate('mathdemo');">Math Demo<i class="material-icons right">article</i></a></li>
+            </ul>
+            <ul id="phpmae-help-menu" class="dropdown-content">
+                <li><a href="https://github.com/CloudObjects/phpMAE" target="_blank">GitHub<i class="material-icons right">open_in_new</i></a></li>
+                <li><a href="https://cloudobjects.io/phpmae.dev" target="_blank">CloudObjects Directory<i class="material-icons right">open_in_new</i></a></li>
+            </ul>
             <div class="nav-wrapper">
                 <div class="brand-logo right">phpMAE</div>
-                <ul>
-                    <li><a href="javascript:phpMAE.signin()">Sign in with CloudObjects</a></li>
+                <ul class="left">
+                    <!-- <li><a href="javascript:phpMAE.signin()">Sign in with CloudObjects</a></li> -->
+                    <li><a class="dropdown-trigger" href="#!" data-target="phpmae-templates-menu">Templates<i class="material-icons right">arrow_drop_down</i></a></li>
+                    <li><a class="dropdown-trigger" href="#!" data-target="phpmae-help-menu">Help<i class="material-icons right">arrow_drop_down</i></a></li>
                 </ul>
             </div>
         </nav>
@@ -27,20 +38,13 @@
                 <form onsubmit="phpMAE.execute(this); return false;" class="row">
                     <div class="input-field col s12">
                         <label>Class</label>
-                        <input name="class" type="text" readonly="readonly" value="MyPhpMAEClass" />    
+                        <input name="class" type="text" readonly="readonly" value="" />    
                     </div>
                     <div class="input-field col s12">                        
-                        <select name="function">
-                            <option value="hello">hello()</option>
-                        </select>
+                        <select name="function"></select>
                         <label>Function</label>
                     </div>
-                    <div id="phpmae-parameter-container">
-                        <div class="input-field col s12">
-                            <label for="name">$name</label>
-                            <input name="name" type="text" value="">
-                        </div>
-                    </div>
+                    <div id="phpmae-parameter-container"></div>
                     <div class="input-field col s12">
                         <button type="submit" class="waves-effect waves-light btn">Execute</button>
                     </div>

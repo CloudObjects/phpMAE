@@ -31,8 +31,7 @@ gulp.task('styles', function() {
     return streamqueue({ objectMode: true },
         gulp.src('./scss/materialize-customized.scss')
             .pipe(sass().on('error', sass.logError)),
-        gulp.src('./static/app.css'),
-        //gulp.src('./node_modules/codemirror/lib/codemirror.css'),
+        gulp.src('./static/app.css')
     )
     .pipe(concat('styles.css'))
     .pipe(cssPurge({

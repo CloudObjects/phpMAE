@@ -1,3 +1,9 @@
+<h5>Whitelisted Classes from Packages</h5>
+<ul>
+    {% for className in config['coid://phpmae.cloudobjects.io/whitelistsClassname'] %}
+    <li><code>{{ className.o_value }}</code></li>
+    {% endfor %}
+</ul>
 <h5>Defined Packages</h5>
 <table>
     <thead>

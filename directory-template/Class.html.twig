@@ -23,13 +23,12 @@
                         <input type="text" id="params-{{m.name}}-{{f.name}}" name="p-{{f.name}}" />
                         <label for="params-{{m.name}}-{{f.name}}">{{f.name}}</label>
                     </div>
+                    {% endfor %}
                     <button type="submit" class="btn">Execute in phpMAE</button>
                 </div>
                 <h6 class="console-response-status"></h6>
                 <div class="padded"><pre class="console-response"></pre></div>
             </form>
-            {% endfor %}
-
             {% endif %}            
         </div>
     </li>

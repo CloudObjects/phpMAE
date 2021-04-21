@@ -4,7 +4,7 @@
   xmlns:co="coid://cloudobjects.io/">
 
   <phpmae:Class rdf:about="coid://phpmae.dev/DirectoryTemplateVariableGenerator">
-    <rdf:type rdf:resource="coid://cloudobjects.io/DirectoryTemplateVariableGeneratorInterface" />
+    <rdf:type rdf:resource="coid://website.cloudobjects.io/DirectoryTemplateVariableGeneratorInterface" />
     <co:isVisibleTo rdf:resource="coid://cloudobjects.io/Public"/>
     <co:permitsUsageTo rdf:resource="coid://cloudobjects.io/Public"/>
     <phpmae:hasSourceFile rdf:resource="file:///DirectoryTemplateVariableGenerator.php"/>

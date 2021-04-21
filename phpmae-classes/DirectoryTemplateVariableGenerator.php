@@ -41,7 +41,7 @@ class DirectoryTemplateVariableGenerator implements DirectoryTemplateVariableGen
         
         // Find method signatures and comment blocks using regular expression
         $matches = [];
-        preg_match_all("/(?:\/\*\*((?:[\s\S](?!\/\*))*?)\*\/+\s*)?public\s+function\s+(\w+)\s*\((.+)\)/",
+        preg_match_all("/(?:\/\*\*((?:[\s\S](?!\/\*))*?)\*\/+\s*)?public\s+function\s+(\w+)\s*\((.*)\)/",
             $sourceCode, $matches);
 
         // The following groups are captured through RegExes:
@@ -64,6 +64,7 @@ class DirectoryTemplateVariableGenerator implements DirectoryTemplateVariableGen
             $paramsDecoded = [];
             $canRun = true;
             foreach (explode(',', $paramString) as $p) {
+                if ($p == '') continue; // ignore empty parameter string
                 $p = trim($p);
                 if ($p[0] == '$') {
                     // Parameter without type hint

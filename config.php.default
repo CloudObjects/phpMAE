@@ -1,7 +1,8 @@
 <?php
 
 return [
-	'uploads' => true,
+	'uploads' => false,
+	'interactive_run' => false,
 	'client_authentication' => 'none',
 	'mode' => 'default',
 	'agws.data_cache' => 'file',

@@ -1,11 +1,13 @@
 # Apply defaults for unset variables
 if [ -z $MODE ]; then MODE=default; fi
 if [ -z $CLIENT_AUTH ]; then CLIENT_AUTH=shared_secret:runclass; fi
+if [ -z $INTERACTIVE ]; then INTERACTIVE=false; fi
 
 # Write configuration file
 
 echo "<?php return array(" \
 	" 'uploads' => false, " \
+	" 'interactive_run' => $INTERACTIVE, " \
 	" 'cache_dir' => __DIR__.'/cache', " \
 	" 'uploads_dir' => __DIR__.'/uploads', " \
 	" 'mode' => '$MODE', " \

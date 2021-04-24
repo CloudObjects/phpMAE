@@ -3,10 +3,17 @@
 return [
 	/**
 	 * Specifies whether the /uploadTestenv endpoint can be used.
-	 * - false: no uploads are possible (except if sandbox is enabled and session is present)
+	 * - false: no uploads are possible (except in interactive runtime, if enabled)
 	 * - true: any uploads are possible - DO NOT USE THIS IN PRODUCTION!
 	 */
-	'uploads' => true,
+	'uploads' => false,
+
+	/**
+	 * Specifies whether the interactive runtime is enabled.
+	 * - false: disabled
+	 * - true: enabled
+	 */
+	'interactive_run' => false,
 
 	/**
 	 * Client authentication requires all requests to have HTTP Basic Authentication.
@@ -35,7 +42,7 @@ return [
 
 	/**
 	 * Choose whether CORS requests are possible and the origins that are allowed:
-	 * - empty string / array: No CORS
+	 * - empty string: No CORS
 	 * - '*': All origins allowed.
 	 * - Multiple origins can be separated with the pipe (|).
 	'global_cors_origins' => '',

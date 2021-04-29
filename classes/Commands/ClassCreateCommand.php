@@ -62,7 +62,8 @@ class ClassCreateCommand extends Command {
             
         return [
             'classname' => COIDParser::getName($interfaceCoid),
-            'filename' => basename($index[$implements]['coid://phpmae.dev/hasDefinitionFile'][0]['value'])
+            'filename' => basename($index[$implements]['coid://phpmae.dev/hasDefinitionFile'][0]['value']),
+            'coid' => (string)$interfaceCoid,
         ];
     }
 
@@ -150,7 +151,7 @@ class ClassCreateCommand extends Command {
                 $content .= "  <co:isVisibleTo rdf:resource=\"coid://cloudobjects.io/Vendor\" />\n";
                 
             if (isset($implements))
-                $content .= "  <rdf:type rdf:resource=\"".$implements."\" />\n";
+                $content .= "  <rdf:type rdf:resource=\"".$interfaceData['coid']."\" />\n";
             $content .=" </phpmae:".($invokable ? "HTTPInvokable" : "")."Class>\n"
           . "</rdf:RDF>";
             file_put_contents($fullName.'.xml', $content);
@@ -181,8 +182,8 @@ class ClassCreateCommand extends Command {
 
             if (isset($implements)) {
                 // Retrieve interface code
-                $output->writeln("Fetching code for ".$implements." ...");
-                $parsedInterface = $this->getAndParseInterfaceCode($implements, $interfaceData['filename']);
+                $output->writeln("Fetching code for ".$interfaceData['coid']." ...");
+                $parsedInterface = $this->getAndParseInterfaceCode($interfaceData['coid'], $interfaceData['filename']);
                 // Add use statements
                 foreach ($parsedInterface['use'] as $u)
                     $useStatements[] = $u;
@@ -198,7 +199,7 @@ class ClassCreateCommand extends Command {
 
             $content .= "/**\n"
                 . " * Implementation for ".(string)$coid."\n"
-                . (isset($implements) ? " * Using interface ".$implements."\n" : "")
+                . (isset($implements) ? " * Using interface ".$interfaceData['coid']."\n" : "")
                 . " */\n"
                 . "class ".$name." ".(isset($implements) ? "implements ".$interfaceData['classname']." " : "")
                 . "{\n"

@@ -9,3 +9,7 @@
 #phpmae-source-editor, #phpmae-config-editor {
     margin:15px 0;
 }
+
+.phpmae-signedout-only, .phpmae-signedin-only {
+    display:none;
+}

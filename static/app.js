@@ -17,6 +17,18 @@ $(function() {
     });
     var dirty = false;
 
+    function checkSignInStatus() {
+        if (typeof(COWebApp) !== "undefined" && COWebApp.getAccountContext() !== null) {
+            // Signed in
+            $('.phpmae-signedout-only').hide();
+            $('.phpmae-signedin-only').show();
+        } else {
+            // Signed out
+            $('.phpmae-signedin-only').hide();
+            $('.phpmae-signedout-only').show();            
+        }
+    }
+
     function updateParameters(functionName) {
         var sourceCode = codeEditor.getValue();
         var container = $('#phpmae-parameter-container');
@@ -177,5 +189,6 @@ $(function() {
 
     $(window).on('resize', fixHeight);
     fixHeight();
+    checkSignInStatus();
     phpMAE.loadTemplate('helloworld');
 });

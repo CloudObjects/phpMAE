@@ -19,10 +19,11 @@
             <div class="nav-wrapper">
                 <div class="brand-logo right">phpMAE</div>
                 <ul class="left">
+                    <li class="phpmae-signedin-only"><a class="modal-trigger" href="#phpmae-load">Load<i class="material-icons right">download</i></a></li>
                     <li><a class="dropdown-trigger" href="#!" data-target="phpmae-templates-menu">Templates<i class="material-icons right">arrow_drop_down</i></a></li>
                     <li><a class="dropdown-trigger" href="#!" data-target="phpmae-help-menu">Help<i class="material-icons right">arrow_drop_down</i></a></li>
                     <li class="phpmae-signedout-only"><a href="javascript:phpMAE.signin()">Sign in with CloudObjects<i class="material-icons right">login</i></a></li>
-                    <li class="phpmae-signedin-only"><a href="javascript:phpMAE.signin()">Sign out<i class="material-icons right">logout</i></a></li>
+                    <li class="phpmae-signedin-only"><a href="javascript:phpMAE.signout()">Sign out<i class="material-icons right">logout</i></a></li>
                 </ul>
             </div>
         </nav>
@@ -54,6 +55,26 @@
             </div>
         </div>
         <script type="application/javascript" src="scripts.js"></script>
-        </main>
+        <div id="phpmae-load" class="modal">
+            <form id="phpmae-load-form">                
+                <div class="modal-content">
+                    <h4>Load phpMAE class</h4>
+                        <div id="phpmae-load-form-step1" class="input-field">
+                            <select id="phpmae-load-form-domain">
+                                <option value="" selected>Choose your domain</option>
+                            </select>
+                        </div>
+                        <div id="phpmae-load-form-step2" style="display:none;" class="input-field">
+                            <select id="phpmae-load-form-object">
+                                <option value="" selected>Choose your object</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button class="btn waves-effect waves-light disabled" type="submit" name="action">Load object</button>                
+                </div>
+            </form>
+        </div>
     </body>
 </html>

@@ -131,6 +131,9 @@ $(function() {
         },
         signin : function() {
             alert("Coming soon!")
+        },
+        signout : function() {
+            COWebApp.signOut();
         }
     };
 
@@ -185,10 +188,78 @@ $(function() {
 
     function fixHeight() {
         $('.CodeMirror').css('height', ($(window).height() - $('.CodeMirror').offset().top - 30) + 'px');
-    }    
+    }
 
     $(window).on('resize', fixHeight);
     fixHeight();
     checkSignInStatus();
     phpMAE.loadTemplate('helloworld');
+
+    // Initialize loader modal
+    $('#phpmae-load').modal({
+        onOpenStart : function() {
+            var domainSelector = $('#phpmae-load-form-domain');
+            var objectSelector = $('#phpmae-load-form-domain-object');
+            var step2 = $('#phpmae-load-form-step2');
+            var coAgwClient = COWebApp.getAccountContext().getClient();
+
+            // Get domains and create list in domain selector field
+            domainSelector.attr('disabled', true).formSelect();
+
+            coAgwClient.get('/dr/').then(function(response) {
+                response.data.domains.forEach(function(domain) {
+                    domainSelector.append('<option value="'
+                        + domain + '">' + domain + '</option>');
+            });
+    
+            domainSelector.attr('disabled', false)
+                .formSelect(); // re-render with Materialize UI
+            });
+
+            domainSelector.on('change', function() {
+                if (domainSelector.val() != "") {
+                    step2.show();
+        
+                    // Reset input and view
+                    objectSelector.html('<option value="" selected>Choose your object</option>')
+                        .attr('disabled', true)
+                        .formSelect();
+
+                    // Get objects and create list in object selector field
+                    coAgwClient.get('/ws/' + domainSelector.val() + '/all.jsonld?type='
+                        + encodeURIComponent('coid://phpmae.dev/Class') + '&jsonld_format=expanded')
+                    .then(function(response) {
+                        currentDomainDoc = LD(response.data, {
+                            'rdfs' : 'http://www.w3.org/2000/01/rdf-schema#'
+                        });
+
+                        var ids = currentDomainDoc.queryAll('[@type=' + options.domain + '] > @id');
+                        if (ids.length == 1) {
+                            // Single result is automatically selected
+                            var label = currentDomainDoc
+                                .query('[@id=' + ids[0] + '] > rdfs:label @value');
+                            objectSelector.html('<option value="'
+                                + ids[0] + '" selected>'
+                                + (label ? label + ' (' + ids[0] + ')' : ids[0])
+                                + '</option>');
+                            objectSelector.trigger('change');                    
+                        } else {
+                            // Multiple results give options
+                            ids.forEach(function(id) {
+                                var label = currentDomainDoc
+                                    .query('[@id=' + id + '] > rdfs:label @value');
+                                objectSelector.append('<option value="'
+                                    + id + '">' + (label ? label + ' (' + id + ')' : id) + '</option>');
+                            });
+                        }
+
+                        objectSelector.attr('disabled', false)
+                            .formSelect(); // re-render with Materialize UI
+                    });
+                } else {
+                    step2.hide();
+                }
+            });
+        }   
+    });
 });

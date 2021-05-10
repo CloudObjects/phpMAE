@@ -41,7 +41,7 @@ class Router {
             'prefixes' => [
                 'phpmae' => 'coid://phpmae.dev/',
                 'wa' => 'coid://webapi.cloudobjects.io/',
-                'agws' => 'coid://accountgateways.cloudobjects.io/',
+                'agws' => 'coid://aauid.net/',
             ]
         ]);
 

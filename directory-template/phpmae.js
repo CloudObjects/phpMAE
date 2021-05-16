@@ -1,4 +1,4 @@
-$('.collapsible-body form').submit(function(event) {
+$('.collapsible-body form').on('submit', function(event) {
     event.preventDefault();
     var form = $(this);
     form.find('.btn').addClass('disabled');
@@ -20,7 +20,7 @@ $('.collapsible-body form').submit(function(event) {
         }
     }
 
-    axios.post('https://phpmae.cloudobjects.io/' + className, {
+    axios.post('https://phpmae.dev/' + className, {
         jsonrpc : '2.0',
         id : 'COWebsite',
         method : method,

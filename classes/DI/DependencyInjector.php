@@ -94,9 +94,13 @@ class DependencyInjector {
 
         $definitions = [
             'cookies' => \DI\create(ArrayCollection::class),
-            ObjectRetriever::class => function() use ($namespaceCoid) {
+            ObjectRetriever::class => function() use ($realNamespaceCoid) {
                 // Get or create an object retriever with the identity of the namespace of this object
-                return $this->retrieverPool->getObjectRetriever($namespaceCoid->getHost());
+                return $this->retrieverPool->getObjectRetriever($realNamespaceCoid->getHost());
+            },
+            APIClientFactory::class => function(ContainerInterface $c) use ($realNamespaceCoid) {
+                // Get an API client factory
+                return new APIClientFactory($c->get(ObjectRetriever::class), $realNamespaceCoid);
             },
             DynamicLoader::class => function() {
                 return new DynamicLoader($this->retrieverPool->getBaseObjectRetriever(),
@@ -125,8 +129,8 @@ class DependencyInjector {
                 return new TwigTemplateFactory($this->classRepository
                     ->getCustomFilesCachePath($object));
             },
-            CryptoHelper::class => function(ContainerInterface $c) use ($namespaceCoid) {
-                return new CryptoHelper($c->get(ObjectRetriever::class), $namespaceCoid);
+            CryptoHelper::class => function(ContainerInterface $c) use ($realNamespaceCoid) {
+                return new CryptoHelper($c->get(ObjectRetriever::class), $realNamespaceCoid);
             },
             CacheInterface::class => function(ContainerInterface $c) use ($namespaceCoid) {
                 // Enable filesystem cache for custom data

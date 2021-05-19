@@ -40,7 +40,7 @@ class Router {
         $reader = new NodeReader([
             'prefixes' => [
                 'phpmae' => 'coid://phpmae.dev/',
-                'wa' => 'coid://webapi.cloudobjects.io/',
+                'wa' => 'coid://webapis.co-n.net/',
                 'agws' => 'coid://aauid.net/',
             ]
         ]);

@@ -37,7 +37,7 @@ class DependenciesAddWebAPICommand extends AbstractAddDependenciesCommand {
 
         // Checking type
         $output->writeln("Fetching configuration for ".(string)$coidWebAPI." ...");
-        $this->getObjectAndAssertType((string)$coidWebAPI, 'coid://webapi.cloudobjects.io/HTTPEndpoint');
+        $this->getObjectAndAssertType((string)$coidWebAPI, 'coid://webapis.co-n.net/HTTPEndpoint');
 
         // Add dependency
         $this->addDependency(

@@ -73,7 +73,8 @@ class Engine implements RequestHandlerInterface {
 
     private function getCORSMiddleware() {
         $defaultConfig = [
-            'headers.allow' => [ 'Content-Type' ]
+            'headers.allow' => [ 'Content-Type' ],
+            'cache' => 600
         ];
 
         if ($this->container->has('global_cors_origins')

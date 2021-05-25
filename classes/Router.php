@@ -50,7 +50,10 @@ class Router {
             // Add CORS support to router
             $origins = $reader->getAllValuesString($object, 'phpmae:enableCORSWithOrigin');
             $app->add(new CorsMiddleware([
-                'origin' => $origins
+                'origin' => $origins,
+                'headers.allow' => [ 'Content-Type' ],
+                'credentials' => true,
+                'cache' => 600
             ]));
         }
 

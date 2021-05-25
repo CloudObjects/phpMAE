@@ -10,6 +10,7 @@ use InvalidArgumentException;
 use Psr\Http\Message\RequestInterface, Psr\Http\Message\ResponseInterface;
 use Psr\Container\ContainerInterface;
 use Slim\App;
+use Tuupola\Middleware\CorsMiddleware;;
 use Slim\Http\Environment, Slim\Http\Uri, Slim\Http\Response, Slim\Http\Request;
 use GuzzleHttp\Client;
 use GuzzleHttp\Exception\BadResponseException;
@@ -44,6 +45,14 @@ class Router {
                 'agws' => 'coid://aauid.net/',
             ]
         ]);
+
+        if ($reader->hasProperty($object, 'phpmae:enableCORSWithOrigin')) {
+            // Add CORS support to router
+            $origins = $reader->getAllValuesString($object, 'phpmae:enableCORSWithOrigin');
+            $app->add(new CorsMiddleware([
+                'origin' => $origins
+            ]));
+        }
 
         $routes = array_merge(
             $reader->getAllValuesNode($object, 'phpmae:hasRoute'),
@@ -179,7 +188,6 @@ class Router {
             ];
             $c = new \Slim\Container($configuration);
             $app = new App($c);
-            
 
             $router = null;
             $env = new Environment($_SERVER);

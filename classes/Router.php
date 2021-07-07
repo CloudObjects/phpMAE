@@ -72,9 +72,6 @@ class Router {
                 $reader->getFirstValueString($r, 'wa:hasPath'),
                 function(RequestInterface $request, ResponseInterface $response, $args) use ($r, $reader, $engine, $retriever, $object) {
                     if ($reader->hasProperty($r, 'phpmae:runsClass')) {
-                        // Route is mapped to a class
-                        $engine->loadRunClass($reader->getFirstValueIRI($r, 'phpmae:runsClass'), $request);
-
                         try {
                             $params = [];
                             if ($reader->hasProperty($r, 'wa:hasJSONBodyWithSchema')) {
@@ -100,6 +97,25 @@ class Router {
                                 'message' => $e->getMessage()
                             ]);
                         }
+
+                        // Add static parameters from Router
+                        foreach ($reader->getAllValuesNode($r, 'phpmae:includeParameterWithDefault') as $p) {
+                            if (!$reader->hasProperty($p, 'wa:hasKey') || !$reader->hasProperty($p, 'wa:hasDefaultValue')) {
+                                // Ignore incomplete parameter
+                                continue;
+                            }
+
+                            if ($reader->hasType($p, 'wa:HeaderParameter')) {
+                                // Add custom header
+                                $request = $request->withHeader(
+                                    'HTTP_'.strtoupper($reader->getFirstValueString($p, 'wa:hasKey')),
+                                    $reader->getFirstValueString($p, 'wa:hasDefaultValue')
+                                );
+                            }
+                        }
+
+                        // Route is mapped to a class
+                        $engine->loadRunClass($reader->getFirstValueIRI($r, 'phpmae:runsClass'), $request);
 
                         if ($reader->hasProperty($r, 'phpmae:runsMethod')) {
                             // Calls to specific methods must be rewritten

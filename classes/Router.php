@@ -172,7 +172,7 @@ class Router {
                         $etag = '"'.md5($reader->getFirstValueString($object, 'co:isAtRevision')
                             .'+'.$reader->getFirstValueString($r, 'phpmae:servesStaticFileAttachment')).'"';
 
-                        if ($request->hasHeader('If-None-Match') && $request->getHeaderLine('If-None-Match') == $etag) {
+                        if ($request->hasHeader('If-None-Match') && strpos($request->getHeaderLine('If-None-Match'), $etag) > -1) {
 		    	            // Can use cached version
                             return (new Response(304))->withHeader('ETag', $etag)
                                 ->withHeader('Cache-Control', 'max-age='.self::STATIC_CACHE_TTL.', public');

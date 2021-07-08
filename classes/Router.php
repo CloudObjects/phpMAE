@@ -25,6 +25,8 @@ use CloudObjects\PhpMAE\ObjectRetrieverPool;
 
 class Router {
 
+    const STATIC_CACHE_TTL = 60;
+
     private $engine;
     private $objectRetriever;
     private $container;
@@ -167,13 +169,24 @@ class Router {
 
                     } elseif ($reader->hasProperty($r, 'phpmae:servesStaticFileAttachment')) {
                         // Rule to serve an attached file
+                        $etag = '"'.md5($reader->getFirstValueString($object, 'co:isAtRevision')
+                            .'+'.$reader->getFirstValueString($r, 'phpmae:servesStaticFileAttachment')).'"';
+
+                        if ($request->hasHeader('If-None-Match') && $request->getHeaderLine('If-None-Match') == $etag) {
+		    	            // Can use cached version
+                            return (new Response(304))->withHeader('ETag', $etag)
+                                ->withHeader('Cache-Control', 'max-age='.self::STATIC_CACHE_TTL.', public');
+                        }
+
                         $attachmentContent = $retriever->getAttachment(new IRI($object->getId()),
                             $reader->getFirstValueString($r, 'phpmae:servesStaticFileAttachment'));
+
                         if (!isset($attachmentContent))
                             return (new Response(501))->write("Requested static file attachment cannot be found.");
 
-                        return $engine->generateResponse($attachmentContent);
-
+                        return $engine->generateResponse($attachmentContent)
+                            ->withHeader('ETag', $etag)
+                            ->withHeader('Cache-Control', 'max-age='.self::STATIC_CACHE_TTL.', public');
                     } else {
                         // Route has no implementation
                         return (new Response(501))->write("Route implementation not available or no access granted.");

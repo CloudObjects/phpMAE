@@ -15,6 +15,8 @@ use DI\ContainerBuilder;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Cache\FilesystemCache;
 use Slim\Http\Response;
+use Symfony\Component\Mailer\MailerInterface,
+    Symfony\Component\Mailer\Transport, Symfony\Component\Mailer\Mailer;
 use CloudObjects\SDK\ObjectRetriever, CloudObjects\SDK\NodeReader, CloudObjects\SDK\COIDParser;
 use CloudObjects\SDK\AccountGateway\AAUIDParser,
     CloudObjects\SDK\AccountGateway\AccountContext;
@@ -139,7 +141,27 @@ class DependencyInjector {
                     $namespaceCoid->getHost()
                 );
             },
-            ResponseInterface::class => \DI\autowire(Response::class)
+            ResponseInterface::class => \DI\autowire(Response::class),
+            MailerInterface::class => function() use ($object, $realNamespaceCoid, $reader) {
+                // Find mailer DSN
+                $mailerDsn = $reader->getFirstValueString($object, 'phpmae:hasClassMailerDSN');
+
+                if (!isset($mailerDsn)) {
+                    // Get DSN from namespace
+                    $namespaceObject = $this->retrieverPool->getBaseObjectRetriever()
+                        ->getObject($realNamespaceCoid);
+                    $mailerDsn = $reader->getFirstValueString($namespaceObject, 'phpmae:hasGlobalMailerDSN');
+                }
+        
+                if (!isset($mailerDsn))
+                    throw new PhpMAEException("Requires class or global mailer DSN.");
+                
+                if (substr($mailerDsn, 0, 5) != 'smtp:')
+                    throw new PhpMAEException("Mailer DSN must start with smtp:.");
+                
+                $transport = Transport::fromDsn($mailerDsn);
+                return new Mailer($transport);
+            }
         ];
 
         $definitions = array_merge($definitions, $additionalDefinitions);

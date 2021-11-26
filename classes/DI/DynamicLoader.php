@@ -6,6 +6,7 @@
  
 namespace CloudObjects\PhpMAE\DI;
 
+use Psr\Http\Message\RequestInterface;
 use CloudObjects\SDK\ObjectRetriever;
 use CloudObjects\PhpMAE\Engine, CloudObjects\PhpMAE\ClassRepository;
 
@@ -23,10 +24,10 @@ class DynamicLoader {
         $this->repository = $repository;
     }
 
-    public function get($coid) {
+    public function get($coid, RequestInterface $request = null) {
         $object = $this->retriever->get($coid);
         return isset($object)
-            ? $this->repository->createInstance($object)->get(Engine::SKEY)
+            ? $this->repository->createInstance($object, $request)->get(Engine::SKEY)
             : null;
     }
 

@@ -146,6 +146,7 @@ class RoboFile extends \Robo\Tasks {
         // Fetch stack definition from CloudObjects Core
         $stackCoid = COIDParser::fromString($stack);
         $retriever = new ObjectRetriever([
+            'api_base_url' => 'https://co-core.fly.dev/',
             'auth_ns' => 'phpmae.dev',
             'auth_secret' => getenv('PHPMAE_SHARED_SECRET')
         ]);

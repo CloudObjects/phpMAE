@@ -32,7 +32,6 @@ class Configurator {
         } else {
             // Access Object API with specified namespace credentials
             $objectRetrieverDefinition->constructor(array_merge([
-                'api_base_url' => 'https://co-core.fly.dev/',
                 'auth_ns' => $config['co.auth_ns'],
                 'auth_secret' => $config['co.auth_secret'],
             ], $orConstructorParameters));
@@ -60,7 +59,6 @@ class Configurator {
             ObjectRetrieverPool::class => DI\autowire()
                 ->constructorParameter('baseHostname', @$config['co.auth_ns'])
                 ->constructorParameter('options', [
-                    'api_base_url' => 'https://co-core.fly.dev/',
                     'cache_provider' => 'file',
                     'cache_provider.file.directory' => $config['cache_dir'] . '/config',
                     'static_config_path' => $config['uploads_dir'] . '/config',

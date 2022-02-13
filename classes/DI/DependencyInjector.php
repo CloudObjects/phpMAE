@@ -187,17 +187,37 @@ class DependencyInjector {
             if ($reader->hasType($d, 'phpmae:WebAPIDependency')) {
                 // Web API Dependency
                 $apiCoid = $reader->getFirstValueString($d, 'phpmae:hasAPI');
-                if (!isset($apiCoid))
-                    throw new PhpMAEException("<".$object->getId()."> has an invalid dependency: WebAPIDependency without API!");
+                if (isset($apiCoid)) {
+                    // API is available to phpMAE, set up dependency
+                    $keyedDependency = function(ContainerInterface $c) use ($apiCoid, $object) {
+                        return $c->get(APIClientFactory::class)
+                            ->getClientWithCOID(new IRI($apiCoid), true);
+                    };
+                } else {
+                    // API might be a private API that wasn't shared with phpMAE,
+                    // we accept the dependency for now and resolve it with a
+                    // namespace-scoped retriever later
+                    $lookupKey = $reader->getFirstValueString($d, 'phpmae:hasKey');
+                    $keyedDependency = function(ContainerInterface $c) use ($objectCoid,
+                            $reader, $lookupKey, $realNamespaceCoid) {
 
-                $keyedDependency = function() use ($apiCoid, $realNamespaceCoid, $object) {
-                    $apiCoid = new IRI($apiCoid);
-                    $apiClientFactory = new APIClientFactory(
-                        $this->retrieverPool->getObjectRetriever($realNamespaceCoid->getHost()),
-                        $realNamespaceCoid
-                    );
-                    return $apiClientFactory->getClientWithCOID($apiCoid, true);
-                };
+                        $object = $c->get(ObjectRetriever::class)->get($objectCoid);
+                        $dependencies = $reader->getAllValuesNode($object, 'phpmae:hasDependency');
+                        foreach ($dependencies as $d) {
+                            if ($reader->getFirstValueString($d, 'phpmae:hasKey') == $lookupKey) {
+                                // Found dependency
+                                $apiCoid = $reader->getFirstValueString($d, 'phpmae:hasAPI');
+                                if (!isset($apiCoid))
+                                    throw new PhpMAEException("<".$object->getId()."> has an invalid dependency: WebAPIDependency without API!");
+                                
+                                return $c->get(APIClientFactory::class)
+                                    ->getClientWithCOID(new IRI($apiCoid), true);
+                            }
+                        }
+
+                        throw new PhpMAEException("<".$object->getId()."> had problems during dependency resolution!");
+                    };
+                }                
             } else
             if ($reader->hasType($d, 'phpmae:ClassDependency')) {
                 // Class Dependency

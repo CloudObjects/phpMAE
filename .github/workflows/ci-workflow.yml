@@ -49,8 +49,8 @@ jobs:
       with:
         task: 'install:stack coid://phpmae.dev/DefaultStack'
 
-#    - name: Build static files for interactive runtime frontend
-#      uses: elstudio/actions-js-build/build@v4
+    - name: Build static files for interactive runtime frontend
+      uses: elstudio/actions-js-build/build@v4
 
     - name: Deploy with fly
       uses: superfly/flyctl-actions@1.1

@@ -11,7 +11,8 @@ use Psr\Http\Message\RequestInterface, Psr\Http\Message\ResponseInterface;
 use Psr\Container\ContainerInterface;
 use Slim\App;
 use Tuupola\Middleware\CorsMiddleware;;
-use Slim\Http\Environment, Slim\Http\Uri, Slim\Http\Response, Slim\Http\Request;
+use Slim\Http\Environment, Slim\Http\Uri, Slim\Http\Response,
+    Slim\Http\Request, Slim\Http\Headers;
 use GuzzleHttp\Client;
 use GuzzleHttp\Exception\BadResponseException;
 use GuzzleHttp\Psr7\ServerRequest;
@@ -37,6 +38,20 @@ class Router {
         $this->engine = $engine;
         $this->objectRetriever = $objectRetriever;
         $this->container = $container;
+    }
+
+    private function getRequestHeaders(Request $request) {
+        $headers = new Headers; // this instance is required to access the "normalizeKey" method
+        $output = [];
+        foreach (array_keys($request->getHeaders()) as $key) {
+            $key = $headers->normalizeKey($key);
+            if (substr($key, 0, 9) == 'c-phpmae-' || $key == 'host') {
+                // do not forward "Host" header or custom phpMAE headers
+                continue;
+            }
+            $output[$key] = $request->getHeaderLine($key);
+        }
+        return $output;
     }
 
     private function configure(App $app, Node $object) {
@@ -65,15 +80,17 @@ class Router {
             $reader->getAllValuesNode($object, 'agws:hasMethod')
         );
 
+        $router = $this;
+        $engine = $this->engine;
+        $retriever = $this->getObjectRetriever(new IRI($object->getId()));
+            
         foreach ($routes as $r) {
             if (!$reader->hasProperty($r, 'wa:hasVerb') || !$reader->hasProperty($r, 'wa:hasPath'))
                 throw new PhpMAEException("Incomplete route configuration! Routes must have wa:hasVerb and wa:hasPath.");
 
-            $engine = $this->engine;
-            $retriever = $this->getObjectRetriever(new IRI($object->getId()));
             $app->map([ $reader->getFirstValueString($r, 'wa:hasVerb') ],
                 $reader->getFirstValueString($r, 'wa:hasPath'),
-                function(RequestInterface $request, ResponseInterface $response, $args) use ($r, $reader, $engine, $retriever, $object) {
+                function(RequestInterface $request, ResponseInterface $response, $args) use ($r, $reader, $router, $engine, $retriever, $object) {                    
                     if ($reader->hasProperty($r, 'phpmae:runsClass')) {
                         try {
                             $params = [];
@@ -161,7 +178,7 @@ class Router {
                         try {
                             return $client->request($request->getMethod(),
                                 $uri->getPath() . ($uri->getQuery() != '' ? '?'.$uri->getQuery() : ''), [
-                                    'headers' => $request->getHeaders(),
+                                    'headers' => $router->getRequestHeaders($request),
                                     'body' => $request->getBody()
                                 ]);
                         } catch (BadResponseException $e) {

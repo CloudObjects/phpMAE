@@ -172,6 +172,7 @@ class Router {
                     } elseif ($reader->hasProperty($r, 'phpmae:redirectsToBaseURL')) {
                         // Route to redirect to an external base URL
                         $baseUrl = $reader->getFirstValueIRI($r, 'phpmae:redirectsToBaseURL');
+                        $uri = $request->getUri();
                         $targetUrl = (string)$baseUrl->resolve($uri->getPath() . ($uri->getQuery() != '' ? '?'.$uri->getQuery() : ''));
                         
                         return (new Response)->withRedirect($targetUrl);

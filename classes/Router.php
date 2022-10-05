@@ -166,8 +166,15 @@ class Router {
                         }
 
                     } elseif ($reader->hasProperty($r, 'phpmae:redirectsToURL')) {
-                        // Route to redirect to an external URL
+                        // Route to redirect to a specific external URL
                         return (new Response)->withRedirect($reader->getFirstValueString($r, 'phpmae:redirectsToURL'));
+
+                    } elseif ($reader->hasProperty($r, 'phpmae:redirectsToBaseURL')) {
+                        // Route to redirect to an external base URL
+                        $baseUrl = $reader->getFirstValueIRI($r, 'phpmae:redirectsToBaseURL');
+                        $targetUrl = (string)$baseUrl->resolve($uri->getPath() . ($uri->getQuery() != '' ? '?'.$uri->getQuery() : ''));
+                        
+                        return (new Response)->withRedirect($targetUrl);
 
                     } elseif ($reader->hasProperty($r, 'phpmae:proxiesRequestsToBaseURL')) {
                         // Route to proxy requests to an external URL
